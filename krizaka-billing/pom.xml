@@ -9,13 +9,13 @@
     <parent>
         <groupId>com.krizaka</groupId>
         <artifactId>krizaka-parent</artifactId>
-        <version>0.12.0</version> <!-- x-release-please-version -->
+        <version>0.13.0</version> <!-- x-release-please-version -->
         <relativePath>../krizaka-parent/pom.xml</relativePath>
     </parent>
 
     <artifactId>krizaka-billing</artifactId>
     <!-- One version for the whole family (ADR-021): the version of krizaka-java, released by release-please. -->
-    <version>0.12.0</version>
+    <version>0.13.0</version>
     <packaging>pom</packaging>
     <name>Krizaka Billing</name>
     <description>Credits, wallets, plans, subscriptions, pricebook and metering (hold → settle → release) as a reusable billing service, with its contract (billing-api) and a typed HTTP client (billing-client).</description>

@@ -58,8 +58,9 @@ final class HttpPackProvisioningClient implements PackProvisioningClient {
       return exchange.withdraw(packKey).getStatusCode().is2xxSuccessful();
     } catch (RestClientResponseException e) {
       // The billing service answered, with a refusal: the pack is not withdrawn, and nothing to
-      // throw about while another failure is being compensated.
-      log.warn("Billing refused to withdraw pack {}: {}", packKey, e.getStatusCode());
+      // throw about while another failure is being compensated. The exception carries the refusal
+      // body, which says why billing said no; the status is in the message for a quick read.
+      log.warn("Billing refused to withdraw pack {}: {}", packKey, e.getStatusCode(), e);
       return false;
     } catch (RestClientException e) {
       // Compensation is best-effort by construction: it runs while another failure is already

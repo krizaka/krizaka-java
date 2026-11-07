@@ -44,7 +44,7 @@ class ConfigurationReferenceTest {
     assertThat(properties).isNotEmpty();
     for (Map<String, Object> property : properties) {
       String name = (String) property.get("name");
-      String description = (String) property.get("description");
+      String description = String.valueOf(property.get("description"));
       assertThat(description).as(name + ": description").isNotBlank().endsWith(".");
       assertThat(Character.isUpperCase(description.charAt(0))).as(name + ": capital").isTrue();
       assertThat(description).as(name + ": Javadoc tags").doesNotContain("{@");

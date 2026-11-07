@@ -35,6 +35,12 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
+        <!-- @NullMarked / @Nullable: annotations only, checked by NullAway at compile time. -->
+        <dependency>
+            <groupId>org.jspecify</groupId>
+            <artifactId>jspecify</artifactId>
+            <version>${jspecify.version}</version>
+        </dependency>
 
         <!-- Optional on purpose: the entitlement cache invalidates from evt.subscription.*, but a
              consumer without AMQP still gets every other part of this SDK. Guarded at runtime by

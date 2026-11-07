@@ -224,7 +224,7 @@
       "evidence": [
         {
           "repository": "krizaka-billing",
-          "path": "krizaka-billing-client/src/main/java/com/krizaka/billing/client/BillingProperties.java"
+          "path": "krizaka-billing-client/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports"
         }
       ]
     },

@@ -4,7 +4,7 @@
 # the service-kit packages, still linked to another repository). This workflow asks the registry, for the latest release, about
 # every module that ships (scripts/check-published.mjs), every 30 minutes (no workflow_run: zizmor refuses that trigger). A gap fails the run with a step summary listing the
 # missing modules; no issue is opened here (public repository).
-name: published-check
+name: Maven Central check
 
 on:
   schedule:

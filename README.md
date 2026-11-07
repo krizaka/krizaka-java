@@ -144,6 +144,25 @@ Issues and pull requests are welcome — see the organisation's
 [security policy](https://github.com/krizaka/.github/blob/main/SECURITY.md). `main` is protected: every change is a pull
 request with a green CI.
 
+<!-- krizaka:workflows:start -->
+## Workflows
+
+What runs in the Actions tab of this repository.
+
+- **Bump @krizaka packages** (`bump-krizaka.yml`): Opens one auto-merged PR that bumps the @krizaka packages after a release. Runs when another repository triggers it, on demand.
+- **CI** (`ci.yml`): Lint, tests and build of the repository. Runs on push, on every pull request, in the merge queue, on demand.
+- **PR title lint** (`commitlint.yml`): Checks that the PR title is a Conventional Commit. Runs on every pull request.
+- **Dependabot auto-merge** (`dependabot-automerge.yml`): Auto-merges safe Dependabot updates. Runs on every pull request.
+- **Docs map** (`docs-map.yml`): Checks the docs map of the repository. Runs on every pull request.
+- **Merge resolution** (`merge-resolution.yml`): Fails a PR that drops what main added without a deletion-explained line. Runs on every pull request.
+- **Post-deploy check** (`post-deploy.yml`): Waits for the live site to serve the new build, then pings IndexNow. Runs on push, on demand.
+- **Maven Central check** (`published-check.yml`): Checks the latest release is on Maven Central. Runs on a schedule, on demand.
+- **Release PR** (`release-please.yml`): Keeps one release PR open from the merged commits; its merge tags the release. Runs on push.
+- **Scorecard** (`scorecard.yml`): OpenSSF Scorecard of the repository. Runs when branch rules change, on a schedule, on demand.
+- **Security scan** (`security.yml`): Secret scan (gitleaks) and workflow scan (zizmor); both are required checks. Runs on every pull request, in the merge queue, on push.
+- **Docs site** (`site.yml`): Lints, tests and builds the documentation site. Runs on push, on every pull request, in the merge queue, on demand, on a schedule.
+<!-- krizaka:workflows:end -->
+
 ## License
 
 [Apache License 2.0](LICENSE) © 2026 Krizaka

@@ -5,7 +5,7 @@
 # tag itself: the organisation pipeline (krizaka/.github maven.yml) then verifies, signs and uploads
 # to the Central Portal, where the deployment waits for a human to press Publish (autoPublish=false
 # in krizaka-parent).
-name: release-please
+name: Release PR
 
 on:
   push:
@@ -27,7 +27,7 @@ jobs:
       tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
       # Fail BEFORE the tag: a pin of the org maven.yml older than be08be83 cannot write to GitHub Packages (403 after the tag, a dead tag).
-      - uses: krizaka/.github/actions/maven-pin-guard@ab6100359ba4962c61a021f55c53b549d385af4e # main
+      - uses: krizaka/.github/actions/maven-pin-guard@bed6cb57edc919f2bcaf76274b724d9c11607445 # main
 
       # A pull request made with GITHUB_TOKEN starts no workflow, so the release PR would never get its required checks.
       # A GitHub App installation token does (org variable RELEASE_APP_ID, org secret RELEASE_APP_PRIVATE_KEY).
@@ -41,7 +41,7 @@ jobs:
           permission-pull-requests: write
 
       - id: release
-        uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5
+        uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
         with:
           token: ${{ steps.app.outputs.token || secrets.GITHUB_TOKEN }}
           config-file: release-please-config.json

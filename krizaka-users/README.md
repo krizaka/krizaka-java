@@ -225,7 +225,7 @@ It inherits [`krizaka-parent`](https://github.com/krizaka/krizaka-java) and uses
 
 ## Design notes
 
-- [ADR-001 — Krizaka accounts](docs/adr/ADR-001-accounts.md): the thin community layer (comments, saved posts, reply e-mails) planned over this block for accounts.krizaka.com; moved here from the former `krizaka-accounts` repository.
+- ADR-001 — Krizaka accounts: the thin community layer (comments, saved posts, reply e-mails) planned over this block for accounts.krizaka.com; moved here from the former `krizaka-accounts` repository.
 
 ## Contributing
 

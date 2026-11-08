@@ -5,6 +5,22 @@ Versions follow [Semantic Versioning](https://semver.org/) per repository; the B
 [release-please](https://github.com/googleapis/release-please) from the Conventional Commits merged on `main`; the
 hand-written history is under *Before release-please*.
 
+## [0.13.0](https://github.com/krizaka/krizaka-java/compare/v0.12.0...v0.13.0) (2026-11-07)
+
+
+### ⚠ BREAKING CHANGES
+
+* **architecture:** a shared ArchUnit entry point, and billing-client on declarative HTTP clients by feature ([#237](https://github.com/krizaka/krizaka-java/issues/237))
+
+### Features
+
+* **architecture:** a shared ArchUnit entry point, and billing-client on declarative HTTP clients by feature ([#237](https://github.com/krizaka/krizaka-java/issues/237)) ([3595a70](https://github.com/krizaka/krizaka-java/commit/3595a70680c8b42122c029ca14ff7543ce8fd1c7))
+
+
+### Bug Fixes
+
+* **adr:** the ADRs live in krizaka-internal, not in this public repository ([#242](https://github.com/krizaka/krizaka-java/issues/242)) ([a65413d](https://github.com/krizaka/krizaka-java/commit/a65413d927df8d682c84b4066b2c8215bdd0def5))
+
 ## [0.12.0](https://github.com/krizaka/krizaka-java/compare/v0.11.2...v0.12.0) (2026-11-06)
 
 

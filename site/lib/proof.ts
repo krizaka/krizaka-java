@@ -12,7 +12,7 @@ export interface Proof {
 }
 
 export function proof(): Proof {
-  if (!data.tests.total || !data.sovkora.services.length) throw new Error("proof: lib/generated/proof.json is empty — run `npm run gen`");
+  if (!data.tests.total) throw new Error("proof: lib/generated/proof.json is empty — run `npm run gen`");
   return { platform: data.platform, tests: { total: data.tests.total, realInfrastructure: data.tests.realInfrastructure }, services: data.sovkora.services };
 }
 

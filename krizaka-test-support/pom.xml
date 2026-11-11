@@ -11,7 +11,7 @@
 
     <artifactId>krizaka-test-support</artifactId>
     <name>Krizaka Test Support</name>
-    <description>Test kit of the Krizaka repositories, for test scope: generic ArchUnit code rules (hexagonal layering, one class per file, constructor injection, private state, unambiguous configuration binding), source rules, the infra/initdb locator, and Testcontainers helpers: shared PostgreSQL and RabbitMQ containers for integration tests, and the database role of services that own one.</description>
+    <description>Test kit of the Krizaka repositories, for test scope: generic ArchUnit code rules (hexagonal layering, one class per file, constructor injection, private state, unambiguous configuration binding), authorization rules (every @RestController endpoint must carry @PreAuthorize/@Secured/@RolesAllowed), source rules, the infra/initdb locator, MockMvc authorization assertions (401/403/404), and Testcontainers helpers: shared PostgreSQL and RabbitMQ containers for integration tests, and the database role of services that own one.</description>
 
     <properties>
         <archunit.version>1.5.1</archunit.version>
@@ -113,6 +113,12 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- The fixtures of AuthzRulesTest wear @PreAuthorize. -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-core</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

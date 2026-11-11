@@ -21,7 +21,7 @@ concurrency:
 
 jobs:
   maven:
-    uses: krizaka/.github/.github/workflows/maven.yml@bed6cb57edc919f2bcaf76274b724d9c11607445 # main
+    uses: krizaka/.github/.github/workflows/maven.yml@31d45bcdde30a7dfc66ddb15bcb280f11b16faac # main
     permissions:
       contents: read
     with:

@@ -18,5 +18,7 @@ public class ProtectedController {
 
   @DeleteMapping("/api/studios/{id}")
   @PreAuthorize("hasRole('STUDIO_ADMIN')")
-  public void delete(@PathVariable String id) {}
+  public String delete(@PathVariable String id) {
+    return id;
+  }
 }

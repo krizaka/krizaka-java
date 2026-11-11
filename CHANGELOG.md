@@ -5,6 +5,13 @@ Versions follow [Semantic Versioning](https://semver.org/) per repository; the B
 [release-please](https://github.com/googleapis/release-please) from the Conventional Commits merged on `main`; the
 hand-written history is under *Before release-please*.
 
+## [0.13.1](https://github.com/krizaka/krizaka-java/compare/v0.13.0...v0.13.1) (2026-11-11)
+
+
+### Bug Fixes
+
+* **site:** gen-proof tolerates inaccessible Sovkora repositories ([#245](https://github.com/krizaka/krizaka-java/issues/245)) ([48eb214](https://github.com/krizaka/krizaka-java/commit/48eb214fc6eac0b24ae7a5e0873e07a808c3e8bf))
+
 ## [0.13.0](https://github.com/krizaka/krizaka-java/compare/v0.12.0...v0.13.0) (2026-11-07)
 
 

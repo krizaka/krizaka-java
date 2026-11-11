@@ -26,7 +26,7 @@ test("every page names an Open Graph image, and the sitemap is dated by the buil
 
 test("llms.txt points back to the family", () => {
   const post = read("scripts/postbuild.mjs");
-  for (const url of ["https://www.krizaka.com", "https://ui.krizaka.com", "https://dev.orazaka.com", "https://dev.yomizaka.com", "https://dev.akinaza.com"]) assert.ok(post.includes(url), url);
+  for (const url of ["https://www.krizaka.com", "https://ui.krizaka.com", "https://dev.sovkora.com", "https://dev.verikora.com", "https://dev.folioviv.com"]) assert.ok(post.includes(url), url);
 });
 
 test("the changelog pages carry JSON-LD back to the Organization (the SEO family check refuses a page without)", () => {

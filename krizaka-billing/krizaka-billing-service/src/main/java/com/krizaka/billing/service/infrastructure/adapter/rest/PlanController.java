@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * The plans resource — what Orazaka sells.
+ * The plans resource — what Sovkora sells.
  *
  * <p>Reading the public catalogue is not an admin action: the pricing page needs it, and gating it
  * would mean duplicating the offer into the front end, which is exactly the drift "nothing

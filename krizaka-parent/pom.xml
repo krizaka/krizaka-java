@@ -16,12 +16,12 @@
          did not ask for. Each repository imports the Spring Boot BOM itself. -->
     <groupId>com.krizaka</groupId>
     <artifactId>krizaka-parent</artifactId>
-    <version>0.11.1</version>
+    <version>0.13.1</version>
     <packaging>pom</packaging>
 
     <name>Krizaka Parent</name>
     <description>Parent POM of every Krizaka JVM artifact: Maven Central metadata, Java 21 build conventions (formatting, tests, coverage, enforcer) and the signed release to Maven Central.</description>
-    <url>https://github.com/krizaka/krizaka-build</url>
+    <url>https://github.com/krizaka/krizaka-java</url>
     <inceptionYear>2026</inceptionYear>
 
     <organization>
@@ -47,15 +47,15 @@
     </developers>
 
     <scm child.scm.connection.inherit.append.path="false" child.scm.developerConnection.inherit.append.path="false" child.scm.url.inherit.append.path="false">
-        <url>https://github.com/krizaka/krizaka-build</url>
-        <connection>scm:git:https://github.com/krizaka/krizaka-build.git</connection>
-        <developerConnection>scm:git:git@github.com:krizaka/krizaka-build.git</developerConnection>
+        <url>https://github.com/krizaka/krizaka-java</url>
+        <connection>scm:git:https://github.com/krizaka/krizaka-java.git</connection>
+        <developerConnection>scm:git:git@github.com:krizaka/krizaka-java.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
 
     <issueManagement>
         <system>GitHub Issues</system>
-        <url>https://github.com/krizaka/krizaka-build/issues</url>
+        <url>https://github.com/krizaka/krizaka-java/issues</url>
     </issueManagement>
 
     <properties>
@@ -72,9 +72,9 @@
 
         <!-- Plugin versions -->
         <central-publishing-maven-plugin.version>0.12.0</central-publishing-maven-plugin.version>
-        <jacoco.version>0.8.15</jacoco.version>
+        <jacoco.version>0.8.16</jacoco.version>
         <maven-compiler-plugin.version>3.16.0</maven-compiler-plugin.version>
-        <maven-enforcer-plugin.version>3.6.3</maven-enforcer-plugin.version>
+        <maven-enforcer-plugin.version>3.7.0</maven-enforcer-plugin.version>
         <maven-failsafe-plugin.version>3.6.1</maven-failsafe-plugin.version>
         <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
         <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
@@ -91,9 +91,9 @@
         <rewrite-spring.version>6.37.1</rewrite-spring.version>
         <!-- The released version of krizaka-rewrite-style (this repository): written out, because ${project.version}
              would be the version of the project that inherits this POM. release-please moves it with the release. -->
-        <krizaka-rewrite-style.version>0.11.1</krizaka-rewrite-style.version> <!-- x-release-please-version -->
+        <krizaka-rewrite-style.version>0.13.1</krizaka-rewrite-style.version> <!-- x-release-please-version -->
         <!-- Likewise krizaka-quality (the PMD and SpotBugs rules, ADR-013). -->
-        <krizaka-quality.version>0.11.1</krizaka-quality.version> <!-- x-release-please-version -->
+        <krizaka-quality.version>0.13.1</krizaka-quality.version> <!-- x-release-please-version -->
         <!-- Phase of the PMD and SpotBugs checks (none = off), and each module's measured baselines. -->
         <krizaka.quality.phase>verify</krizaka.quality.phase>
         <krizaka.pmd.baseline>${project.basedir}/pmd-baseline.properties</krizaka.pmd.baseline>
@@ -277,12 +277,12 @@
                 </executions>
             </plugin>
 
-            <!-- ADR-013, krizaka-build#105: the local twin of the Sonar Java findings, in `verify` (so `mvn verify` catches
+            <!-- ADR-013, krizaka-java#105: the local twin of the Sonar Java findings, in `verify` (so `mvn verify` catches
                  them before the push). Rules: krizaka-quality. A NEW violation fails; the existing ones of a module are
                  frozen in its own pmd-baseline.properties and spotbugs-exclude.xml, measured by scripts/quality-baseline.mjs,
                  which only lets them shrink.
 
-                 `-Dkrizaka.quality.phase=none` switches both off: krizaka-build itself does (its .mvn/maven.config), because
+                 `-Dkrizaka.quality.phase=none` switches both off: krizaka-java itself does (its .mvn/maven.config), because
                  its parent POM would have to resolve the rules before they are built. -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -408,7 +408,7 @@
                  applies it — behaviour identical, run the tests after, land it in a small pull request.
                  Recipes: common static analysis, test cleanup (RemoveTestPrefix — NOT TestsShouldIncludeAssertions, which wraps
                  a test body in assertDoesNotThrow and turns an aborted assumption into a failure), Java 21 idioms, Spring
-                 idioms (no @Autowired on a constructor; @Bean methods stay public — the platform kit's auto-configurations are published API, japicmp guards them), duplicate POM dependencies. A recipe
+                 idioms (no @Autowired on a constructor; @Bean methods stay public — the service kit's auto-configurations are published API, japicmp guards them), duplicate POM dependencies. A recipe
                  that is wrong for one repository is excluded in THAT repository (<exclusions>), never here. -->
             <plugin>
                 <groupId>org.openrewrite.maven</groupId>
@@ -472,9 +472,8 @@
                gpg binary is needed, the key comes from MAVEN_GPG_KEY (ASCII-armoured private key)
                and MAVEN_GPG_PASSPHRASE;
              The registry is configuration (ADR-019, krizaka/.github): `release` alone is registry-neutral and
-             deploys wherever -DaltDeploymentRepository points (GitHub Packages:
-             `-DaltDeploymentRepository=github::https://maven.pkg.github.com/krizaka/<repository>`, token in the
-             `github` server of settings.xml). Add `-Pregistry-central` to upload to the Central Portal instead
+             deploys wherever -DaltDeploymentRepository points. com.krizaka is published to Maven Central only
+             (founder, 2026-11-06): add `-Pregistry-central` to upload to the Central Portal
              (server id `central`, a Portal user token in settings.xml or MAVEN_CENTRAL_USERNAME / _PASSWORD).
 
              `-Dgpg.skip` runs the whole profile without a key: CI does that on every pull request,
@@ -611,7 +610,7 @@
             </build>
         </profile>
         <!-- `./mvnw -Prelease,registry-central deploy` — the Central Portal upload (extension plugin: it takes over the
-             deploy phase). Not part of `release`, so a GitHub Packages deployment never goes near Central. -->
+             deploy phase). Not part of `release`, so `release` alone stays registry-neutral. -->
         <profile>
             <id>registry-central</id>
             <build>
@@ -643,7 +642,7 @@
             </properties>
         </profile>
 
-        <!-- ADR-015, krizaka-build#120: NullAway checks every package marked @NullMarked (JSpecify), and only those
+        <!-- ADR-015, krizaka-java#120: NullAway checks every package marked @NullMarked (JSpecify), and only those
              (OnlyNullMarked): marking a package is the ratchet, there is no flag day. Error Prone is only NullAway's
              host (-XepDisableAllChecks). ON by default; one property turns it off: -Dkrizaka.nullaway.skip=true.
              Error Prone runs inside javac, which needs the jdk.compiler packages opened, hence the forked compiler. -->

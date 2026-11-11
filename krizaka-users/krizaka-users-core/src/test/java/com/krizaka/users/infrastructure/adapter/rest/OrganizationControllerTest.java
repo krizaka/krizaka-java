@@ -64,13 +64,13 @@ class OrganizationControllerTest {
             List.of(new OrganizationMember("o1", "u", OrganizationRole.SERVICE, Instant.EPOCH)));
     var key = new ApiKey("k", "u", "prod", "oz_live_abcd", Instant.EPOCH, null);
     when(service.serviceKeys(actor, "o1"))
-        .thenReturn(List.of(new OrganizationServiceKey(key, "svc_akinaza")));
+        .thenReturn(List.of(new OrganizationServiceKey(key, "svc_folioviv")));
 
     assertThat(controller().mine(person).getBody()).extracting("id").containsExactly("o1");
     assertThat(controller().get("o1", person).getBody().name()).isEqualTo("Krizaka");
     assertThat(controller().members("o1", person).getBody().getFirst().role()).isEqualTo("SERVICE");
     var row = controller().serviceKeys("o1", person).getBody().getFirst();
-    assertThat(row.ownerUsername()).isEqualTo("svc_akinaza");
+    assertThat(row.ownerUsername()).isEqualTo("svc_folioviv");
     assertThat(row.keyPrefix()).isEqualTo("oz_live_abcd");
   }
 

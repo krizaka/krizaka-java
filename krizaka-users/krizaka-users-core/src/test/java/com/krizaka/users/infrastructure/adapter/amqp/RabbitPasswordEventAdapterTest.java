@@ -30,14 +30,14 @@ class RabbitPasswordEventAdapterTest {
   @Test
   void shouldPublishEvent() {
     PasswordResetRequestedEvent event =
-        new PasswordResetRequestedEvent("test@orazaka.com", "token123");
+        new PasswordResetRequestedEvent("test@sovkora.com", "token123");
 
     adapter.publish(event);
 
     verify(outboxStore)
         .append(
             new OutboxMessage(
-                "password", "test@orazaka.com", "platform.events", "evt.password.reset", event));
+                "password", "test@sovkora.com", "platform.events", "evt.password.reset", event));
   }
 
   @Test

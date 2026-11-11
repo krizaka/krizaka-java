@@ -415,7 +415,7 @@ class IdentityServiceImpl implements IdentityService {
   }
 
   @Override
-  // Not read-only: an old AES-CBC row is re-sealed (UPDATE) on its first read (krizaka-build#218).
+  // Not read-only: an old AES-CBC row is re-sealed (UPDATE) on its first read (krizaka-java#218).
   @Transactional
   public Optional<String> getDecryptedApiKey(String userId, String providerName) {
     return userCredentialRepository.findApiKeyByUserIdAndProviderName(userId, providerName);

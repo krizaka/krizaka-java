@@ -1,5 +1,5 @@
 import { getDictionary, localizedPath, type Locale } from "@/lib/i18n";
-import { features, featureCounts, roadmapUrl, type FeatureStatus } from "@/lib/features";
+import { evidenceUrl, features, featureCounts, roadmapUrl, type FeatureStatus } from "@/lib/features";
 
 const ORDER: FeatureStatus[] = ["shipped", "partial", "planned"];
 
@@ -34,7 +34,7 @@ export function FeatureMatrix({ locale }: { locale: Locale }) {
                   <td>
                     <span className="kz-constraints">
                       {(f.evidence ?? []).map((e) => (
-                        <a key={`${e.repository}/${e.path}`} href={`https://github.com/krizaka/${e.repository}/blob/main/${e.path}`}>
+                        <a key={`${e.repository}/${e.path}`} href={evidenceUrl(e)}>
                           <code>{e.path.split("/").pop()}</code>
                         </a>
                       ))}

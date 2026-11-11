@@ -1,0 +1,9 @@
+{
+  "_": "Krizaka Java lives in one repository (ADR-021): krizaka-java. These folders were repositories of their own; the map, the proof and the configuration reference still group by them.",
+  "repository": "krizaka-java",
+  "folders": [
+    "krizaka-service-kit",
+    "krizaka-users",
+    "krizaka-billing"
+  ]
+}

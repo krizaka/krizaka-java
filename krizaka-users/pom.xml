@@ -2,35 +2,35 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" child.project.url.inherit.append.path="false">
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- Built on the Krizaka build (krizaka/krizaka-build): Maven Central metadata, Java 21
-         conventions and the signed release. Inside a workspace that clones krizaka-build next to
+    <!-- Built on the Krizaka build (krizaka/krizaka-java): Maven Central metadata, Java 21
+         conventions and the signed release. Inside a workspace that clones krizaka-java next to
          this repository the relativePath resolves it from source; anywhere else it comes from
          Maven Central. -->
     <parent>
         <groupId>com.krizaka</groupId>
         <artifactId>krizaka-parent</artifactId>
-        <version>0.11.1</version> <!-- x-release-please-version -->
+        <version>0.13.1</version> <!-- x-release-please-version -->
         <relativePath>../krizaka-parent/pom.xml</relativePath>
     </parent>
 
     <artifactId>krizaka-users</artifactId>
-    <!-- One version for the whole family (ADR-021): the version of krizaka-build, released by release-please. -->
-    <version>0.11.1</version>
+    <!-- One version for the whole family (ADR-021): the version of krizaka-java, released by release-please. -->
+    <version>0.13.1</version>
     <packaging>pom</packaging>
     <name>Krizaka Users</name>
     <description>Reusable user management for any Krizaka application: registration, e-mail verification, login (password + Google/GitHub OAuth), forgot/reset password, profile &amp; preferences, API keys, RBAC and JWT issuance.</description>
-    <url>https://github.com/krizaka/krizaka-users</url>
+    <url>https://github.com/krizaka/krizaka-java/tree/main/krizaka-users</url>
 
     <scm child.scm.connection.inherit.append.path="false" child.scm.developerConnection.inherit.append.path="false" child.scm.url.inherit.append.path="false">
-        <url>https://github.com/krizaka/krizaka-users</url>
-        <connection>scm:git:https://github.com/krizaka/krizaka-users.git</connection>
-        <developerConnection>scm:git:git@github.com:krizaka/krizaka-users.git</developerConnection>
+        <url>https://github.com/krizaka/krizaka-java/tree/main/krizaka-users</url>
+        <connection>scm:git:https://github.com/krizaka/krizaka-java.git</connection>
+        <developerConnection>scm:git:git@github.com:krizaka/krizaka-java.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
 
     <issueManagement>
         <system>GitHub Issues</system>
-        <url>https://github.com/krizaka/krizaka-users/issues</url>
+        <url>https://github.com/krizaka/krizaka-java/issues</url>
     </issueManagement>
 
     <properties>

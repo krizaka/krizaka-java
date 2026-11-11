@@ -4,7 +4,7 @@
     "partial",
     "planned"
   ],
-  "roadmap": "https://github.com/krizaka/krizaka-build/issues/65",
+  "roadmap": "https://github.com/krizaka/krizaka-java/issues/65",
   "features": [
     {
       "id": "starters",
@@ -12,7 +12,7 @@
       "page": "/start",
       "evidence": [
         {
-          "repository": "krizaka-platform-kit",
+          "repository": "krizaka-service-kit",
           "path": "starters/krizaka-spring-boot-starter-web/pom.xml"
         }
       ]
@@ -23,7 +23,7 @@
       "page": "/configuration",
       "evidence": [
         {
-          "repository": "krizaka-platform-kit",
+          "repository": "krizaka-service-kit",
           "path": "docs/configuration-metadata.json"
         },
         {
@@ -42,7 +42,7 @@
       "page": "/web",
       "evidence": [
         {
-          "repository": "krizaka-platform-kit",
+          "repository": "krizaka-service-kit",
           "path": "krizaka-web/src/main/java/com/krizaka/web/problem/ProblemDetailsAdvice.java"
         }
       ]
@@ -53,7 +53,7 @@
       "page": "/web",
       "evidence": [
         {
-          "repository": "krizaka-platform-kit",
+          "repository": "krizaka-service-kit",
           "path": "krizaka-web/src/main/java/com/krizaka/web/correlation/CorrelationIdFilter.java"
         }
       ]
@@ -64,7 +64,7 @@
       "page": "/web",
       "evidence": [
         {
-          "repository": "krizaka-platform-kit",
+          "repository": "krizaka-service-kit",
           "path": "krizaka-web/src/main/java/com/krizaka/web/pagination/Cursor.java"
         }
       ]
@@ -75,11 +75,11 @@
       "page": "/security",
       "evidence": [
         {
-          "repository": "krizaka-platform-kit",
+          "repository": "krizaka-service-kit",
           "path": "krizaka-security/src/main/java/com/krizaka/security/web/SecurityBaseline.java"
         },
         {
-          "repository": "krizaka-platform-kit",
+          "repository": "krizaka-service-kit",
           "path": "krizaka-security/src/main/java/com/krizaka/security/token/ServiceTokenProvider.java"
         }
       ]
@@ -87,7 +87,7 @@
     {
       "id": "asymmetric-tokens",
       "status": "planned",
-      "issue": "https://github.com/krizaka/krizaka-platform-kit/issues/11"
+      "issue": "https://github.com/krizaka/krizaka-java/issues/65"
     },
     {
       "id": "outbox",
@@ -95,7 +95,7 @@
       "page": "/messaging",
       "evidence": [
         {
-          "repository": "krizaka-platform-kit",
+          "repository": "krizaka-service-kit",
           "path": "krizaka-messaging/src/main/java/com/krizaka/messaging/outbox/OutboxRelay.java"
         }
       ]
@@ -106,7 +106,7 @@
       "page": "/messaging",
       "evidence": [
         {
-          "repository": "krizaka-platform-kit",
+          "repository": "krizaka-service-kit",
           "path": "krizaka-messaging/src/main/java/com/krizaka/messaging/consume/DeadLetterQueueRecoverer.java"
         }
       ]
@@ -117,7 +117,7 @@
       "page": "/messaging",
       "evidence": [
         {
-          "repository": "krizaka-platform-kit",
+          "repository": "krizaka-service-kit",
           "path": "krizaka-messaging/src/main/java/com/krizaka/messaging/dedup/JdbcMessageDedup.java"
         }
       ]
@@ -128,11 +128,11 @@
       "page": "/idempotency",
       "evidence": [
         {
-          "repository": "krizaka-platform-kit",
+          "repository": "krizaka-service-kit",
           "path": "krizaka-idempotency/src/main/java/com/krizaka/idempotency/Idempotency.java"
         },
         {
-          "repository": "krizaka-platform-kit",
+          "repository": "krizaka-service-kit",
           "path": "examples/krizaka-idempotency-example/src/test/java/com/krizaka/example/idempotency/IdempotencyExampleIT.java"
         }
       ]
@@ -143,15 +143,15 @@
       "page": "/observability",
       "evidence": [
         {
-          "repository": "krizaka-platform-kit",
+          "repository": "krizaka-service-kit",
           "path": "krizaka-messaging/src/main/java/com/krizaka/messaging/outbox/OutboxHealthIndicator.java"
         },
         {
-          "repository": "krizaka-platform-kit",
+          "repository": "krizaka-service-kit",
           "path": "krizaka-messaging/src/main/java/com/krizaka/messaging/dedup/MessageDedupHealthIndicator.java"
         },
         {
-          "repository": "krizaka-platform-kit",
+          "repository": "krizaka-service-kit",
           "path": "krizaka-app-config/src/main/java/com/krizaka/appconfig/AppConfigHealthIndicator.java"
         }
       ]
@@ -162,11 +162,11 @@
       "page": "/observability",
       "evidence": [
         {
-          "repository": "krizaka-platform-kit",
+          "repository": "krizaka-service-kit",
           "path": "krizaka-messaging/src/main/java/com/krizaka/messaging/dedup/ObservedMessageDedup.java"
         },
         {
-          "repository": "krizaka-platform-kit",
+          "repository": "krizaka-service-kit",
           "path": "starters/krizaka-spring-boot-starter-observability/pom.xml"
         }
       ]
@@ -177,7 +177,7 @@
       "page": "/app-config",
       "evidence": [
         {
-          "repository": "krizaka-platform-kit",
+          "repository": "krizaka-service-kit",
           "path": "krizaka-app-config/src/main/java/com/krizaka/appconfig/web/ClientVersionFilter.java"
         }
       ]
@@ -186,14 +186,14 @@
       "id": "test-support",
       "status": "partial",
       "page": "/build",
-      "issue": "https://github.com/krizaka/krizaka-build/issues/63",
+      "issue": "https://github.com/krizaka/krizaka-java/issues/63",
       "evidence": [
         {
-          "repository": "krizaka-build",
+          "repository": "krizaka-java",
           "path": "krizaka-test-support/src/main/java/com/krizaka/test/container/AbstractContainerIntegrationTest.java"
         },
         {
-          "repository": "krizaka-build",
+          "repository": "krizaka-java",
           "path": "krizaka-test-support/src/main/java/com/krizaka/test/architecture/ArchitectureRules.java"
         }
       ]
@@ -204,15 +204,15 @@
       "page": "/persistence",
       "evidence": [
         {
-          "repository": "krizaka-platform-kit",
+          "repository": "krizaka-service-kit",
           "path": "krizaka-messaging/src/main/java/com/krizaka/messaging/outbox/JdbcOutboxStore.java"
         },
         {
-          "repository": "krizaka-platform-kit",
+          "repository": "krizaka-service-kit",
           "path": "krizaka-persistence/src/main/java/com/krizaka/persistence/KrizakaMigrations.java"
         },
         {
-          "repository": "krizaka-platform-kit",
+          "repository": "krizaka-service-kit",
           "path": "krizaka-persistence/src/test/java/com/krizaka/persistence/KrizakaMigrationsIT.java"
         }
       ]
@@ -220,30 +220,30 @@
     {
       "id": "resilience",
       "status": "partial",
-      "issue": "https://github.com/krizaka/krizaka-build/issues/65",
+      "issue": "https://github.com/krizaka/krizaka-java/issues/65",
       "evidence": [
         {
           "repository": "krizaka-billing",
-          "path": "krizaka-billing-client/src/main/java/com/krizaka/billing/client/BillingProperties.java"
+          "path": "krizaka-billing-client/src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports"
         }
       ]
     },
     {
       "id": "rate-limiting",
       "status": "partial",
-      "issue": "https://github.com/krizaka/krizaka-build/issues/65",
+      "issue": "https://github.com/krizaka/krizaka-java/issues/65",
       "page": "/ratelimit",
       "evidence": [
         {
-          "repository": "krizaka-platform-kit",
+          "repository": "krizaka-service-kit",
           "path": "krizaka-ratelimit/src/main/java/com/krizaka/ratelimit/RateLimiter.java"
         },
         {
-          "repository": "krizaka-platform-kit",
+          "repository": "krizaka-service-kit",
           "path": "krizaka-ratelimit/src/main/java/com/krizaka/ratelimit/RateLimitInterceptor.java"
         },
         {
-          "repository": "krizaka-platform-kit",
+          "repository": "krizaka-service-kit",
           "path": "examples/krizaka-ratelimit-example/src/test/java/com/krizaka/example/ratelimit/RateLimitExampleTest.java"
         }
       ]
@@ -254,15 +254,15 @@
       "page": "/webhooks",
       "evidence": [
         {
-          "repository": "krizaka-platform-kit",
+          "repository": "krizaka-service-kit",
           "path": "krizaka-webhooks/src/main/java/com/krizaka/webhooks/WebhookVerifier.java"
         },
         {
-          "repository": "krizaka-platform-kit",
+          "repository": "krizaka-service-kit",
           "path": "krizaka-webhooks/src/main/java/com/krizaka/webhooks/WebhookSender.java"
         },
         {
-          "repository": "krizaka-platform-kit",
+          "repository": "krizaka-service-kit",
           "path": "examples/krizaka-webhooks-example/src/test/java/com/krizaka/example/webhooks/WebhooksExampleTest.java"
         }
       ]
@@ -270,32 +270,32 @@
     {
       "id": "openapi",
       "status": "planned",
-      "issue": "https://github.com/krizaka/krizaka-users/issues/4"
+      "issue": "https://github.com/krizaka/krizaka-java/issues/65"
     },
     {
       "id": "audit",
       "status": "planned",
-      "issue": "https://github.com/krizaka/krizaka-build/issues/65"
+      "issue": "https://github.com/krizaka/krizaka-java/issues/65"
     },
     {
       "id": "i18n",
       "status": "planned",
-      "issue": "https://github.com/krizaka/krizaka-build/issues/65"
+      "issue": "https://github.com/krizaka/krizaka-java/issues/65"
     },
     {
       "id": "multi-tenancy",
       "status": "planned",
-      "issue": "https://github.com/krizaka/krizaka-users/issues/31"
+      "issue": "https://github.com/krizaka/krizaka-java/issues/65"
     },
     {
       "id": "virtual-threads",
       "status": "planned",
-      "issue": "https://github.com/krizaka/krizaka-build/issues/65"
+      "issue": "https://github.com/krizaka/krizaka-java/issues/65"
     },
     {
       "id": "native-image",
       "status": "planned",
-      "issue": "https://github.com/krizaka/krizaka-build/issues/65"
+      "issue": "https://github.com/krizaka/krizaka-java/issues/65"
     }
   ]
 }

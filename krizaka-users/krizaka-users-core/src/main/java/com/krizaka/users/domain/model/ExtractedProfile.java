@@ -7,7 +7,7 @@ import java.util.Objects;
  *
  * <p>Captures the minimal structural output produced by any {@code OAuth2ProviderVerifier} after
  * successfully validating an incoming identity token. This record is provider-agnostic and acts as
- * the canonical bridge between external identity systems and Orazaka's internal user reconciliation
+ * the canonical bridge between external identity systems and Sovkora's internal user reconciliation
  * pipeline.
  *
  * @param email The verified email address extracted from the provider token.

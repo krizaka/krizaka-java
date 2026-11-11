@@ -38,7 +38,7 @@ export function getMdxComponents(locale: Locale): MDXComponents {
         <aside className="kz-note" role="note">
           <strong>{t.pendingRelease.title}</strong>
           {format(t.pendingRelease.body, { bom, pom: client.version, kit })}{" "}
-          <a href="https://github.com/krizaka/krizaka-build/issues/11">{t.pendingRelease.issue}</a>
+          <a href="https://github.com/krizaka/krizaka-java/issues/11">{t.pendingRelease.issue}</a>
         </aside>
       );
     },

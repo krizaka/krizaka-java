@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * <p>Writes go through the whitelist, so an unknown key or an out-of-domain value is a {@code 400}
  * rather than a stored typo. That matters more here than anywhere else in the product: {@code
- * billing.enforcement.mode} decides whether Orazaka takes money from people, and {@code ENFORCNG}
+ * billing.enforcement.mode} decides whether Sovkora takes money from people, and {@code ENFORCNG}
  * must not be a way to silently disable authorisation.
  */
 @RestController

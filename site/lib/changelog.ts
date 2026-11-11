@@ -1,10 +1,10 @@
 import { newestFirst, parseReleaseBody, type Release } from "@krizaka/ui/changelog-page";
 
-/* The changelog of Krizaka Java: the GitHub Releases of krizaka/krizaka-build, written by release-please (conventional
+/* The changelog of Krizaka Java: the GitHub Releases of krizaka/krizaka-java, written by release-please (conventional
    commits, one section per kind, one scope per module), refreshed at build. Nothing is written by hand; when GitHub cannot
    be read the page says so. */
 
-export const CHANGELOG_REPO = "krizaka/krizaka-build";
+export const CHANGELOG_REPO = "krizaka/krizaka-java";
 const API = `https://api.github.com/repos/${CHANGELOG_REPO}/releases?per_page=30`;
 
 interface GithubRelease {

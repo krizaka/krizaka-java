@@ -57,7 +57,7 @@ class BillingServiceGovernanceTest {
   }
 
   @Test
-  @DisplayName("[ERR-104] no redundant Orazaka prefix")
+  @DisplayName("[ERR-104] no redundant Sovkora prefix")
   void noRedundantPrefix() {
     assertDoesNotThrow(
         () -> {
@@ -176,7 +176,7 @@ class BillingServiceGovernanceTest {
               .resideInAPackage("com.krizaka.billing..")
               .should()
               .dependOnClassesThat()
-              .resideInAnyPackage("com.krizaka.orazaka..", "com.orazaka..")
+              .resideInAnyPackage("com.krizaka.sovkora..", "com.sovkora..")
               .because("a Krizaka building block depends on no product — products depend on it")
               .check(productionClasses);
         });

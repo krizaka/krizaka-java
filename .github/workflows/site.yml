@@ -1,6 +1,6 @@
 # The documentation site (site/, java.krizaka.com): lint, tests and the static build on every pull request. The deployment
 # is DigitalOcean App Platform's (.do/app.yaml): it rebuilds and publishes on every push to main.
-name: Site
+name: Docs site
 
 on:
   push:

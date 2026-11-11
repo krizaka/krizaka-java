@@ -6,7 +6,7 @@ region: tor
 static_sites:
   - name: site
     github:
-      repo: krizaka/krizaka-build
+      repo: krizaka/krizaka-java
       branch: main
       deploy_on_push: true
     source_dir: site

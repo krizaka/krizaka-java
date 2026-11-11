@@ -1,5 +1,5 @@
 {
-  "comment": "Shared contract cases of the payments port. @krizaka/payments (krizaka-ui) and com.krizaka:krizaka-payments (krizaka-build) both read these cases: the same event gives the same answer in both. Signing material is for tests only.",
+  "comment": "Shared contract cases of the payments port. @krizaka/payments (krizaka-ui) and com.krizaka:krizaka-payments (krizaka-java) both read these cases: the same event gives the same answer in both. Signing material is for tests only.",
   "secret": "signing-material-for-unit-tests",
   "now": 1800000000,
   "signature": [

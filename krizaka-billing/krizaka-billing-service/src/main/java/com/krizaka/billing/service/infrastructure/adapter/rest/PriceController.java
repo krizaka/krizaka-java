@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * The price catalogue resource (krizaka/orazaka#417): the public view any surface reads, and the
+ * The price catalogue resource (krizaka/sovkora#417): the public view any surface reads, and the
  * admin view that lists, schedules and shows the history.
  *
  * <p>The public read never returns an {@code internal} entry and shows a {@code preparing} one

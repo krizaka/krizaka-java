@@ -47,7 +47,7 @@ import org.testcontainers.utility.MountableFile;
     })
 class BillingServiceContextIT {
 
-  private static final String SECRET = "orazaka-local-dev-identity-jwt-secret-256bit!";
+  private static final String SECRET = "sovkora-local-dev-identity-jwt-secret-256bit!";
   private static final HttpClient HTTP = HttpClient.newHttpClient();
 
   @SuppressWarnings("resource")

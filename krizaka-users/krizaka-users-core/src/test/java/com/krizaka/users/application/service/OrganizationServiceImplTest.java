@@ -196,7 +196,7 @@ class OrganizationServiceImplTest {
     assertThatThrownBy(() -> service.addMember(admin, ORG, "ghost", OrganizationRole.MEMBER))
         .isInstanceOf(UserNotFoundException.class);
 
-    when(users.findById("svc")).thenReturn(Optional.of(user("svc", "svc_akinaza", true)));
+    when(users.findById("svc")).thenReturn(Optional.of(user("svc", "svc_folioviv", true)));
     when(organizations.findMember(ORG, "svc"))
         .thenReturn(
             Optional.of(new OrganizationMember(ORG, "svc", OrganizationRole.SERVICE, null)));
@@ -209,7 +209,7 @@ class OrganizationServiceImplTest {
     orgExists();
     role(admin, OrganizationRole.ADMIN);
     when(organizations.saveMember(any())).thenAnswer(i -> i.getArgument(0));
-    when(users.findById("svc")).thenReturn(Optional.of(user("svc", "svc_yomizaka", true)));
+    when(users.findById("svc")).thenReturn(Optional.of(user("svc", "svc_verikora", true)));
     when(users.findById("person")).thenReturn(Optional.of(user("person", "oussama", true)));
     when(users.findById("off")).thenReturn(Optional.of(user("off", "svc_old", false)));
 
@@ -250,12 +250,12 @@ class OrganizationServiceImplTest {
     role(admin, OrganizationRole.ADMIN);
     ApiKey key = new ApiKey("k1", "svc-id", "prod", "oz_live_abcd", Instant.EPOCH, null);
     when(organizations.findServiceKeys(ORG)).thenReturn(List.of(key));
-    when(users.findById("svc-id")).thenReturn(Optional.of(user("svc-id", "svc_akinaza", true)));
+    when(users.findById("svc-id")).thenReturn(Optional.of(user("svc-id", "svc_folioviv", true)));
 
     var rows = service.serviceKeys(admin, ORG);
 
     assertThat(rows).hasSize(1);
-    assertThat(rows.getFirst().ownerUsername()).isEqualTo("svc_akinaza");
+    assertThat(rows.getFirst().ownerUsername()).isEqualTo("svc_folioviv");
     assertThat(rows.getFirst().key().keyPrefix()).isEqualTo("oz_live_abcd");
   }
 
@@ -278,7 +278,7 @@ class OrganizationServiceImplTest {
     OrganizationActor operator = new OrganizationActor("op", true);
     when(organizations.findMember(ORG, "op")).thenReturn(Optional.empty());
     when(organizations.findMembers(ORG)).thenReturn(List.of());
-    when(users.findById("svc")).thenReturn(Optional.of(user("svc", "svc_akinaza", true)));
+    when(users.findById("svc")).thenReturn(Optional.of(user("svc", "svc_folioviv", true)));
     when(organizations.saveMember(any())).thenAnswer(i -> i.getArgument(0));
 
     assertThat(service.members(operator, ORG)).isEmpty();

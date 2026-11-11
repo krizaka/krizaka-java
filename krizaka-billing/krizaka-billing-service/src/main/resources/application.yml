@@ -1,5 +1,5 @@
 # ==============================================================================
-# Orazaka Billing Service — application configuration (ADR-033)
+# Sovkora Billing Service — application configuration (ADR-033)
 # ------------------------------------------------------------------------------
 # Internal service on :8095, reached by the conversation/job/automation services
 # over M2M-authenticated HTTP and by the admin console through the edge/BFF.
@@ -82,8 +82,8 @@ logging:
     com.krizaka.billing.service: DEBUG
     org.springframework.amqp: INFO
 
-# ── Orazaka — service-owned wiring ────────────────────────────────────────────
-orazaka:
+# ── Sovkora — service-owned wiring ────────────────────────────────────────────
+sovkora:
   billing:
     engine:
       # The Lago seam stays dormant through phases 0–3 (design §13.8).
@@ -97,7 +97,7 @@ orazaka:
       connect-timeout: ${LAGO_CONNECT_TIMEOUT:2s}
       read-timeout: ${LAGO_READ_TIMEOUT:10s}
 
-# ── Krizaka platform kit ──────────────────────────────────────────────────────
+# ── Krizaka service kit ──────────────────────────────────────────────────────
 krizaka:
   billing-service:
     datasource:
@@ -123,4 +123,4 @@ krizaka:
       # The shared HS256 secret the identity service signs session and service tokens with.
       # krizaka-security validates every request locally with it and refuses to start when it is
       # shorter than 32 characters (256 bits).
-      secret: ${IDENTITY_JWT_SECRET:orazaka-local-dev-identity-jwt-secret-256bit!}
+      secret: ${IDENTITY_JWT_SECRET:sovkora-local-dev-identity-jwt-secret-256bit!}

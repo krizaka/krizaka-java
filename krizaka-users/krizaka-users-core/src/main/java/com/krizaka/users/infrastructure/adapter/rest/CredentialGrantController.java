@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/credentials")
 public class CredentialGrantController {
 
-  /** The prefix of an Orazaka API key ({@code ApiKeyServiceImpl.TOKEN_PREFIX}). */
+  /** The prefix of a Sovkora API key ({@code ApiKeyServiceImpl.TOKEN_PREFIX}). */
   private static final String API_KEY_PREFIX = "oz_";
 
   private final CredentialGrantService grants;

@@ -39,7 +39,7 @@ class IdentityBoundaryTest {
               .resideInAPackage(PKG_IDENTITY)
               .should()
               .dependOnClassesThat()
-              .resideInAnyPackage("com.krizaka.orazaka..", "com.orazaka..")
+              .resideInAnyPackage("com.krizaka.sovkora..", "com.sovkora..")
               .because("a Krizaka building block depends on no product — products depend on it")
               .check(identityClasses);
         });

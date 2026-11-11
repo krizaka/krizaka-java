@@ -122,7 +122,7 @@
         "summary": "One dependency switches a module on, with its auto-configuration."
       },
       "platform": {
-        "title": "Platform kit",
+        "title": "Service kit",
         "summary": "The cross-cutting code with one author: web, security, messaging, observability."
       },
       "build": {
@@ -299,13 +299,13 @@
     "proof": {
       "eyebrow": "Proof",
       "title": "Our own services run on it",
-      "lead": "The Orazaka services below depend on these artifacts. The list and the figures are read from their POMs and tests at every build.",
+      "lead": "The Sovkora services below depend on these artifacts. The list and the figures are read from their POMs and tests at every build.",
       "tests": "tests across the Krizaka Java repositories",
       "real": "of them start a real PostgreSQL or RabbitMQ (Testcontainers)",
-      "services": "Orazaka services built on it",
+      "services": "Sovkora services built on it",
       "uses": "{count} Krizaka artifacts",
       "usesOne": "1 Krizaka artifact",
-      "listLabel": "Orazaka services and the Krizaka Java artifacts they use",
+      "listLabel": "Sovkora services and the Krizaka Java artifacts they use",
       "domain": "Domain services built the same way: users, billing and notifications.",
       "domainLink": "See the map"
     },
@@ -472,7 +472,7 @@
       },
       "idempotency-keys": {
         "name": "HTTP Idempotency-Key",
-        "note": "At most once per key, replay with Idempotent-Replayed, 422 on reuse; PostgreSQL store in the action's transaction. Promoted from Orazaka."
+        "note": "At most once per key, replay with Idempotent-Replayed, 422 on reuse; PostgreSQL store in the action's transaction. Promoted from Sovkora."
       },
       "health": {
         "name": "Actuator health",

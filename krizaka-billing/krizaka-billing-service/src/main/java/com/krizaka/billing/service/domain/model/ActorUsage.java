@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * What one actor consumed in a calendar month, valued at the deployment's credit price.
  *
- * <p>A product that calls Orazaka with its own API key is one actor, so this is that product's
+ * <p>A product that calls Sovkora with its own API key is one actor, so this is that product's
  * usage and cost this month. It is list-price value, not an invoice: the money anchor times the
  * credits settled, stated next to the plan the actor is on.
  *

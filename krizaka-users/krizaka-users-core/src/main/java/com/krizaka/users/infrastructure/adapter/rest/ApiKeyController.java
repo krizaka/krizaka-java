@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * REST controller managing a user's inbound API keys (Personal Access Tokens) that authenticate
- * their programmatic calls to the Orazaka API. Resource-oriented per ERR-128.
+ * their programmatic calls to the Sovkora API. Resource-oriented per ERR-128.
  */
 @RestController
 @RequestMapping("/api/v1/api-keys")

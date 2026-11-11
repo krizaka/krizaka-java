@@ -2,7 +2,7 @@
 
 /* ─────────────────────────────────────────────────────────────────────────
    BUILDING BLOCKS MAP — every artifact of Krizaka Java, from the POMs
-   Every artifact of lib/model.ts in one band per role (services, adapters, domain core, contracts, starters, platform kit,
+   Every artifact of lib/model.ts in one band per role (services, adapters, domain core, contracts, starters, service kit,
    build), labels in full, never truncated. Select one: what it depends on and what depends on it stay lit, joined by
    orthogonal lines drawn under the chips through the gutters between bands (a parent POM, a BOM import or a test scope is
    dashed). Mobile: one column, no lines — the relations are listed in the detail panel.

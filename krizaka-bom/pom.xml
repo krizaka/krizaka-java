@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.krizaka</groupId>
         <artifactId>krizaka-parent</artifactId>
-        <version>0.11.1</version>
+        <version>0.13.1</version>
         <relativePath>../krizaka-parent/pom.xml</relativePath>
     </parent>
 
@@ -19,16 +19,16 @@
 
          Each repository is versioned on its own (SemVer, release-please); the BOM is what makes a
          set compatible: one property per repository names the release this BOM was tested with.
-         Each names the release of that repository that is in the Orazaka workspace (every repository is
+         Each names the release of that repository that is in the Sovkora workspace (every repository is
          cloned at main and built from source there), so a version here that the repository's main does
          not carry cannot resolve: the workspace guard (scripts/check-krizaka-versions.mjs) fails on it.
-         A release of krizaka-build sets each one to the version of that repository it ships with. -->
+         A release of krizaka-java sets each one to the version of that repository it ships with. -->
     <properties>
     </properties>
 
     <dependencyManagement>
         <dependencies>
-            <!-- The one third-party entry (ADR-015, krizaka-build#120): the nullness annotations every module of the
+            <!-- The one third-party entry (ADR-015, krizaka-java#120): the nullness annotations every module of the
                  NullAway profile of krizaka-parent marks its packages with. Same version as Spring Boot's own. -->
             <dependency>
                 <groupId>org.jspecify</groupId>
@@ -36,7 +36,7 @@
                 <version>${jspecify.version}</version>
             </dependency>
 
-            <!-- krizaka-build -->
+            <!-- krizaka-java -->
             <dependency>
                 <groupId>com.krizaka</groupId>
                 <artifactId>krizaka-test-support</artifactId>
@@ -59,7 +59,7 @@
                 <version>${project.version}</version>
             </dependency>
 
-            <!-- krizaka-platform-kit -->
+            <!-- krizaka-service-kit -->
             <dependency>
                 <groupId>com.krizaka</groupId>
                 <artifactId>krizaka-security</artifactId>

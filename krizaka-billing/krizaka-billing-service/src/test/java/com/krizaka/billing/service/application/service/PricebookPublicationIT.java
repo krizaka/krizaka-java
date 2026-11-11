@@ -75,7 +75,7 @@ class PricebookPublicationIT {
       System.setProperty("api.version", "1.43");
     }
     POSTGRES.start();
-    // The initdb file creates this role WITHOUT a password (ADR-035); `orazaka start`
+    // The initdb file creates this role WITHOUT a password (ADR-035); `sovkora start`
     // applies the ALTER ROLE at runtime, and a hermetic test has to do the same.
     ServiceRoles.assignPassword(POSTGRES, BILLING_ROLE, BILLING_PASSWORD);
     BillingSchema.migrate(POSTGRES, BILLING_ROLE, BILLING_PASSWORD);

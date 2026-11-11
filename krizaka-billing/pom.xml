@@ -2,35 +2,35 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" child.project.url.inherit.append.path="false">
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- Built on the Krizaka build (krizaka/krizaka-build): Maven Central metadata, Java 21
-         conventions and the signed release. Inside a workspace that clones krizaka-build next to
+    <!-- Built on the Krizaka build (krizaka/krizaka-java): Maven Central metadata, Java 21
+         conventions and the signed release. Inside a workspace that clones krizaka-java next to
          this repository the relativePath resolves it from source; anywhere else it comes from
          Maven Central. -->
     <parent>
         <groupId>com.krizaka</groupId>
         <artifactId>krizaka-parent</artifactId>
-        <version>0.11.1</version> <!-- x-release-please-version -->
+        <version>0.13.1</version> <!-- x-release-please-version -->
         <relativePath>../krizaka-parent/pom.xml</relativePath>
     </parent>
 
     <artifactId>krizaka-billing</artifactId>
-    <!-- One version for the whole family (ADR-021): the version of krizaka-build, released by release-please. -->
-    <version>0.11.1</version>
+    <!-- One version for the whole family (ADR-021): the version of krizaka-java, released by release-please. -->
+    <version>0.13.1</version>
     <packaging>pom</packaging>
     <name>Krizaka Billing</name>
     <description>Credits, wallets, plans, subscriptions, pricebook and metering (hold → settle → release) as a reusable billing service, with its contract (billing-api) and a typed HTTP client (billing-client).</description>
-    <url>https://github.com/krizaka/krizaka-billing</url>
+    <url>https://github.com/krizaka/krizaka-java/tree/main/krizaka-billing</url>
 
     <scm child.scm.connection.inherit.append.path="false" child.scm.developerConnection.inherit.append.path="false" child.scm.url.inherit.append.path="false">
-        <url>https://github.com/krizaka/krizaka-billing</url>
-        <connection>scm:git:https://github.com/krizaka/krizaka-billing.git</connection>
-        <developerConnection>scm:git:git@github.com:krizaka/krizaka-billing.git</developerConnection>
+        <url>https://github.com/krizaka/krizaka-java/tree/main/krizaka-billing</url>
+        <connection>scm:git:https://github.com/krizaka/krizaka-java.git</connection>
+        <developerConnection>scm:git:git@github.com:krizaka/krizaka-java.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
 
     <issueManagement>
         <system>GitHub Issues</system>
-        <url>https://github.com/krizaka/krizaka-billing/issues</url>
+        <url>https://github.com/krizaka/krizaka-java/issues</url>
     </issueManagement>
 
     <properties>
@@ -38,7 +38,7 @@
              freeMonthlyCredits (parent POM: a minor before 1.0 sets this for that release). Remove after the release. -->
         <japicmp.breakBuildOnBinaryIncompatibleModifications>false</japicmp.breakBuildOnBinaryIncompatibleModifications>
         <!-- krizaka-parent 0.2.0 (Maven Central) manages Spring Boot 4.0.7, whose netty, postgresql and spring-webmvc are
-             vulnerable (Dependabot critical/high). Boot 4.0.8 patches them, as krizaka-build main already does:
+             vulnerable (Dependabot critical/high). Boot 4.0.8 patches them, as krizaka-java main already does:
              drop this line when krizaka-parent 0.2.1 is released. -->
         <spring-boot.version>4.1.2</spring-boot.version>
         <!-- Security overrides of the Spring Boot BOM (Dependabot alerts): the patched releases of the libraries whose

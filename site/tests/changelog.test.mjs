@@ -8,34 +8,34 @@ import { normalizeBody, releasesFromGithub } from "../lib/changelog.ts";
 const read = (file) => readFileSync(new URL(`../${file}`, import.meta.url), "utf8");
 const messages = (lang) => JSON.parse(read(`messages/${lang}.json`));
 
-const BODY = `## [0.2.0](https://github.com/krizaka/krizaka-build/compare/v0.1.0...v0.2.0) (2026-10-09)
+const BODY = `## [0.2.0](https://github.com/krizaka/krizaka-java/compare/v0.1.0...v0.2.0) (2026-10-09)
 
 
 ### Features
 
-* **users:** add API keys ([#2](https://github.com/krizaka/krizaka-build/pull/2)) ([7dd3f1a](https://github.com/krizaka/krizaka-build/commit/7dd3f1a))
-* BOM with the starters ([#3](https://github.com/krizaka/krizaka-build/pull/3)) ([0aa1b2c](https://github.com/krizaka/krizaka-build/commit/0aa1b2c))
+* **users:** add API keys ([#2](https://github.com/krizaka/krizaka-java/pull/2)) ([7dd3f1a](https://github.com/krizaka/krizaka-java/commit/7dd3f1a))
+* BOM with the starters ([#3](https://github.com/krizaka/krizaka-java/pull/3)) ([0aa1b2c](https://github.com/krizaka/krizaka-java/commit/0aa1b2c))
 
 ### Bug Fixes
 
-* **platform-kit:** XSS in the error page ([#4](https://github.com/krizaka/krizaka-build/pull/4)) ([1bb2c3d](https://github.com/krizaka/krizaka-build/commit/1bb2c3d))
+* **service-kit:** XSS in the error page ([#4](https://github.com/krizaka/krizaka-java/pull/4)) ([1bb2c3d](https://github.com/krizaka/krizaka-java/commit/1bb2c3d))
 
 ### Miscellaneous Chores
 
-* bump the parent ([#5](https://github.com/krizaka/krizaka-build/pull/5)) ([2cc3d4e](https://github.com/krizaka/krizaka-build/commit/2cc3d4e))
+* bump the parent ([#5](https://github.com/krizaka/krizaka-java/pull/5)) ([2cc3d4e](https://github.com/krizaka/krizaka-java/commit/2cc3d4e))
 `;
 
 test("a release-please body keeps its news sections, names the module and links the PR", () => {
   assert.equal(normalizeBody(BODY), [
-    "* feat: users — add API keys https://github.com/krizaka/krizaka-build/pull/2",
-    "* feat: BOM with the starters https://github.com/krizaka/krizaka-build/pull/3",
-    "* fix: platform-kit — XSS in the error page https://github.com/krizaka/krizaka-build/pull/4",
+    "* feat: users — add API keys https://github.com/krizaka/krizaka-java/pull/2",
+    "* feat: BOM with the starters https://github.com/krizaka/krizaka-java/pull/3",
+    "* fix: service-kit — XSS in the error page https://github.com/krizaka/krizaka-java/pull/4",
   ].join("\n"));
 });
 
 test("the releases are tagged, dated, newest first; drafts and empty releases are left out", () => {
   const releases = releasesFromGithub([
-    { tag_name: "v0.1.0", draft: false, published_at: "2026-09-01T10:00:00Z", html_url: "u1", body: "### Features\n\n* first ([#1](https://github.com/krizaka/krizaka-build/pull/1))" },
+    { tag_name: "v0.1.0", draft: false, published_at: "2026-09-01T10:00:00Z", html_url: "u1", body: "### Features\n\n* first ([#1](https://github.com/krizaka/krizaka-java/pull/1))" },
     { tag_name: "v0.2.0", draft: false, published_at: "2026-10-09T10:00:00Z", html_url: "u2", body: BODY },
     { tag_name: "v0.3.0", draft: true, published_at: null, html_url: "u3", body: BODY },
     { tag_name: "v0.0.1", draft: false, published_at: "2026-08-01T10:00:00Z", html_url: "u0", body: "### Miscellaneous Chores\n\n* nothing" },

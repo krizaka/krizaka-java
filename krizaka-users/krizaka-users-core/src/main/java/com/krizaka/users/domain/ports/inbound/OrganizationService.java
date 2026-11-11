@@ -8,7 +8,7 @@ import com.krizaka.users.domain.model.OrganizationServiceKey;
 import java.util.List;
 
 /**
- * Inbound port of organizations that own accounts (orazaka#372): the people who belong to a company
+ * Inbound port of organizations that own accounts (sovkora#372): the people who belong to a company
  * and the service accounts its products use, with one view of the keys of those accounts.
  *
  * <p>Reading needs a membership; changing needs the owner or administrator role. The platform

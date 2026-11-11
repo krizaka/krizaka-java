@@ -28,7 +28,7 @@ import org.springframework.test.context.DynamicPropertySource;
  * db/migration/V1__users_baseline.sql}), and the administration through its real HTTP chain: an
  * administrator's token opens {@code /api/v1/admin/users}, a user's does not, and every action
  * leaves its audit line. A change of bean or filter that stops the service from starting fails
- * here, not in the deployment (krizaka-users#18, orazaka#users-context-load).
+ * here, not in the deployment (krizaka-users#18, sovkora#users-context-load).
  */
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,

@@ -1,5 +1,6 @@
 # Verifies the parent POM and the BOM on every change (with the release profile, unsigned), and on a
-# v* tag deploys them to GitHub Packages (registry input of the pipeline, ADR-019). The pipeline is the organisation's:
+# v* tag signs and uploads the whole reactor to Maven Central, the one registry of com.krizaka since 2026-11-06
+# (GitHub Packages is abandoned for Maven; registry input of the pipeline, ADR-019). The pipeline is the organisation's:
 # krizaka/.github/.github/workflows/maven.yml.
 name: CI
 
@@ -10,17 +11,6 @@ on:
   pull_request:
   merge_group:
   workflow_dispatch:
-    inputs:
-      deploy-modules:
-        description: "Run on a v* tag ref: the -pl list of the modules missing from GitHub Packages (republish). Empty: the whole reactor."
-        required: false
-        default: ""
-        type: string
-      deploy-repository:
-        description: "With deploy-modules: the repository whose package URL receives them (owner/name). A package is bound to the repository it was first published from (krizaka-platform-kit, krizaka-users): any other URL answers HTTP 422. Empty: krizaka-build."
-        required: false
-        default: ""
-        type: string
 
 permissions:
   contents: read
@@ -30,39 +20,12 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  # The tag's own deploy leaves out the modules published from other repositories (platform kit, users: HTTP 422 here, the reactor
-  # stopped there and billing was never published, v0.8.0); release-please.yml republishes those through their own repository.
-  deploy-plan:
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    permissions:
-      contents: read
-    outputs:
-      modules: ${{ steps.plan.outputs.modules }}
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          package-manager-cache: false
-          node-version: 22
-      - id: plan
-        env:
-          REQUESTED: ${{ inputs.deploy-modules }}
-        run: echo "modules=${REQUESTED:-$(node scripts/release-follow-ups.mjs own-modules)}" >> "$GITHUB_OUTPUT"
-
   maven:
-    needs: deploy-plan
-    uses: krizaka/.github/.github/workflows/maven.yml@79f6ff6292edefebc59fc968dbc2c203da81c3ea # main
-    # packages: write publishes to GitHub Packages on a tag (ADR-019); read lets pull requests resolve the blocks.
+    uses: krizaka/.github/.github/workflows/maven.yml@31d45bcdde30a7dfc66ddb15bcb280f11b16faac # main
     permissions:
       contents: read
-      packages: write
     with:
-      deploy-modules: ${{ needs.deploy-plan.outputs.modules }}
-      deploy-repository: ${{ inputs.deploy-repository || '' }}
-      registry: github   # GitHub Packages (ADR-019); "central" or "github,central" switch it
+      registry: central   # Maven Central only (founder, 2026-11-06); the deployment waits for Publish (autoPublish=false)
       threads: "2"
       sonar: true   # CI analysis with JaCoCo coverage; the merge queue branch is analysed too
     secrets:
@@ -71,8 +34,6 @@ jobs:
       MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
       MAVEN_GPG_KEY: ${{ secrets.MAVEN_GPG_KEY }}
       MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
-      # Packages first published by another repository refuse this repository's GITHUB_TOKEN (HTTP 422): a write:packages token (krizaka-internal#2045).
-      MAVEN_PUBLISH_TOKEN: ${{ secrets.MAVEN_PUBLISH_TOKEN }}
 
   bom-released:
     # krizaka-internal#1878: the BOM manages only released versions of the building blocks (a `v<version>` tag each).
@@ -94,7 +55,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
 
   quality-script:
-    # The baseline script of PMD and SpotBugs (krizaka-build#105): dependency-free Node, tested here.
+    # The baseline script of PMD and SpotBugs (krizaka-java#105): dependency-free Node, tested here.
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -107,10 +68,10 @@ jobs:
         with:
           package-manager-cache: false
           node-version: 22
-      - run: node --test scripts/quality-baseline.test.mjs scripts/pmd-modules.test.mjs scripts/family-version.test.mjs scripts/sonar-properties.test.mjs scripts/release-follow-ups.test.mjs
+      - run: node --test scripts/quality-baseline.test.mjs scripts/pmd-modules.test.mjs scripts/family-version.test.mjs scripts/sonar-properties.test.mjs scripts/ci-deploy-inputs.test.mjs scripts/deleted-repositories.test.mjs
 
   canary:
-    # A consumer of krizaka-parent with no baselines, verified with PMD and SpotBugs on (krizaka-build#105): a parent
+    # A consumer of krizaka-parent with no baselines, verified with PMD and SpotBugs on (krizaka-java#105): a parent
     # change cannot break the repositories that inherit it without failing here first.
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -120,7 +81,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
           distribution: temurin
           java-version: 21
@@ -135,10 +96,9 @@ jobs:
 
   consumers:
     # Real consumers of the parent from this change (a bug found 2026-10-28: the NullAway profile of #121 broke every
-    # repository whose modules declare their own annotationProcessorPaths, and nothing here built one). The parent is
-    # installed from the pull request (the platform kit is in this reactor), then krizaka-users (a service on top of it) is
-    # compiled against it, tests skipped. It resolves the parent through ../krizaka-build/krizaka-parent, so it is checked out
-    # next to this repository.
+    # repository whose modules declare their own annotationProcessorPaths, and nothing here built one). Users, a service on
+    # top of the parent, is a folder of this reactor since ADR-021: the whole reactor is installed from the pull request,
+    # tests skipped, and krizaka-users is compiled with it.
     runs-on: ubuntu-latest
     timeout-minutes: 25
     permissions:
@@ -146,45 +106,18 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          path: krizaka-build
           persist-credentials: false
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          repository: krizaka/krizaka-users
-          path: krizaka-users
-          persist-credentials: false
-      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
           distribution: temurin
           java-version: 21
-      - name: Install the whole reactor from this change (parent, BOM, quality, test-support, the platform kit)
-        working-directory: krizaka-build
-        # Without krizaka-notifications-service: its test needs krizaka-users-api, which is not on Central (until users joins the reactor, ADR-021).
-        run: ./mvnw -B -ntp -q install -DskipTests -pl '!:krizaka-notifications-service'
-      - name: Read the version of this change
-        id: version
-        working-directory: krizaka-build
-        run: echo "value=$(./mvnw -B -ntp -q -N help:evaluate -Dexpression=project.version -DforceStdout)" >> "$GITHUB_OUTPUT"
-      # krizaka-users names the parent it was released on (<parent> is a literal, not a property); on a release PR this build is
-      # already the next version, which it cannot name yet and which is not published, so it is pointed at the version just
-      # installed (the parent block of its checkout only, never committed).
-      - name: Point krizaka-users at the parent just installed
-        env:
-          BUILD_VERSION: ${{ steps.version.outputs.value }}
-        run: |
-          perl -0pi -e 's|(<artifactId>krizaka-parent</artifactId>\s*<version>)[^<]*(</version>)|$1$ENV{BUILD_VERSION}$2|' krizaka-users/pom.xml
-      - name: Compile krizaka-users against it
-        working-directory: krizaka-users
-        env:
-          BUILD_VERSION: ${{ steps.version.outputs.value }}
-        # krizaka-build.version names the BOM just installed, which manages the kit at this same version.
-        run: |
-          ./mvnw -B -ntp test-compile -Dkrizaka.quality.phase=none -Dkrizaka-build.version="$BUILD_VERSION"
+      - name: Install the whole reactor from this change (parent, BOM, quality, test-support, service kit, users, billing)
+        run: ./mvnw -B -ntp -q install -DskipTests
 
   pmd-modules:
     # The modules of THIS repository under the consumers' PMD and SpotBugs rules (krizaka-internal#159). This reactor
     # switches the checks off (.mvn/maven.config) because its parent must resolve the rules first, so a module such as
-    # krizaka-payments passed here and broke the orazaka workspace, which inherits the same parent and the same ruleset.
+    # krizaka-payments passed here and broke the sovkora workspace, which inherits the same parent and the same ruleset.
     # The rules are installed from this change, then every shipped module is verified with the checks on, as a consumer
     # would. scripts/pmd-modules.test.mjs fails when a module with sources is missing from the list below.
     runs-on: ubuntu-latest
@@ -195,14 +128,14 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
           distribution: temurin
           java-version: 21
       - run: ./mvnw -B -ntp -q install -DskipTests -pl krizaka-quality,krizaka-parent
       - run: ./mvnw -B -ntp -Dkrizaka.quality.phase=verify -DskipTests verify -pl krizaka-rewrite-style,krizaka-test-support,krizaka-payments # pmd-modules
-      # The platform kit (ADR-021): its modules under the consumers' rules too, from the rules and test kit just installed.
+      # The service kit (ADR-021): its modules under the consumers' rules too, from the rules and test kit just installed.
       - run: ./mvnw -B -ntp -q install -DskipTests -pl krizaka-quality,krizaka-parent,krizaka-bom,krizaka-rewrite-style,krizaka-test-support
-      - run: ./mvnw -B -ntp -Dkrizaka.quality.phase=verify -DskipTests verify -f krizaka-platform-kit/pom.xml -pl '!:krizaka-notifications-service' # pmd-kit
+      - run: ./mvnw -B -ntp -Dkrizaka.quality.phase=verify -DskipTests verify -f krizaka-service-kit/pom.xml -pl '!:krizaka-notifications-service' # pmd-kit
       # OpenRewrite on the kit only (the org pipeline would also run it on krizaka-parent, whose plugin versions are this repository's to move).
-      - run: ./mvnw -B -ntp rewrite:dryRun -f krizaka-platform-kit/pom.xml -pl '!:krizaka-notifications-service'
+      - run: ./mvnw -B -ntp rewrite:dryRun -f krizaka-service-kit/pom.xml -pl '!:krizaka-notifications-service'

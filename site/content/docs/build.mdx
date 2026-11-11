@@ -3,7 +3,7 @@ title: Build, parent and BOM
 description: krizaka-parent, krizaka-bom and krizaka-test-support — one build for every Krizaka JVM artifact.
 ---
 
-[Krizaka Build](https://github.com/krizaka/krizaka-build) holds the parent POM, the BOM and the test kit behind every
+[Krizaka Java](https://github.com/krizaka/krizaka-java) holds the parent POM, the BOM and the test kit behind every
 `com.krizaka` artifact on Maven Central.
 
 | Artifact | Role |
@@ -50,7 +50,7 @@ are built and tested against Spring Boot `4.0.x`.
 
 ## Code rules
 
-Three tools hold the rules of [ADR-015](https://github.com/krizaka/.github/blob/main/docs/adr/ADR-015-ai-code-audit-measured-and-enforced.md), each with a ratchet: what exists today is recorded, a new violation fails, the debt only shrinks.
+Three tools hold the rules of ADR-015, each with a ratchet: what exists today is recorded, a new violation fails, the debt only shrinks.
 
 | Tool | Rule | Existing debt kept in |
 | :-- | :-- | :-- |
@@ -63,6 +63,6 @@ A module that declares its own annotation processors (MapStruct, Lombok) repeats
 ## Releases
 
 Each repository has its own SemVer version; pull request titles are Conventional Commits and release-please keeps a
-release pull request open. Central validates a POM against its parent **on Central**, so `krizaka-build` is released
-first, then the platform kit, then the domain services. A release is confirmed by hand on the Central Portal before it
+release pull request open. Central validates a POM against its parent **on Central**, so `krizaka-java` is released
+first, then the service kit, then the domain services. A release is confirmed by hand on the Central Portal before it
 is published.

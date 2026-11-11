@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Measures and shrinks the per-module PMD / SpotBugs baselines (ADR-013, krizaka-build#105). Dependency-free.
+// Measures and shrinks the per-module PMD / SpotBugs baselines (ADR-013, krizaka-java#105). Dependency-free.
 //
 //   node quality-baseline.mjs init   <repository-root>...   measure every module of the repository as it is and write the two files
 //   node quality-baseline.mjs shrink <repository-root>...   re-measure; refuse any violation the baseline lacks, drop the fixed ones
@@ -71,12 +71,12 @@ const byClass = (set) => {
 };
 
 export function renderPmd(set) {
-  const head = "# PMD baseline (krizaka-build#105): measured by scripts/quality-baseline.mjs, never typed. It only shrinks.\n";
+  const head = "# PMD baseline (krizaka-java#105): measured by scripts/quality-baseline.mjs, never typed. It only shrinks.\n";
   return head + [...byClass(set)].map(([c, r]) => `${c}=${r.join(",")}`).join("\n") + (set.size ? "\n" : "");
 }
 
 export function renderSpotbugs(set) {
-  const head = '<?xml version="1.0" encoding="UTF-8"?>\n<!-- SpotBugs baseline (krizaka-build#105): measured by scripts/quality-baseline.mjs, never typed. It only shrinks. -->\n<FindBugsFilter>\n';
+  const head = '<?xml version="1.0" encoding="UTF-8"?>\n<!-- SpotBugs baseline (krizaka-java#105): measured by scripts/quality-baseline.mjs, never typed. It only shrinks. -->\n<FindBugsFilter>\n';
   const body = [...set].sort(compareText).map((e) => {
     const i = e.lastIndexOf("=");
     return `    <Match>\n        <Class name="${e.slice(0, i)}"/>\n        <Bug pattern="${e.slice(i + 1)}"/>\n    </Match>\n`;

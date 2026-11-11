@@ -4,7 +4,7 @@ description: How a Krizaka domain service is cut — the contract, the client, t
 ---
 
 The domain services — [users](/users), [billing](/billing), [notifications](/notifications) —
-are the business layer of the platform: reusable by any Spring Boot application, used by Orazaka. Each one is cut the
+are the business layer of the platform: reusable by any Spring Boot application, used by Sovkora. Each one is cut the
 same way, so you know where to look before you open it.
 
 ## One repository, up to five modules
@@ -39,7 +39,7 @@ service. A port declared in `domain` is implemented in `infrastructure` — or i
 
 ## What every service shares
 
-The cross-cutting code is not in the domain services: it is the [platform kit](/start) — the same
+The cross-cutting code is not in the domain services: it is the [service kit](/start) — the same
 [error format](/web), [security baseline](/security) (session tokens, `SERVICE` tokens on
 `/internal/v1/**`), [outbox and idempotent consumption](/messaging) and [observability](/observability).
 A domain service adds only its business rules.

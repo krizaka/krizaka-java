@@ -18,7 +18,7 @@ class InterceptionControllerTest {
   private final InterceptionController controller = new InterceptionController(identityService);
 
   private static User user(UUID id) {
-    return new User(id, "alice", "alice@orazaka.com", true, Set.of("ROLE_USER"), Map.of());
+    return new User(id, "alice", "alice@sovkora.com", true, Set.of("ROLE_USER"), Map.of());
   }
 
   @Test

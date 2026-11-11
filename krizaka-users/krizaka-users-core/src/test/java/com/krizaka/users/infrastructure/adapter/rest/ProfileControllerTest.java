@@ -19,7 +19,7 @@ class ProfileControllerTest {
 
   private static User user(UUID id) {
     return new User(
-        id, "alice", "alice@orazaka.com", true, Set.of("ROLE_USER"), Map.of("lang", "en"));
+        id, "alice", "alice@sovkora.com", true, Set.of("ROLE_USER"), Map.of("lang", "en"));
   }
 
   @Test
@@ -30,7 +30,7 @@ class ProfileControllerTest {
     UserDescriptor body = response.getBody();
     assertThat(body.id()).isEqualTo(id.toString());
     assertThat(body.username()).isEqualTo("alice");
-    assertThat(body.email()).isEqualTo("alice@orazaka.com");
+    assertThat(body.email()).isEqualTo("alice@sovkora.com");
     assertThat(body.authorities()).containsExactly("ROLE_USER");
     assertThat(body.preferences()).containsEntry("lang", "en");
     verifyNoInteractions(identityService);
@@ -40,7 +40,7 @@ class ProfileControllerTest {
   void updatePreferences_delegatesAndReturnsRefreshedProfile() {
     UUID id = UUID.randomUUID();
     Map<String, Object> prefs = Map.of("theme", "dark");
-    User updated = new User(id, "alice", "alice@orazaka.com", true, Set.of("ROLE_USER"), prefs);
+    User updated = new User(id, "alice", "alice@sovkora.com", true, Set.of("ROLE_USER"), prefs);
     when(identityService.updatePreferences(id.toString(), prefs)).thenReturn(updated);
 
     var response = controller.updatePreferences(prefs, user(id));

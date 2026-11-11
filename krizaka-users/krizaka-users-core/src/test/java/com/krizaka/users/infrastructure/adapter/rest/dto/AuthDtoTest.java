@@ -214,12 +214,12 @@ class AuthDtoTest {
           new AuthResponse(
               "token-123",
               ADMIN,
-              "admin@orazaka.com",
+              "admin@sovkora.com",
               List.of("ROLE_ADMIN"),
               List.of("onboarding"));
       assertEquals("token-123", resp.token());
       assertEquals(ADMIN, resp.username());
-      assertEquals("admin@orazaka.com", resp.email());
+      assertEquals("admin@sovkora.com", resp.email());
       assertEquals(List.of("ROLE_ADMIN"), resp.authorities());
       assertEquals(List.of("onboarding"), resp.activeInterceptions());
     }
@@ -237,7 +237,7 @@ class AuthDtoTest {
     @Test
     @DisplayName("null activeInterceptions defaults to empty list")
     void nullInterceptions() {
-      var resp = new AuthResponse("token", ADMIN, "admin@orazaka.com", List.of("ROLE_ADMIN"), null);
+      var resp = new AuthResponse("token", ADMIN, "admin@sovkora.com", List.of("ROLE_ADMIN"), null);
       assertEquals(List.of(), resp.activeInterceptions());
     }
   }

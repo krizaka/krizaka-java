@@ -54,8 +54,8 @@ class BillingMigrationsIT extends AbstractContainerIntegrationTest {
     }
 
     assertThat(flyway().migrate().migrationsExecuted)
-        .as("first run on an empty database")
-        .isEqualTo(1);
+        .as("first run on an empty database: the baseline and the commercial names")
+        .isEqualTo(2);
     assertThat(flyway().migrate().migrationsExecuted).as("second run").isZero();
     flyway().validate();
 
@@ -80,6 +80,21 @@ class BillingMigrationsIT extends AbstractContainerIntegrationTest {
                       + " AND column_name = 'overage_credit_price_cents'"))
           .as("the column dev lacked on 2026-11-02")
           .isEqualTo(1);
+      assertThat(
+              count(
+                  statement,
+                  "SELECT (SELECT count(*) FROM billing_price WHERE price_key LIKE 'sovkora.%')"
+                      + " + (SELECT count(*) FROM credit_pricebook WHERE model_name LIKE 'sovkora-%')"))
+          .as("the seeded keys under the commercial name (V2)")
+          .isEqualTo(16);
+      assertThat(
+              count(
+                  statement,
+                  "SELECT (SELECT count(*) FROM billing_price WHERE price_key NOT LIKE 'sovkora.%'"
+                      + " AND price_key LIKE '%.%' AND split_part(price_key, '.', 1) NOT IN"
+                      + " ('plan', 'sovkora'))"))
+          .as("no product prefix but the commercial one")
+          .isZero();
     }
   }
 

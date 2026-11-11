@@ -1,22 +1,26 @@
-// ci.yml: a republish can name the repository whose package URL receives the modules (a package is bound to its first repository, HTTP 422 otherwise).
+// ci.yml: a v* tag publishes the whole reactor to Maven Central, the one registry of com.krizaka (founder, 2026-11-06).
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const ci = readFileSync(new URL("../.github/workflows/ci.yml", import.meta.url), "utf8");
+const release = readFileSync(new URL("../.github/workflows/release-please.yml", import.meta.url), "utf8");
 
-test("the dispatch has a deploy-repository input", () => {
-  assert.match(ci, /\n {6}deploy-repository:\n(?: {8}.*\n)*? {8}type: string/);
+test("the org pipeline publishes to Maven Central only, signed", () => {
+  assert.match(ci, /\n {6}registry: central\b/);
+  for (const secret of ["MAVEN_CENTRAL_USERNAME", "MAVEN_CENTRAL_PASSWORD", "MAVEN_GPG_KEY", "MAVEN_GPG_PASSPHRASE"]) {
+    assert.match(ci, new RegExp(`${secret}: \\$\\{\\{ secrets\\.${secret} \\}\\}`), secret);
+  }
 });
 
-test("it is passed to the org pipeline next to deploy-modules", () => {
-  assert.match(ci, /deploy-modules: \$\{\{ needs\.deploy-plan\.outputs\.modules \}\}\n {6}deploy-repository: \$\{\{ inputs\.deploy-repository \|\| '' \}\}/);
+test("nothing is left of the GitHub Packages republish (no deploy plan, no packages permission, no publish token)", () => {
+  assert.doesNotMatch(ci, /deploy-plan|deploy-modules|deploy-repository|packages: (read|write)|MAVEN_PUBLISH_TOKEN/);
+  assert.doesNotMatch(release, /packages: read|MAVEN_PUBLISH_TOKEN/);
 });
 
-test("the tag's own deploy leaves out the modules of the other repositories, so billing is never behind a 422", async () => {
-  const { ownDeployModules } = await import("./release-follow-ups.mjs");
-  const list = ownDeployModules(new URL("..", import.meta.url).pathname).split(",");
-  assert.ok(list.includes("!krizaka-platform-kit") && list.includes("!krizaka-users/krizaka-users-client"));
-  assert.ok(!list.some((m) => m.includes("billing")));
-  assert.match(ci, /REQUESTED:-\$\(node scripts\/release-follow-ups\.mjs own-modules\)/);
+test("the release waits for the tag's deploy, then checks every module on Maven Central", () => {
+  assert.doesNotMatch(release, /release-follow-ups/);
+  assert.match(release, /gh run watch "\$id"[^\n]*--exit-status/);
+  assert.ok(release.indexOf("gh run watch") < release.indexOf('node scripts/check-published.mjs "$TAG"'));
+  assert.match(release, /Every module of the release is on Maven Central/);
 });

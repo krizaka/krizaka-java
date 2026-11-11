@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { missing, publishable } from "./check-published.mjs";
+import { missing, publishable, versionsFromMetadata } from "./check-published.mjs";
 
 const poms = {
   "r/pom.xml": `<project><parent><artifactId>krizaka-parent</artifactId></parent><artifactId>root</artifactId><properties><maven.deploy.skip>true</maven.deploy.skip></properties><modules><module>a</module><module>kit</module></modules></project>`,
@@ -29,4 +29,17 @@ test("the workflow opens no issue (public repo: internal issues live in krizaka-
   const { readFileSync } = await import("node:fs");
   const yml = readFileSync(new URL("../.github/workflows/published-check.yml", import.meta.url), "utf8");
   assert.doesNotMatch(yml, /gh issue|issues:\s*write/);
+});
+
+test("Central's maven-metadata.xml gives the versions (Maven Central is the one registry, 2026-11-06)", () => {
+  const xml = "<metadata><versioning><latest>0.12.0</latest><versions><version>0.1.0</version><version>0.2.0</version><version>0.12.0</version></versions></versioning></metadata>";
+  assert.deepEqual(versionsFromMetadata(xml), ["0.1.0", "0.2.0", "0.12.0"]);
+  assert.deepEqual(versionsFromMetadata("<metadata/>"), []);
+});
+
+test("no script, workflow or POM of this repository names the GitHub Packages Maven registry", async () => {
+  const { readFileSync } = await import("node:fs");
+  for (const file of [".github/workflows/ci.yml", ".github/workflows/release-please.yml", ".github/workflows/published-check.yml", "krizaka-parent/pom.xml", "scripts/check-published.mjs"]) {
+    assert.doesNotMatch(readFileSync(new URL(`../${file}`, import.meta.url), "utf8"), /maven\.pkg\.github\.com|registry: github|packages: read/, file);
+  }
 });

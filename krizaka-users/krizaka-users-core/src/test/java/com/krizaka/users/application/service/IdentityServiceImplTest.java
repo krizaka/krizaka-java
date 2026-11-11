@@ -207,13 +207,13 @@ class IdentityServiceImplTest {
     // The hosting application declares its namespace (krizaka.users.preferences.reserved-prefixes).
     when(properties.preferences())
         .thenReturn(
-            new IdentityInfrastructureProperties.Preferences(java.util.List.of("orazaka.")));
+            new IdentityInfrastructureProperties.Preferences(java.util.List.of("sovkora.")));
     // ADR-064. Depth: the namespace at every context builder is the fix; this keeps the bad key
     // from being stored for a builder that forgets it.
     for (String reserved :
         java.util.List.of(
-            "orazaka.metering.deferred",
-            "orazaka.guard.subject",
+            "sovkora.metering.deferred",
+            "sovkora.guard.subject",
             "preference.language",
             "userId")) {
       Map<String, Object> written = Map.of("theme", "dark", reserved, "x");
@@ -370,7 +370,7 @@ class IdentityServiceImplTest {
 
   @Test
   void getDecryptedApiKey_mayWriteBecauseAnOldRowIsReSealedOnItsFirstRead() throws Exception {
-    // krizaka-build#218 review: a read-only transaction refuses the re-seal UPDATE of an AES-CBC
+    // krizaka-java#218 review: a read-only transaction refuses the re-seal UPDATE of an AES-CBC
     // row.
     var tx =
         IdentityServiceImpl.class

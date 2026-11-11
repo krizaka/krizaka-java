@@ -18,6 +18,7 @@ test("the bar has no family switcher and no hand-made links to other sites; the 
 
 test("the family data knows this site and both languages", () => {
   assert.equal(siteById("java").url, "https://java.krizaka.com");
-  assert.equal(siteById("java").repo.endsWith("krizaka-build"), true);
+  // The repository was krizaka-build until 2026-11-06 (GitHub redirects it); @krizaka/org names krizaka-java from its 1.0.
+  assert.match(siteById("java").repo, /\/krizaka-(java|build)$/);
   assert.ok(familyLabels.en.family && familyLabels.fr.family);
 });

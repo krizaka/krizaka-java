@@ -18,7 +18,7 @@ class PriceEntryTest {
   private static PriceEntry entry(PriceAvailability availability, Long amount) {
     return new PriceEntry(
         UUID.randomUUID(),
-        "orazaka.business",
+        "sovkora.business",
         PriceUnit.YEAR,
         amount,
         availability,

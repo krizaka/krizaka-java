@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Immutable domain representation of an Orazaka user, carrying identity, security authorities, and
+ * Immutable domain representation of a Sovkora user, carrying identity, security authorities, and
  * multi-modal AI execution preferences.
  *
  * @param id The universally unique identifier for this user. Generated automatically if not

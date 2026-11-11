@@ -12,7 +12,7 @@ import java.util.Set;
  * @param name The label.
  * @param keyPrefix The display prefix.
  * @param ownerUserId The service account's user id.
- * @param ownerUsername The service account's username, such as {@code svc_akinaza}.
+ * @param ownerUsername The service account's username, such as {@code svc_folioviv}.
  * @param scopes What the key may do.
  * @param createdAt Creation instant.
  * @param lastUsedAt Last use, or {@code null}.

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- The Krizaka SpotBugs filter (ADR-013, krizaka-build#105): what is reported at all, before the per-module
+<!-- The Krizaka SpotBugs filter (ADR-013, krizaka-java#105): what is reported at all, before the per-module
      spotbugs-exclude.xml baseline freezes the existing findings. Needs the find-sec-bugs plugin. -->
 <FindBugsFilter>
     <Match>

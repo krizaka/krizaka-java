@@ -14,18 +14,17 @@ Registration with e-mail verification, password and Google/GitHub login, forgot/
 preferences, API keys, provider credentials, RBAC and JWT issuance — as a Spring Boot service, a library, a contract
 and a typed client.
 
-[![CI](https://github.com/krizaka/krizaka-users/actions/workflows/ci.yml/badge.svg)](https://github.com/krizaka/krizaka-users/actions/workflows/ci.yml)
-[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/krizaka/krizaka-users/badge)](https://scorecard.dev/viewer/?uri=github.com/krizaka/krizaka-users)
+[![CI](https://github.com/krizaka/krizaka-java/actions/workflows/ci.yml/badge.svg)](https://github.com/krizaka/krizaka-java/actions/workflows/ci.yml)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/krizaka/krizaka-java/badge)](https://scorecard.dev/viewer/?uri=github.com/krizaka/krizaka-java)
 [![Maven Central](https://img.shields.io/maven-central/v/com.krizaka/krizaka-users-api?color=196df5&label=maven%20central)](https://central.sonatype.com/namespace/com.krizaka)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
-[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=krizaka_krizaka-users&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=krizaka_krizaka-users) [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=krizaka_krizaka-users&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=krizaka_krizaka-users) [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=krizaka_krizaka-users&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=krizaka_krizaka-users) [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=krizaka_krizaka-users&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=krizaka_krizaka-users) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=krizaka_krizaka-users&metric=coverage)](https://sonarcloud.io/summary/new_code?id=krizaka_krizaka-users)
 
 [Open source at Krizaka](https://www.krizaka.com/en/open-source) · [Website](https://www.krizaka.com) · [Krizaka on GitHub](https://github.com/krizaka)
 
 </div>
 <!-- /krizaka-header -->
 
-Built for and used by [Orazaka](https://github.com/krizaka/orazaka), the sovereign AI engine; usable by any Spring Boot application.
+Built for and used by [Sovkora](https://github.com/krizaka/sovkora), the sovereign AI engine; usable by any Spring Boot application.
 
 ## What it does
 
@@ -54,9 +53,9 @@ Until the issuer-signed sessions and per-caller keys are set (`AUTH_JWT_SIGNING_
 whoever holds the shared HS256 secret can still forge both a user session and an allowed caller: set them to close it.
 
 Passwords are hashed with BCrypt, provider keys encrypted with AES-256, sessions are HS256 JWTs carrying a `roles`
-claim that [`krizaka-security`](https://github.com/krizaka/krizaka-platform-kit) verifies locally in every other
+claim that [`krizaka-security`](../krizaka-service-kit) verifies locally in every other
 service. Domain events leave through a transactional outbox (relayed by `krizaka-messaging`): `evt.user.registered`
-and `evt.password.reset`, which [`krizaka-notifications`](https://github.com/krizaka/krizaka-notifications) turns into
+and `evt.password.reset`, which [`krizaka-notifications`](../krizaka-service-kit/docs/notifications.md) turns into
 the verification and reset e-mails. The outbox also implements `krizaka-messaging`'s `OutboxStore.append`, so an
 `EventPublisher` can write to it: the event's `messageId` and envelope headers (`kz-type`, `kz-version`, …) are stored
 in `identity_outbox` (`headers jsonb`) and published as stored.
@@ -157,7 +156,7 @@ A consumer keeps its own copy of the event and checks it against the schema with
 | `krizaka.users.jwt.ttl` | `IDENTITY_JWT_TTL` | `PT12H` |
 | `krizaka.users.crypto.key` / `.salt` | `CRYPTO_KEY` / `CRYPTO_SALT` | — (provider-key encryption) |
 | `krizaka.users.credential-grant.ttl` | `AUTH_CREDENTIAL_GRANT_TTL` | `PT10M` — how long a provider-key grant stays redeemable (1 min to 1 h) |
-| `krizaka.users.internal.allowed-callers[/internal/v1/credentials/**]` | `AUTH_CREDENTIAL_REDEEMERS` | `orazaka-conversation-service,orazaka-job-service` — who may redeem a grant |
+| `krizaka.users.internal.allowed-callers[/internal/v1/credentials/**]` | `AUTH_CREDENTIAL_REDEEMERS` | `sovkora-conversation-service,sovkora-job-service` — who may redeem a grant |
 | `krizaka.users.vault.key` / `.key-id` | `AUTH_VAULT_KEY` / `AUTH_VAULT_KEY_ID` | — (32 bytes, base64) / `k1` — the key that seals the identity secrets (see « The vault ») |
 | `krizaka.users.password.breach-check` | `AUTH_PASSWORD_BREACH_CHECK` | `true` — a new password is checked against Pwned Passwords (range API, padded; fail-open) |
 | `krizaka.users.email-verification.enabled` | `EMAIL_VERIFICATION_ENABLED` | `true` |
@@ -221,12 +220,12 @@ table itself refuses a value that is not an envelope. The admin API (`GET /api/v
 ./mvnw verify -Prelease -Dgpg.skip   # + the sources and javadoc jars Maven Central requires
 ```
 
-It inherits [`krizaka-parent`](https://github.com/krizaka/krizaka-build) and uses
-[`krizaka-platform-kit`](https://github.com/krizaka/krizaka-platform-kit): build those first, or let CI do it. JDK 21.
+It inherits [`krizaka-parent`](https://github.com/krizaka/krizaka-java) and uses
+[`krizaka-service-kit`](../krizaka-service-kit): build those first, or let CI do it. JDK 21.
 
 ## Design notes
 
-- [ADR-001 — Krizaka accounts](docs/adr/ADR-001-accounts.md): the thin community layer (comments, saved posts, reply e-mails) planned over this block for accounts.krizaka.com; moved here from the former `krizaka-accounts` repository.
+- ADR-001 — Krizaka accounts: the thin community layer (comments, saved posts, reply e-mails) planned over this block for accounts.krizaka.com; moved here from the former `krizaka-accounts` repository.
 
 ## Contributing
 

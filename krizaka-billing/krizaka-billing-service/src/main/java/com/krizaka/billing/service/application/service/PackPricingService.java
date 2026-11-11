@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
  * questions that belong to the catalogue in the studio context, where {@code studio_i18n} already
  * provided the localisation they needed. Keeping both halves here would have made the service that
  * holds the credit ledger into a CMS, and every marketing copy change into a deploy of it. The
- * catalogue's own {@code PackCatalogService} lives in orazaka-studio-service.
+ * catalogue's own {@code PackCatalogService} lives in sovkora-studio-service.
  *
  * <p>Intentionally the same shape as {@link PlanCatalogService}, down to the wholesale replacement
  * of the entitlement matrix, because packs and plans grant through the same grammar. Two editors
@@ -33,9 +33,9 @@ public class PackPricingService {
   private static final String ENTITY_TYPE = "PACK";
 
   /**
-   * A pack's price lives in the catalogue under {@code orazaka.<packKey>} (krizaka/orazaka#417).
+   * A pack's price lives in the catalogue under {@code sovkora.<packKey>} (krizaka/sovkora#417).
    */
-  static final String PRICE_KEY_PREFIX = "orazaka.";
+  static final String PRICE_KEY_PREFIX = "sovkora.";
 
   /**
    * The amount is read through the catalogue by key (one source): the entry in force now when it

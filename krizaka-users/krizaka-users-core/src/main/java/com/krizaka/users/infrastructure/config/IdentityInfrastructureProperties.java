@@ -6,7 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.core.io.Resource;
 
 /**
- * Configuration properties for passive generic identity workflows in Orazaka. Properties backing
+ * Configuration properties for passive generic identity workflows in Sovkora. Properties backing
  * the {@code krizaka.users} configuration namespace. They represent the technical and physical
  * constraints of the Identity hexagon, independent of core orchestrator logic.
  */

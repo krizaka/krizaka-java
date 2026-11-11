@@ -1,16 +1,16 @@
 #!/usr/bin/env node
 // Guard (krizaka-internal#1878): krizaka-bom manages only RELEASED versions of the building blocks.
 //
-// A building block's version in the BOM (`<krizaka-platform-kit.version>`…) must be a version that has a `v<version>` tag in its
+// A building block's version in the BOM (`<krizaka-service-kit.version>`…) must be a version that has a `v<version>` tag in its
 // repository: a bump that points at a version nobody released makes every consumer fail to resolve it, and a BOM left behind
-// makes every Orazaka PR fail check-krizaka-versions. The check reads the tags of krizaka/<block> from the GitHub API
+// makes every Sovkora PR fail check-krizaka-versions. The check reads the tags of krizaka/<block> from the GitHub API
 // (GITHUB_TOKEN when set); the building blocks are published to GitHub Packages from those same tags (ADR-019).
 //
 //   node scripts/check-bom-released.mjs [krizaka-bom/pom.xml]
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
-/** { "krizaka-platform-kit": "0.4.0", … } from the `<krizaka-*.version>` properties of the BOM. */
+/** { "krizaka-service-kit": "0.4.0", … } from the `<krizaka-*.version>` properties of the BOM. */
 export function managedBlocks(pomXml) {
   const blocks = {};
   for (const [, name, version] of pomXml.matchAll(/<(krizaka-[a-z-]+)\.version>([^<$]+)<\/\1\.version>/g)) blocks[name] = version.trim();

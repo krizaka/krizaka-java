@@ -8,7 +8,7 @@ import java.util.Objects;
  * from the billing usage API).
  *
  * @param key The key's metadata (never the secret).
- * @param ownerUsername The service account's username, such as {@code svc_akinaza}.
+ * @param ownerUsername The service account's username, such as {@code svc_folioviv}.
  */
 public record OrganizationServiceKey(ApiKey key, String ownerUsername) {
 

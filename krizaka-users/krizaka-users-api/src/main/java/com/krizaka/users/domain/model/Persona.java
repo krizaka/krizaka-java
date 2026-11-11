@@ -28,7 +28,7 @@ public final class Persona {
     return new User(
         UUID.fromString("550e8400-e29b-41d4-a716-446655440000"),
         "test-user",
-        "test-user@orazaka.com",
+        "test-user@sovkora.com",
         true,
         Set.of(ROLE_USER),
         preferences,
@@ -41,7 +41,7 @@ public final class Persona {
     return new User(
         UUID.fromString("550e8400-e29b-41d4-a716-446655440001"),
         "test-user",
-        "test-user@orazaka.com",
+        "test-user@sovkora.com",
         true,
         Set.of(ROLE_USER),
         Map.of(),
@@ -54,7 +54,7 @@ public final class Persona {
     return new User(
         UUID.fromString("550e8400-e29b-41d4-a716-446655440002"),
         "admin",
-        "admin@orazaka.com",
+        "admin@sovkora.com",
         true,
         Set.of("ROLE_ADMIN", ROLE_USER),
         Map.of(),

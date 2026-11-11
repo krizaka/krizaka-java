@@ -11,7 +11,7 @@ description: krizaka-ratelimit — a requests-per-minute limit per key; observe 
 ```
 
 Adding the starter limits every request of a Spring MVC service, by the address it comes from, 600 a minute. Nothing else
-to write — promoted from the Orazaka edge (ADR-083).
+to write — promoted from the Sovkora edge (ADR-083).
 
 ```yaml
 krizaka:
@@ -65,7 +65,7 @@ Spring MVC application. The users service's login lockout is a different mechani
 
 `RateLimiterTest` covers the burst, the refill, the wait, tiers, observe, off and the idle sweep;
 `ClientIpKeyResolverTest` the forged-header cases; and the [example
-app](https://github.com/krizaka/krizaka-platform-kit/tree/main/examples/krizaka-ratelimit-example) shows the `429` over
+app](https://github.com/krizaka/krizaka-java/tree/main/krizaka-service-kit/examples/krizaka-ratelimit-example) shows the `429` over
 HTTP, per API key and per tier. Every request is observed as `krizaka.ratelimit` (tag `outcome`: `allowed`, `limited`,
 `observed`).
 

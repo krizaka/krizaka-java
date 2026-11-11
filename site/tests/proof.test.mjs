@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
-import { countTests, orazakaServices, platformOf } from "../scripts/gen-proof.mjs";
+import { countTests, sovkoraServices, platformOf } from "../scripts/gen-proof.mjs";
 
 function tree(files) {
   const dir = mkdtempSync(join(tmpdir(), "kz-java-proof-"));
@@ -29,21 +29,27 @@ test("a main source is never a test, and an empty tree has none", () => {
   assert.deepEqual(countTests(tree({ "a/src/main/java/M.java": "@Test" })), { tests: 0, realInfrastructure: 0 });
 });
 
-test("Orazaka's services are the deployable modules that depend on a Krizaka artifact", () => {
+test("Sovkora's services are the deployable modules that depend on a Krizaka artifact", () => {
   const dep = (a) => `<dependency><groupId>com.krizaka</groupId><artifactId>${a}</artifactId></dependency>`;
   const pom = (id, deps = "", packaging = "") => `<project><artifactId>${id}</artifactId>${packaging}<dependencies>${deps}</dependencies></project>`;
   const dir = tree({
-    "orazaka-job-service/pom.xml": pom("orazaka-job-service", dep("krizaka-billing-client") + dep("krizaka-security")),
-    "orazaka-edge/pom.xml": pom("orazaka-edge", dep("krizaka-web")),
-    "orazaka-studio/orazaka-studio-client/pom.xml": pom("orazaka-studio-client", dep("krizaka-security")),
-    "orazaka-studio/orazaka-studio-api/pom.xml": pom("orazaka-studio-api"),
-    "orazaka-studio/pom.xml": pom("orazaka-studio", dep("krizaka-bom"), "<packaging>pom</packaging>"),
-    "orazaka-lonely-service/pom.xml": pom("orazaka-lonely-service"),
+    "sovkora-job-service/pom.xml": pom("sovkora-job-service", dep("krizaka-billing-client") + dep("krizaka-security")),
+    "sovkora-edge/pom.xml": pom("sovkora-edge", dep("krizaka-web")),
+    "sovkora-studio/sovkora-studio-client/pom.xml": pom("sovkora-studio-client", dep("krizaka-security")),
+    "sovkora-studio/sovkora-studio-api/pom.xml": pom("sovkora-studio-api"),
+    "sovkora-studio/pom.xml": pom("sovkora-studio", dep("krizaka-bom"), "<packaging>pom</packaging>"),
+    "sovkora-lonely-service/pom.xml": pom("sovkora-lonely-service"),
   });
-  assert.deepEqual(orazakaServices([dir]), [
-    { id: "orazaka-edge", artifacts: ["krizaka-web"] },
-    { id: "orazaka-job-service", artifacts: ["krizaka-billing-client", "krizaka-security"] },
+  assert.deepEqual(sovkoraServices([dir]), [
+    { id: "sovkora-edge", artifacts: ["krizaka-web"] },
+    { id: "sovkora-job-service", artifacts: ["krizaka-billing-client", "krizaka-security"] },
   ]);
+});
+
+test("sovkoraServices returns an empty array when no repository is accessible (all archived)", () => {
+  // locateSovkora filters out repos that fail to clone; the build must not fail when all are inaccessible
+  assert.deepEqual(sovkoraServices([]), []);
+  assert.deepEqual(sovkoraServices([tree({})]), []);
 });
 
 test("the platform is read from the parent POM, never typed", () => {

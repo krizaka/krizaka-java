@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- The Krizaka PMD ruleset (ADR-013, krizaka-build#105): the Sonar Java findings we actually have, run in `verify`.
+<!-- The Krizaka PMD ruleset (ADR-013, krizaka-java#105): the Sonar Java findings we actually have, run in `verify`.
      Small on purpose; a rule is added when Sonar reports a finding it would have caught.
      Sonar rule -> PMD rule is listed on each entry. Existing violations are frozen per module in pmd-baseline.properties. -->
 <ruleset name="Krizaka"
@@ -38,7 +38,7 @@
     <!-- S106 System.out / System.err in main code -->
     <rule ref="category/java/bestpractices.xml/SystemPrintln"/>
 
-    <!-- ADR-015, krizaka-build#120: complexity limits and three XPath rules. Existing violations of a repository are
+    <!-- ADR-015, krizaka-java#120: complexity limits and three XPath rules. Existing violations of a repository are
          frozen in its pmd-baseline.properties (no flag day); a NEW one fails. Cognitive complexity (15, above) stays
          the main counter; these bound what it does not see (the number of paths and of nested ifs). -->
     <rule ref="category/java/design.xml/CyclomaticComplexity">

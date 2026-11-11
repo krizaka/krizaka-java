@@ -39,7 +39,7 @@ import tools.jackson.databind.ObjectMapper;
 
 /**
  * The price catalogue against the <b>real</b> {@code infra/initdb/70-billing.sql}
- * (krizaka/orazaka#417).
+ * (krizaka/sovkora#417).
  */
 class PriceCatalogueIT {
 
@@ -75,7 +75,7 @@ class PriceCatalogueIT {
       System.setProperty("api.version", "1.43");
     }
     POSTGRES.start();
-    // The initdb file creates this role WITHOUT a password (ADR-035); `orazaka start`
+    // The initdb file creates this role WITHOUT a password (ADR-035); `sovkora start`
     // applies the ALTER ROLE at runtime, and a hermetic test has to do the same.
     ServiceRoles.assignPassword(POSTGRES, BILLING_ROLE, BILLING_PASSWORD);
     BillingSchema.migrate(POSTGRES, BILLING_ROLE, BILLING_PASSWORD);
@@ -97,32 +97,32 @@ class PriceCatalogueIT {
   @DisplayName(
       "[#417] the seed holds the defaults: Community 0, Business 2 900 $ a year, preparing")
   void seedHoldsTheDefaults() {
-    assertEquals(0L, prices.entry("orazaka.community", NOW).orElseThrow().amountCents());
-    var business = prices.entry("orazaka.business", NOW).orElseThrow();
+    assertEquals(0L, prices.entry("sovkora.community", NOW).orElseThrow().amountCents());
+    var business = prices.entry("sovkora.business", NOW).orElseThrow();
     assertEquals(290_000L, business.amountCents());
     assertEquals(PriceAvailability.PREPARING, business.availability());
     assertEquals(
-        PriceUnit.MONTH, prices.entry("orazaka.businessMonthly", NOW).orElseThrow().unit());
+        PriceUnit.MONTH, prices.entry("sovkora.businessMonthly", NOW).orElseThrow().unit());
     assertEquals(
         Map.of("includedHours", 8L, "overageCents", 15_500L),
-        prices.entry("orazaka.croissance", NOW).orElseThrow().limits());
+        prices.entry("sovkora.croissance", NOW).orElseThrow().limits());
     assertEquals(
-        Map.of("credits", 5000L), prices.entry("orazaka.creditsPro", NOW).orElseThrow().limits());
+        Map.of("credits", 5000L), prices.entry("sovkora.creditsPro", NOW).orElseThrow().limits());
   }
 
   @Test
   @DisplayName("the public view never shows internal entries and hides a preparing figure")
   void publicViewHidesInternalAndFigures() {
     List<PriceView> view = prices.publicCatalogue();
-    assertTrue(view.stream().noneMatch(v -> v.key().startsWith("orazaka.credits")));
-    assertTrue(view.stream().noneMatch(v -> "orazaka.sentinelle".equals(v.key())));
+    assertTrue(view.stream().noneMatch(v -> v.key().startsWith("sovkora.credits")));
+    assertTrue(view.stream().noneMatch(v -> "sovkora.sentinelle".equals(v.key())));
     PriceView business =
-        view.stream().filter(v -> "orazaka.business".equals(v.key())).findFirst().orElseThrow();
+        view.stream().filter(v -> "sovkora.business".equals(v.key())).findFirst().orElseThrow();
     assertNull(business.amountCents());
     assertEquals(
         0L,
         view.stream()
-            .filter(v -> "orazaka.community".equals(v.key()))
+            .filter(v -> "sovkora.community".equals(v.key()))
             .findFirst()
             .orElseThrow()
             .amountCents());
@@ -133,7 +133,7 @@ class PriceCatalogueIT {
       "a change is dated: the old version applies until it starts, history keeps both, one audit line")
   void scheduledChange() {
     Instant start = NOW.plusSeconds(3600);
-    String key = "orazaka.extractionMatrices";
+    String key = "sovkora.extractionMatrices";
     int audits =
         count(
             "SELECT count(*) FROM billing_version_history WHERE entity_type = 'PRICE' AND entity_key = '"
@@ -165,13 +165,13 @@ class PriceCatalogueIT {
     var change = new PriceChange(PriceUnit.MONTH, 1L, PriceAvailability.PUBLIC, Map.of());
     assertThrows(
         IllegalArgumentException.class,
-        () -> prices.schedule(ADMIN, "orazaka.business", change, NOW.minusSeconds(60)));
+        () -> prices.schedule(ADMIN, "sovkora.business", change, NOW.minusSeconds(60)));
     assertThrows(
         IllegalArgumentException.class,
-        () -> prices.schedule(ADMIN, "orazaka.nope", change, NOW.plusSeconds(60)));
+        () -> prices.schedule(ADMIN, "sovkora.nope", change, NOW.plusSeconds(60)));
     assertThrows(
         IllegalArgumentException.class,
-        () -> prices.schedule(" ", "orazaka.business", change, NOW.plusSeconds(60)));
+        () -> prices.schedule(" ", "sovkora.business", change, NOW.plusSeconds(60)));
   }
 
   @Test

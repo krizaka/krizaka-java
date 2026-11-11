@@ -52,13 +52,13 @@ class CredentialGrantServiceImplTest {
   @Test
   @DisplayName("a service token alone (no grant) never reads another user's key")
   void aServiceWithoutAGrantIsRefused() {
-    assertThatThrownBy(() -> service.redeem("forged", "openai", "run-1", "orazaka-worker-media"))
+    assertThatThrownBy(() -> service.redeem("forged", "openai", "run-1", "sovkora-worker-media"))
         .isInstanceOf(CredentialGrantRefusedException.class)
         .hasMessageNotContaining("forged");
     verify(audit)
         .appendAuditOutcome(
             isNull(),
-            eq("orazaka-worker-media"),
+            eq("sovkora-worker-media"),
             eq("credential.used"),
             isNull(),
             any(),
@@ -71,12 +71,12 @@ class CredentialGrantServiceImplTest {
     CredentialGrant g = service.issue(ALICE, "openai", "run-1");
 
     assertThat(g.expiresAt()).isEqualTo(T0.plus(Duration.ofMinutes(10)));
-    assertThat(service.redeem(g.grant(), "openai", "run-1", "orazaka-job-service"))
+    assertThat(service.redeem(g.grant(), "openai", "run-1", "sovkora-job-service"))
         .isEqualTo("sk-alice");
-    assertThatThrownBy(() -> service.redeem(g.grant(), "openai", "run-1", "orazaka-job-service"))
+    assertThatThrownBy(() -> service.redeem(g.grant(), "openai", "run-1", "sovkora-job-service"))
         .isInstanceOf(CredentialGrantRefusedException.class);
     verify(audit)
-        .appendAudit(isNull(), eq("orazaka-job-service"), eq("credential.used"), eq(ALICE), any());
+        .appendAudit(isNull(), eq("sovkora-job-service"), eq("credential.used"), eq(ALICE), any());
   }
 
   @Test
@@ -84,9 +84,9 @@ class CredentialGrantServiceImplTest {
   void aGrantIsBoundToItsRunAndProvider() {
     CredentialGrant g = service.issue(ALICE, "openai", "run-1");
 
-    assertThatThrownBy(() -> service.redeem(g.grant(), "openai", "run-2", "orazaka-job-service"))
+    assertThatThrownBy(() -> service.redeem(g.grant(), "openai", "run-2", "sovkora-job-service"))
         .isInstanceOf(CredentialGrantRefusedException.class);
-    assertThatThrownBy(() -> service.redeem(g.grant(), "anthropic", "run-1", "orazaka-job-service"))
+    assertThatThrownBy(() -> service.redeem(g.grant(), "anthropic", "run-1", "sovkora-job-service"))
         .isInstanceOf(CredentialGrantRefusedException.class);
   }
 
@@ -96,7 +96,7 @@ class CredentialGrantServiceImplTest {
     CredentialGrant g = service.issue(ALICE, "openai", "run-1");
     clock.now = T0.plus(Duration.ofMinutes(10));
 
-    assertThatThrownBy(() -> service.redeem(g.grant(), "openai", "run-1", "orazaka-job-service"))
+    assertThatThrownBy(() -> service.redeem(g.grant(), "openai", "run-1", "sovkora-job-service"))
         .isInstanceOf(CredentialGrantRefusedException.class);
   }
 

@@ -44,7 +44,7 @@ class SecurityRulesTest {
   void getenvOutsideTheConfigLayerIsFound() {
     assertThatThrownBy(() -> CodeRules.assertNoGetenvOutsideConfig(BAD, "..config.."))
         .hasMessageContaining("StaticCrypto")
-        .hasMessageContaining("krizaka-build#102");
+        .hasMessageContaining("krizaka-java#102");
   }
 
   @Test

@@ -97,7 +97,7 @@ class CreditLedgerInvariantsIT {
       System.setProperty("api.version", "1.43");
     }
     POSTGRES.start();
-    // The initdb file creates this role WITHOUT a password (ADR-035); `orazaka start`
+    // The initdb file creates this role WITHOUT a password (ADR-035); `sovkora start`
     // applies the ALTER ROLE at runtime, and a hermetic test has to do the same.
     ServiceRoles.assignPassword(POSTGRES, BILLING_ROLE, BILLING_PASSWORD);
     BillingSchema.migrate(POSTGRES, BILLING_ROLE, BILLING_PASSWORD);
@@ -359,7 +359,7 @@ class CreditLedgerInvariantsIT {
                 // VIDEO at the compose rate: 450 frames at 30fps = 15s × 2.0 → 30 credits.
                 new MeteredStep(
                     BillableCapability.VIDEO,
-                    "orazaka-compose",
+                    "sovkora-compose",
                     new ConsumptionReport(
                         null, 450, 30, null, null, null, null, null, null, null, null, null))),
             "studio-run-" + actorId);
@@ -455,7 +455,7 @@ class CreditLedgerInvariantsIT {
         List.of(
             new MeteredStep(
                 BillableCapability.VIDEO,
-                "orazaka-compose",
+                "sovkora-compose",
                 new ConsumptionReport(
                     null, 450, 30, null, null, null, null, null, null, null, null, null))),
         "compose-" + actorId);

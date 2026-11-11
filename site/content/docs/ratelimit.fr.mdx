@@ -11,7 +11,7 @@ description: krizaka-ratelimit — une limite de requêtes par minute et par cl�
 ```
 
 Ajouter le starter limite chaque requête d'un service Spring MVC, selon l'adresse d'où elle vient, à 600 par minute. Rien d'autre à
-écrire — promu depuis l'edge d'Orazaka (ADR-083).
+écrire — promu depuis l'edge d'Sovkora (ADR-083).
 
 ```yaml
 krizaka:
@@ -65,7 +65,7 @@ Spring MVC servlet uniquement. Le verrouillage de connexion du service users est
 ## Prouvé
 
 `RateLimiterTest` couvre la rafale, le remplissage, l'attente, les paliers, observe, off et le balayage des inactifs ;
-`ClientIpKeyResolverTest` les cas d'en-têtes forgés ; et l'[application d'exemple](https://github.com/krizaka/krizaka-platform-kit/tree/main/examples/krizaka-ratelimit-example)
+`ClientIpKeyResolverTest` les cas d'en-têtes forgés ; et l'[application d'exemple](https://github.com/krizaka/krizaka-java/tree/main/krizaka-service-kit/examples/krizaka-ratelimit-example)
 montre le `429` en HTTP, par clé d'API et par palier. Chaque requête est observée : `krizaka.ratelimit` (étiquette `outcome` :
 `allowed`, `limited`, `observed`).
 

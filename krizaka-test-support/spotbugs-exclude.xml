@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- SpotBugs baseline (krizaka-build#105): measured by scripts/quality-baseline.mjs, never typed. It only shrinks. -->
+<!-- SpotBugs baseline (krizaka-java#105): measured by scripts/quality-baseline.mjs, never typed. It only shrinks. -->
 <FindBugsFilter>
     <Match>
         <Class name="com.krizaka.test.container.ServiceRoles"/>

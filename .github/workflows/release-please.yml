@@ -5,7 +5,7 @@
 # tag itself: the organisation pipeline (krizaka/.github maven.yml) then verifies, signs and uploads
 # to the Central Portal, where the deployment waits for a human to press Publish (autoPublish=false
 # in krizaka-parent).
-name: release-please
+name: Release PR
 
 on:
   push:
@@ -27,7 +27,7 @@ jobs:
       tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
       # Fail BEFORE the tag: a pin of the org maven.yml older than be08be83 cannot write to GitHub Packages (403 after the tag, a dead tag).
-      - uses: krizaka/.github/actions/maven-pin-guard@79f6ff6292edefebc59fc968dbc2c203da81c3ea # main
+      - uses: krizaka/.github/actions/maven-pin-guard@31d45bcdde30a7dfc66ddb15bcb280f11b16faac # main
 
       # A pull request made with GITHUB_TOKEN starts no workflow, so the release PR would never get its required checks.
       # A GitHub App installation token does (org variable RELEASE_APP_ID, org secret RELEASE_APP_PRIVATE_KEY).
@@ -41,34 +41,31 @@ jobs:
           permission-pull-requests: write
 
       - id: release
-        uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5
+        uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
         with:
           token: ${{ steps.app.outputs.token || secrets.GITHUB_TOKEN }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
 
-      - name: Release the tag (GitHub Packages and Central, per the registry input of ci.yml)
+      - name: Release the tag (Maven Central, the registry input of ci.yml)
         if: steps.release.outputs.release_created == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.release.outputs.tag_name }}
         run: gh workflow run ci.yml --repo "$GITHUB_REPOSITORY" --ref "$TAG"
 
-  # The tag's own run publishes this repository's modules; the platform kit and users were first published from their own
-  # repositories (GitHub Packages answers HTTP 422 to any other), so each is republished with ci.yml `deploy-repository`,
-  # one after the other, then every artifact is checked on the registry: a release publishes everything by itself.
+  # The tag's own run publishes the whole reactor (the split repositories and their packages are deleted, krizaka-internal#2656);
+  # this job checks that every module of the release reached the registry: a release publishes everything by itself.
   follow-ups:
     needs: release-please
     if: needs.release-please.outputs.release_created == 'true'
     permissions:
       contents: read
-      actions: write
-      packages: read
+      actions: read
     runs-on: ubuntu-latest
     timeout-minutes: 120
     env:
       GH_TOKEN: ${{ github.token }}
-      GITHUB_TOKEN: ${{ secrets.MAVEN_PUBLISH_TOKEN || github.token }}
       TAG: ${{ needs.release-please.outputs.tag_name }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -79,10 +76,17 @@ jobs:
         with:
           package-manager-cache: false
           node-version: 22
-      - name: Republish the platform kit and users through their own repository
-        run: node scripts/release-follow-ups.mjs dispatch "$TAG"
-      - name: Every artifact is on GitHub Packages
-        run: node scripts/release-follow-ups.mjs check-published "$TAG"
-      # The whole reactor, billing included (v0.8.0 left krizaka-billing-* unpublished behind the platform kit's 422).
-      - name: Every module of the release is on GitHub Packages
+      - name: Wait for the tag's own deploy (ci.yml, dispatched by the release job)
+        run: |
+          id=""
+          for _ in $(seq 1 30); do
+            id=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow ci.yml --branch "$TAG" --event workflow_dispatch --json databaseId --jq '.[0].databaseId // empty')
+            [ -n "$id" ] && break
+            sleep 10
+          done
+          [ -n "$id" ] || { echo "::error::the deploy run of $TAG never started"; exit 1; }
+          gh run watch "$id" --repo "$GITHUB_REPOSITORY" --exit-status --interval 30
+      # The whole reactor, billing included (v0.8.0 left krizaka-billing-* unpublished behind the service kit's 422).
+      # The deployment waits for Publish on central.sonatype.com (autoPublish=false): this step is red until it is pressed.
+      - name: Every module of the release is on Maven Central
         run: node scripts/check-published.mjs "$TAG"

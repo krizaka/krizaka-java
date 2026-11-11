@@ -1,21 +1,21 @@
-# krizaka-build — Scope (agent-neutral)
+# krizaka-java — Scope (agent-neutral)
 
 > The build foundation of every **Krizaka** JVM artifact (`com.krizaka`, published on Maven Central). It is not part of
-> a product: Orazaka consumes it (its `orazaka-parent` inherits `krizaka-parent`), and so can any application.
-> When this repository is cloned inside the Orazaka workspace (`krizaka/krizaka-build`), the workspace contract
-> ([`krizaka/orazaka/AGENTS.md`](https://github.com/krizaka/orazaka/blob/main/AGENTS.md)) applies as well.
+> a product: Sovkora consumes it (its `sovkora-parent` inherits `krizaka-parent`), and so can any application.
+> When this repository is cloned inside the Sovkora workspace (`krizaka/krizaka-java`), the workspace contract
+> ([`krizaka/sovkora/AGENTS.md`](https://github.com/krizaka/sovkora/blob/main/AGENTS.md)) applies as well.
 
 ## Rules of this repository
 
 - **One repository, one version, one release (ADR-021).** The Java building blocks are Maven modules here, imported with their history
-  (`krizaka-platform-kit/` first; users, notifications and billing follow). Every module carries the version of the repository
+  (`krizaka-service-kit/` first; users, notifications and billing follow). Every module carries the version of the repository
   (release-please moves them all), the BOM manages them at `${project.version}`, the reactor orders the builds. Artifact coordinates
   do not change. Nothing about a block's version is edited by hand.
 
 - **`krizaka-parent` has no `<dependencyManagement>`.** `krizaka-bom` inherits it, and a BOM carries its parent's
   managed versions into every importer. Importing `krizaka-bom` must change no third-party version.
 - **`krizaka-bom` lists every published `com.krizaka` artifact, and only those** (one exception: `org.jspecify:jspecify`, ADR-015, at the version Spring Boot manages), each at its repository's version
-  property (`krizaka-platform-kit.version`, …; default `${project.version}`). The BOM carries the compatible set; a
+  property (`krizaka-service-kit.version`, …; default `${project.version}`). The BOM carries the compatible set; a
   new artifact in any Krizaka repository is added here in the same release.
 - **Releases are release-please's.** Pull request titles are Conventional Commits; nobody edits a version or the
   generated part of the CHANGELOG by hand. japicmp (release profile) guards the SemVer boundary.
@@ -28,8 +28,8 @@
   ExcessiveParameterList, S1172 UnusedFormalParameter, S127 AvoidReassigningLoopVariables, S106 SystemPrintln, S2077
   SQL_INJECTION*, S5998 REDOS. No twin (left to Sonar): S135, S6218. This repository switches them off
   (`.mvn/maven.config`): its parent cannot resolve the rules it ships with.
-- **Nothing Orazaka-specific** (Spring AI, `.env` profiles, SonarCloud, governance rules) — those belong to
-  `orazaka-parent` in `krizaka/orazaka-build`.
+- **Nothing Sovkora-specific** (Spring AI, `.env` profiles, SonarCloud, governance rules) — those belong to
+  `sovkora-parent` in `krizaka/sovkora-build`.
 - Maven Central requirements are part of the build, not of the release day: CI runs `verify -Prelease -Dgpg.skip` on
   every change, so a missing javadoc or source jar fails the pull request.
 
@@ -52,11 +52,11 @@
   drops a code block, a version token, a component or an internal link. Every user-facing string of the chrome is in
   `site/messages/{en,fr}.json` (`krizaka-i18n check`).
 - **The building blocks map is generated, never written**: `scripts/gen-building-blocks.mjs` reads the POMs of this repository
-  and a shallow clone of `krizaka-platform-kit`, `krizaka-users` and `krizaka-billing` (krizaka-notifications is part of `krizaka-platform-kit`) (or
+  and a shallow clone of `krizaka-service-kit`, `krizaka-users` and `krizaka-billing` (krizaka-notifications is part of `krizaka-service-kit`) (or
   `KRIZAKA_REPOS_DIR`) → `lib/generated/building-blocks.json` (git-ignored), checked by `lib/model.ts` at build. A fact the
   map lacks is added to that generator.
 - **The configuration reference is generated, never written**: `scripts/gen-configuration.mjs` reads
-  `docs/configuration-metadata.json` of `krizaka-platform-kit`, `krizaka-users` and `krizaka-billing` (each held equal to the
+  `docs/configuration-metadata.json` of `krizaka-service-kit`, `krizaka-users` and `krizaka-billing` (each held equal to the
   configuration processor's metadata by that repository's `ConfigurationReferenceTest`) → `lib/generated/configuration.json`;
   pages render it with `<ConfigurationReference artifact="…" />`. A property is described in its Java source, never here.
 - **The features matrix is honest by construction**: `lib/features.json` marks each capability shipped, partial or planned;
@@ -75,9 +75,9 @@
 The org code rules (addendum 2026-10-15) are checked by tools, not by review.
 
 - **OpenRewrite** (`rewrite-maven-plugin`, configured once in `krizaka-parent`, inherited by every JVM repository):
-  the Java style is **explicit, never autodetected** (`krizaka-rewrite-style`: no star import, static imports first — the layout google-java-format writes; autodetection once folded the imports of 29 untouched files, orazaka-ai-engine#133),
+  the Java style is **explicit, never autodetected** (`krizaka-rewrite-style`: no star import, static imports first — the layout google-java-format writes; autodetection once folded the imports of 29 untouched files, sovkora-ai-engine#133),
   common static analysis, test cleanup (`RemoveTestPrefix`; not `TestsShouldIncludeAssertions`, which turns an aborted assumption into a failure), Java 21 idioms, Spring idioms (no `@Autowired` on a constructor; `@Bean`
-  methods stay public — the auto-configurations of the platform kit are published API), no duplicate POM dependency. `./mvnw rewrite:dryRun` lists what would change and **fails** if
+  methods stay public — the auto-configurations of the service kit are published API), no duplicate POM dependency. `./mvnw rewrite:dryRun` lists what would change and **fails** if
   anything would (CI runs it: `rewrite: true` in `.github/workflows/ci.yml`); `./mvnw rewrite:run` applies it — behaviour
   identical, run the tests, land it in a small pull request. A recipe that is wrong for this repository is excluded here
   (`<exclusions>` / a `rewrite.yml`), with the reason; test fixtures (`**/fixture/**`) are excluded everywhere.
@@ -100,10 +100,25 @@ The org code rules (addendum 2026-10-15) are checked by tools, not by review.
   commit it. Never add a violation to a store by hand to get a build green.
 - A rule is never weakened, skipped or deleted to get a PR green; fix the code or freeze the existing debt.
 
+## HTTP clients (Spring Boot 4) and ArchUnit
+
+How a Java module is written, order of work first. Each rule points to the test that enforces it; a rule without a test is not a rule.
+
+**Order of work (pragmatic test-first).** New behaviour starts with a failing test of the port's contract (what the domain expects), then the smallest code that passes, then the refactor. A fix starts with the test that reproduces the bug. A refactor starts with **characterization tests** that pass on the current code and are not edited afterwards (billing-client: `BillingClientFailureContractTest`, one test per failure contract, driven through the domain ports against a stub server, so it names no adapter and no HTTP client). Code is written to be read by a person: small classes with one job, the domain's words for names, short methods, a comment only for a *why* (keep the why of the code you move).
+
+1. **ArchUnit is the law.** A rule exists only as a test; it is never deleted, `@Disabled`, weakened or edited to pass. Existing debt is frozen with `FrozenRules`, **with the issue that will remove it**, never new debt. Every module calls **one entry point** with its base package: `KrizakaArchitecture.assertStandard(classes, "com.krizaka.<module>")` — no package cycle, one top-level class per file, private fields, no field injection, no standard streams, no raw HTTP client outside `config`, package-private `@HttpExchange` interfaces, at most 7 top-level classes per package, every package `@NullMarked`. It reports every broken rule, fails on a module that imported nothing, and freezes only through `assertStandard(classes, pkg, Map.of(Rule.X, "krizaka-internal#123"))` (a frozen rule without an issue is refused). Enforced by `KrizakaArchitectureTest` (krizaka-test-support); the module's own `ArchitectureTest` (billing-client: `architecture/ArchitectureTest`) is its proof.
+2. **HTTP clients are declarative.** No `RestClient`, `RestTemplate` or `WebClient` outside a `config` package (the rule covers the types and their nested types, such as `RestClient.Builder`; `RestClientException` stays allowed, an adapter translates it into its domain exception). Per feature: a package-private `@HttpExchange` interface with package-private `record` wire DTOs, registered with `@ImportHttpServices(group = "billing", types = …)`; the base URL, timeouts and service token are set once in `config` (`BillingHttpGroupConfigurer`). Spring Boot's group properties `spring.http.serviceclient.<group>.base-url|connect-timeout|read-timeout` win when set; `krizaka.billing.*` keeps working as the default. Enforced by `CodeRules.noRawHttpClientInAdaptersRule` (`ModuleShapeRulesTest`), `httpExchangeInterfacesPackagePrivateRule` (in the standard) and `httpExchangeSignaturesHaveNoDomainTypeRule` (`ModuleShapeRulesTest`; billing-client calls it with its domain package). The package-private `final` adapter implements the domain port: DTO to domain mapping, logging, translating `RestClientException` into the domain exception; its failure contract (fail hard, fail open, degrade, best-effort) is stated in its Javadoc and pinned by a characterization test.
+3. **Package by feature**: `<module>.<feature>` holds the port's adapter, its no-op, its exchange, its DTOs and **one public `*ClientConfiguration`, the feature's only public type**; `<module>.config` holds the auto-configuration and the public `@ConfigurationProperties` record. At most 7 top-level classes per package (nest the DTOs of a large exchange in one package-private holder, as `CreditWire`). Enforced by `CodeRules.maxTopLevelClassesPerPackageRule` (in the standard, `ModuleShapeRulesTest`) and `featuresExposeOnlyTheirConfigurationRule` (`ModuleShapeRulesTest`; billing-client's `ArchitectureTest`).
+4. **`@NullMarked` everywhere, no defensive null.** A `package-info.java` with `@NullMarked` in every package, `@Nullable` where null is a real answer (an empty HTTP body), no `Objects.requireNonNull` on a parameter the type already guarantees. Enforced by `AuditRules.everyPackageNullMarkedRule` (in the standard) and NullAway at compile time (tests of a marked package are checked too).
+
+**Tests stay small because of the design.** The adapter depends on its `@HttpExchange` interface, so its unit test stubs that interface in plain Java (mapping, cache, failure contract; no HTTP server: `HttpPackPricingClientTest`). One wiring test per module proves the method, path, body and token against a stub HTTP server (`BillingClientFailureContractTest`, `BillingHttpGroupTest`).
+
+**Self-review before the PR:** no domain type in an `@HttpExchange` signature; adapters, `@HttpExchange` interfaces and DTOs package-private; the module's `ArchitectureTest` calls `assertStandard`; `./mvnw -pl krizaka-billing/krizaka-billing-client -am verify` (the module's own path) is green — that is « done ».
+
 ## Definition of done
 
 1. `./mvnw verify -Prelease -Dgpg.skip` is green.
-2. Inside the Orazaka workspace, `./mvnw install` from the workspace root is green (every consumer still builds).
+2. Inside the Sovkora workspace, `./mvnw install` from the workspace root is green (every consumer still builds).
 3. A change to the release mechanics is reflected in [README.md](README.md#releasing-to-maven-central) and in the
    organisation pipeline (`krizaka/.github/.github/workflows/maven.yml`).
 
@@ -137,7 +152,7 @@ These are the defects code review found most often on 2026-10-23. Check them you
 ## 9. Anti-slop (ADR-015)
 
 What a model tends to write and the code does not need. Each line points at the rule that refuses it
-([ADR-015](https://github.com/krizaka/.github/blob/main/docs/adr/ADR-015-ai-code-audit-measured-and-enforced.md), [docs/standards/guards.md](https://github.com/krizaka/.github/blob/main/docs/standards/guards.md)).
+([ADR-015](https://github.com/krizaka/krizaka-internal/blob/main/docs/adr/.github/ADR-015-ai-code-audit-measured-and-enforced.md), [docs/standards/guards.md](https://github.com/krizaka/.github/blob/main/docs/standards/guards.md)).
 
 1. **No defensive null on `@NullMarked` code.** No `Objects.requireNonNull` or `if (x == null)` on a value the type already
    guarantees. Enforced by NullAway at compile time; a new package is `@NullMarked` (ArchUnit).

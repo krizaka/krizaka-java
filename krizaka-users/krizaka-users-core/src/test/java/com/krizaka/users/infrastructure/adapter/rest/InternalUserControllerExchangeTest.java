@@ -30,7 +30,7 @@ class InternalUserControllerExchangeTest {
 
   private static User user() {
     return new User(
-        UUID.randomUUID(), "svc", "svc@orazaka.com", true, Set.of("ROLE_USER"), Map.of());
+        UUID.randomUUID(), "svc", "svc@sovkora.com", true, Set.of("ROLE_USER"), Map.of());
   }
 
   @Test
@@ -72,7 +72,7 @@ class InternalUserControllerExchangeTest {
         new User(
             UUID.randomUUID(),
             "svc",
-            "svc@orazaka.com",
+            "svc@sovkora.com",
             true,
             Set.of("ROLE_USER"),
             Map.of(),

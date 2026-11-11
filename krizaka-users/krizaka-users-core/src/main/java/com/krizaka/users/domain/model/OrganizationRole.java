@@ -2,7 +2,7 @@ package com.krizaka.users.domain.model;
 
 /**
  * What an account is in an organization. Owners and administrators manage it; a member only belongs
- * to it; a service account is a product's account (such as {@code svc_akinaza}) that the
+ * to it; a service account is a product's account (such as {@code svc_folioviv}) that the
  * organization owns and whose keys it can see and revoke.
  */
 public enum OrganizationRole {

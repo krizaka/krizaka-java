@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" child.project.url.inherit.append.path="false">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- krizaka-service-kit: the cross-cutting code every Krizaka Spring Boot service would
+         otherwise write itself — and, measured in Sovkora, did write five to seven times, with
+         three live bugs among the copies (ADR-058). Each module is a Spring Boot auto-configuration:
+         add the dependency, set the declared properties, and the service carries the invariant. -->
+    <parent>
+        <groupId>com.krizaka</groupId>
+        <artifactId>krizaka-parent</artifactId>
+        <version>0.13.1</version> <!-- x-release-please-version -->
+        <relativePath>../krizaka-parent/pom.xml</relativePath>
+    </parent>
+
+    <artifactId>krizaka-service-kit</artifactId>
+    <!-- One version for the whole family (ADR-021): the version of krizaka-java, released by release-please. -->
+    <version>0.13.1</version>
+    <packaging>pom</packaging>
+    <name>Krizaka Service Kit</name>
+    <description>Cross-cutting building blocks for Spring Boot services: stateless JWT security with one baseline, service-to-service tokens, idempotent message consumption, a transactional outbox relay and the HTTP baseline (Problem Details, request correlation, Jackson defaults, cursor pagination, declared CORS).</description>
+    <url>https://github.com/krizaka/krizaka-java/tree/main/krizaka-service-kit</url>
+
+    <scm child.scm.connection.inherit.append.path="false" child.scm.developerConnection.inherit.append.path="false" child.scm.url.inherit.append.path="false">
+        <url>https://github.com/krizaka/krizaka-java/tree/main/krizaka-service-kit</url>
+        <connection>scm:git:https://github.com/krizaka/krizaka-java.git</connection>
+        <developerConnection>scm:git:git@github.com:krizaka/krizaka-java.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+
+    <issueManagement>
+        <system>GitHub Issues</system>
+        <url>https://github.com/krizaka/krizaka-java/issues</url>
+    </issueManagement>
+
+    <properties>
+        <!-- Security overrides of the Spring Boot BOM (Dependabot alerts): the patched releases of the libraries whose
+             Boot-managed version is vulnerable. Drop each one when krizaka-parent / Spring Boot manages a fixed version. -->
+        <krizaka.security.jackson3.version>3.2.4</krizaka.security.jackson3.version>
+        <krizaka.security.jackson2.version>2.22.4</krizaka.security.jackson2.version>
+        <krizaka.security.amqp-client.version>5.37.0</krizaka.security.amqp-client.version>
+        <krizaka.security.opentelemetry.version>1.67.0</krizaka.security.opentelemetry.version>
+        <krizaka.security.tomcat.version>11.0.27</krizaka.security.tomcat.version>
+        <!-- Testcontainers 1.x brings commons-compress 1.24, vulnerable until 1.26.0 (OpenSSF Scorecard, Vulnerabilities). -->
+        <krizaka.security.commons-compress.version>1.28.0</krizaka.security.commons-compress.version>
+        <!-- The krizaka-java release the kit is built on: krizaka-test-support, at the version of
+             the krizaka-parent above. -->
+        <archunit.version>1.5.1</archunit.version>
+        <!-- What reaches Maven Central: the libraries, never a runnable service. A *-service module
+             sets maven.deploy.skip (the services ship as Docker images); every other module with sources is
+             published, and its jar must stay under krizaka.publishable.max-size (enforcer, verify phase). -->
+        <maven.deploy.skip>false</maven.deploy.skip>
+        <krizaka.publishable.max-size>5242880</krizaka.publishable.max-size>
+    </properties>
+
+    <modules>
+        <module>krizaka-security</module>
+        <module>krizaka-messaging</module>
+        <module>krizaka-web</module>
+        <module>krizaka-observability</module>
+        <module>krizaka-app-config</module>
+        <module>krizaka-idempotency</module>
+        <module>krizaka-persistence</module>
+        <module>krizaka-webhooks</module>
+        <module>krizaka-ratelimit</module>
+        <module>starters</module>
+        <module>krizaka-notifications-api</module>
+        <module>krizaka-notifications-service</module>
+        <module>examples/krizaka-starters-example</module>
+        <module>examples/krizaka-idempotency-example</module>
+        <module>examples/krizaka-webhooks-example</module>
+        <module>examples/krizaka-ratelimit-example</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- Testcontainers 1.x pulls commons-compress 1.24 (GHSA-4265-ccf5-phj5, GHSA-4g9r-vxhx-9pgx, fixed in 1.26.0). -->
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-compress</artifactId>
+                <version>${krizaka.security.commons-compress.version}</version>
+            </dependency>
+            <!-- Security overrides: these come before the Boot BOM, so they win (first declaration wins). -->
+            <dependency>
+                <groupId>tools.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>${krizaka.security.jackson3.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>${krizaka.security.jackson2.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.opentelemetry</groupId>
+                <artifactId>opentelemetry-bom</artifactId>
+                <version>${krizaka.security.opentelemetry.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.rabbitmq</groupId>
+                <artifactId>amqp-client</artifactId>
+                <version>${krizaka.security.amqp-client.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-core</artifactId>
+                <version>${krizaka.security.tomcat.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-el</artifactId>
+                <version>${krizaka.security.tomcat.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.tomcat.embed</groupId>
+                <artifactId>tomcat-embed-websocket</artifactId>
+                <version>${krizaka.security.tomcat.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- The released Krizaka artifacts the notifications service tests against (krizaka-users-api). -->
+            <dependency>
+                <groupId>com.krizaka</groupId>
+                <artifactId>krizaka-bom</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.tngtech.archunit</groupId>
+                <artifactId>archunit-junit5</artifactId>
+                <version>${archunit.version}</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <!-- The example is built and tested with the kit, never published. -->
+                <plugin>
+                    <groupId>org.sonatype.central</groupId>
+                    <artifactId>central-publishing-maven-plugin</artifactId>
+                    <configuration>
+                        <excludeArtifacts>
+                            <excludeArtifact>krizaka-notifications-service</excludeArtifact>
+                            <excludeArtifact>krizaka-starters-example</excludeArtifact>
+                            <excludeArtifact>krizaka-idempotency-example</excludeArtifact>
+                            <excludeArtifact>krizaka-webhooks-example</excludeArtifact>
+                            <excludeArtifact>krizaka-ratelimit-example</excludeArtifact>
+                        </excludeArtifacts>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <version>${spring-boot.version}</version>
+                    <executions>
+                        <!-- /actuator/info says which build is running. -->
+                        <execution>
+                            <id>build-info</id>
+                            <goals>
+                                <goal>build-info</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <!-- The recipes come from krizaka-parent; the import layout is stated in rewrite.yml. -->
+            <plugin>
+                <groupId>org.openrewrite.maven</groupId>
+                <artifactId>rewrite-maven-plugin</artifactId>
+                <configuration>
+                    <activeStyles>
+                        <style>com.krizaka.style.GoogleJavaImportLayout</style>
+                    </activeStyles>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    <profiles>
+        <!-- Publishable-artifact guard: a module with Java sources that Maven Central receives
+             (maven.deploy.skip=false) must produce a jar under 5 MB. Active in every module that
+             has src/main/java; the *-service hosts skip it with their deployment. -->
+        <profile>
+            <id>publishable-artifact-size</id>
+            <activation>
+                <file>
+                    <exists>${basedir}/src/main/java</exists>
+                </file>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>publishable-artifact-size</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>enforce</goal>
+                                </goals>
+                                <configuration>
+                                    <skip>${maven.deploy.skip}</skip>
+                                    <rules>
+                                        <requireFilesSize>
+                                            <maxsize>${krizaka.publishable.max-size}</maxsize>
+                                            <files>
+                                                <file>${project.build.directory}/${project.build.finalName}.jar</file>
+                                            </files>
+                                            <message>A published artifact must stay small: a runnable (fat) jar never goes to Maven Central. Set maven.deploy.skip=true in a service module; it ships as a Docker image.</message>
+                                        </requireFilesSize>
+                                    </rules>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

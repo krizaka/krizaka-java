@@ -79,8 +79,8 @@ class OrganizationPersistenceIT extends AbstractContainerIntegrationTest {
     jdbc.update("DELETE FROM api_keys");
     jdbc.update("DELETE FROM users");
     user("owner", "olga");
-    user("svc-akinaza", "svc_akinaza");
-    user("svc-yomizaka", "svc_yomizaka");
+    user("svc-folioviv", "svc_folioviv");
+    user("svc-verikora", "svc_verikora");
     user("person", "pat");
     organizations.save(new OrganizationDto("org-1", "krizaka", "Krizaka", null));
   }
@@ -150,13 +150,13 @@ class OrganizationPersistenceIT extends AbstractContainerIntegrationTest {
 
   @Test
   void onlyTheServiceAccountsKeysAreTheOrganizationsKeys() {
-    organizations.saveMember(member("svc-akinaza", "SERVICE"));
+    organizations.saveMember(member("svc-folioviv", "SERVICE"));
     organizations.saveMember(member("person", "MEMBER"));
     apiKeys.save(
         new ApiKeyDto(
-            "k1", "svc-akinaza", "prod", "oz_live_aaaa", "hash1", null, null, Set.of("ai:embed")));
+            "k1", "svc-folioviv", "prod", "oz_live_aaaa", "hash1", null, null, Set.of("ai:embed")));
     apiKeys.save(
-        new ApiKeyDto("k2", "svc-yomizaka", "prod", "oz_live_bbbb", "hash2", null, null, Set.of()));
+        new ApiKeyDto("k2", "svc-verikora", "prod", "oz_live_bbbb", "hash2", null, null, Set.of()));
     apiKeys.save(
         new ApiKeyDto("k3", "person", "mine", "oz_live_cccc", "hash3", null, null, Set.of()));
 
@@ -165,7 +165,7 @@ class OrganizationPersistenceIT extends AbstractContainerIntegrationTest {
     assertThat(keys).extracting(ApiKeyDto::id).containsExactly("k1");
     assertThat(keys.getFirst().scopes()).containsExactly("ai:embed");
 
-    organizations.saveMember(member("svc-yomizaka", "SERVICE"));
+    organizations.saveMember(member("svc-verikora", "SERVICE"));
     assertThat(organizations.findServiceKeys("org-1"))
         .extracting(ApiKeyDto::id)
         .containsExactlyInAnyOrder("k1", "k2");

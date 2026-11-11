@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.krizaka</groupId>
         <artifactId>krizaka-parent</artifactId>
-        <version>0.11.1</version>
+        <version>0.13.1</version>
         <relativePath>../krizaka-parent/pom.xml</relativePath>
     </parent>
 
@@ -15,7 +15,7 @@
 
     <properties>
         <archunit.version>1.5.1</archunit.version>
-        <!-- The 1.x line the Krizaka and Orazaka integration tests run on; one version on a test
+        <!-- The 1.x line the Krizaka and Sovkora integration tests run on; one version on a test
              classpath, whichever repository it is assembled from. -->
         <testcontainers.version>1.21.4</testcontainers.version>
         <!-- EventContractTest. The 3.0.6 line is built on Jackson 3.1.4, the Jackson of Spring

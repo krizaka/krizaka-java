@@ -1,5 +1,5 @@
 -- ============================================================================
--- ORAZAKA — Local DB bootstrap · 70 — BILLING & CREDITS CONTEXT
+-- SOVKORA — Local DB bootstrap · 70 — BILLING & CREDITS CONTEXT
 -- ----------------------------------------------------------------------------
 -- Owner: Billing service (krizaka-billing-service :8095 — ADR-033).
 -- Everything "what may this actor buy, and how much volume is left": plans,
@@ -14,7 +14,7 @@
 -- ============================================================================
 
 -- The password is NOT set here. psql 15 cannot read the environment (\getenv is 16+)
--- and ERR-125 bans a shell script, so `orazaka start` applies ALTER ROLE from
+-- and ERR-125 bans a shell script, so `sovkora start` applies ALTER ROLE from
 -- BILLING_DB_PASSWORD once the container is healthy. A role created without a
 -- password cannot authenticate, so a skipped step fails closed rather than leaving a
 -- guessable one — which is what the committed literal was (ADR-035, audit #5).

@@ -12,7 +12,7 @@ description: krizaka-webhooks — sign, send and verify webhooks the Standard We
 
 A webhook is an unauthenticated POST until you check who sent it. The kit signs and verifies them the
 [Standard Webhooks](https://www.standardwebhooks.com) way — `webhook-id`, `webhook-timestamp`, `webhook-signature: v1,<base64
-HMAC-SHA256>` — so a receiver can use any off-the-shelf library. Promoted from Orazaka and the notifications service.
+HMAC-SHA256>` — so a receiver can use any off-the-shelf library. Promoted from Sovkora and the notifications service.
 
 ## Receive
 
@@ -68,7 +68,7 @@ Secrets are never printed by a `toString`.
 ## Proven
 
 `WebhookSignatureTest` reproduces the standard's own test vector. The [example
-app](https://github.com/krizaka/krizaka-platform-kit/tree/main/examples/krizaka-webhooks-example) sends with the kit's
+app](https://github.com/krizaka/krizaka-java/tree/main/krizaka-service-kit/examples/krizaka-webhooks-example) sends with the kit's
 sender to the kit's receiver over HTTP, and refuses a forgery and an unsigned request with `401`. Both operations are
 observed as `krizaka.webhooks.send` and `krizaka.webhooks.verify` (tag `outcome`).
 

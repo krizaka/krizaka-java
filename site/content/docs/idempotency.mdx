@@ -11,7 +11,7 @@ description: krizaka-idempotency — an HTTP action runs at most once per Idempo
 ```
 
 A client whose connection dropped after your service accepted a request cannot tell whether it ran. Retrying blind pays
-twice, not retrying loses the order. With an `Idempotency-Key` header the retry is safe — promoted from Orazaka, where
+twice, not retrying loses the order. With an `Idempotency-Key` header the retry is safe — promoted from Sovkora, where
 every paid run start works this way.
 
 ```yaml
@@ -50,7 +50,7 @@ SHA-256 of its canonical JSON, so the order of its fields is not a difference. K
 ## Proven
 
 `JdbcIdempotencyIT` runs it on PostgreSQL — replay, reuse, rollback, two concurrent requests on one key, purge — and the
-[example app](https://github.com/krizaka/krizaka-platform-kit/tree/main/examples/krizaka-idempotency-example) proves it
+[example app](https://github.com/krizaka/krizaka-java/tree/main/krizaka-service-kit/examples/krizaka-idempotency-example) proves it
 over HTTP. Every execution is observed as `krizaka.idempotency` (see [Observability](/observability)).
 
 ## Configuration

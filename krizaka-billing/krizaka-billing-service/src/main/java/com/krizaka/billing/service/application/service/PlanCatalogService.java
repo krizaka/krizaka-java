@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * The plan catalogue — what Orazaka sells, as rows.
+ * The plan catalogue — what Sovkora sells, as rows.
  *
  * <p>The design's robustness test is that creating a fourth plan requires <b>zero deploy</b> (§12).
  * That holds only if nothing about a plan is compiled in: the grant, the price, the rate-limit tier

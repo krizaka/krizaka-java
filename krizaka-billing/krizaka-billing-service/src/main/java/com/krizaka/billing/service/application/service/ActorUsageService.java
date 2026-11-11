@@ -11,7 +11,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 /**
- * One actor's usage and cost for a calendar month — what a product calling Orazaka with its own API
+ * One actor's usage and cost for a calendar month — what a product calling Sovkora with its own API
  * key shows its operators ("this month: N credits, X CAD, on plan P").
  *
  * <p>Scoped to the actor by construction: the caller passes the token's subject, never a request

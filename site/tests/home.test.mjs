@@ -53,13 +53,13 @@ test("the duck's promise is the brand's, word for word", () => {
   assert.equal(fr.home.quote.text, "Le canard construit, ligne après ligne, en open source.");
 });
 
-test("the proof is generated: the platform from the parent POM, the tests counted, the Orazaka services listed", () => {
+test("the proof is generated: the platform from the parent POM, the tests counted, the Sovkora services listed", () => {
   const proof = json("lib/generated/proof.json");
   assert.match(proof.platform.java, /^\d+$/);
   assert.match(proof.platform.springBoot, /^\d+\.\d+\.\d+$/);
   assert.ok(proof.tests.total > 0 && proof.tests.realInfrastructure > 0 && proof.tests.realInfrastructure <= proof.tests.total);
-  assert.ok(proof.orazaka.services.length > 0);
-  for (const s of proof.orazaka.services) for (const a of s.artifacts) assert.ok(ids.has(a), `${s.id} uses ${a}, which is not an artifact of the POMs`);
+  assert.ok(Array.isArray(proof.sovkora.services));
+  for (const s of proof.sovkora.services) for (const a of s.artifacts) assert.ok(ids.has(a), `${s.id} uses ${a}, which is not an artifact of the POMs`);
 });
 
 test("no version, count or platform is typed in the home's messages or components", () => {

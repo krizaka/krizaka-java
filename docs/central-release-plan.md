@@ -1,6 +1,6 @@
 # The building blocks missing from Maven Central: the check and the plan
 
-This is phase 1 of krizaka/krizaka-build#82, written 2026-10-23. Nothing here releases anything. Releases are done by the CTO and Oussama, never by an agent.
+This is phase 1 of krizaka/krizaka-java#82, written 2026-10-23. Nothing here releases anything. Releases are done by the CTO and Oussama, never by an agent.
 
 It builds on the issues already open:
 - **#11:** the BOM names unpublished versions;
@@ -15,7 +15,7 @@ Each artifact's `maven-metadata.xml` on `repo1.maven.org` against the published 
 
 | Block on the picker | Artifact (`site/lib/project.ts:23-25`) | Module | Central has | BOM 0.2.0 manages |
 |---|---|---|---|---|
-| App config | `krizaka-spring-boot-starter-app-config` → `krizaka-app-config` | krizaka-platform-kit `starters/krizaka-spring-boot-starter-app-config/pom.xml`, `krizaka-app-config/pom.xml` | **nothing** | 0.2.0 |
+| App config | `krizaka-spring-boot-starter-app-config` → `krizaka-app-config` | krizaka-service-kit `starters/krizaka-spring-boot-starter-app-config/pom.xml`, `krizaka-app-config/pom.xml` | **nothing** | 0.2.0 |
 | Users client | `krizaka-users-client` (→ `krizaka-users-api`) | krizaka-users `krizaka-users-client/pom.xml` | 0.1.0 | 0.2.0 |
 | Billing client | `krizaka-billing-client` (→ `krizaka-billing-api`) | krizaka-billing `krizaka-billing-client/pom.xml` | 0.1.0 | 0.2.0 |
 
@@ -59,31 +59,31 @@ The domain repositories build against parent 0.2.0 and security 0.2.0, which are
 
 ### 4.1 A trap to avoid first
 
-**Do not merge krizaka-build#8 (« release 0.3.0 ») as it is.** It bumps the BOM to 0.3.0 but leaves its properties at `0.2.0`. BOM 0.3.0 would therefore manage the kit at 0.2.0, which still has no app-config, and the domain blocks at an unpublished 0.2.0: the same 17 broken artifacts in a new, immutable release. It merges **last**, after §4.3's steps 1–3 and the properties PR.
+**Do not merge krizaka-java#8 (« release 0.3.0 ») as it is.** It bumps the BOM to 0.3.0 but leaves its properties at `0.2.0`. BOM 0.3.0 would therefore manage the kit at 0.2.0, which still has no app-config, and the domain blocks at an unpublished 0.2.0: the same 17 broken artifacts in a new, immutable release. It merges **last**, after §4.3's steps 1–3 and the properties PR.
 
 ### 4.2 Code and POM fixes (phase 2, agent PRs, no release)
 
 | # | Repository | Fix | Test |
 |---|---|---|---|
-| 1 | krizaka-build | **The BOM release guard (#11 item 1).** Before signing in the `release` job, a dependency-free script reads every managed `com.krizaka` artifact at its property's version from `repo1.maven.org` and fails with the list of the missing ones. It runs only on a tag, where the network exists. | Unit test on fixtures (a metadata file with and without the version); no network in the test. |
-| 2 | krizaka-build | **The properties PR.** `krizaka-platform-kit.version` → 0.3.0; users, notifications and billing stay 0.2.0. Opened only after those releases exist, so the guard passes. | The guard itself. |
+| 1 | krizaka-java | **The BOM release guard (#11 item 1).** Before signing in the `release` job, a dependency-free script reads every managed `com.krizaka` artifact at its property's version from `repo1.maven.org` and fails with the list of the missing ones. It runs only on a tag, where the network exists. | Unit test on fixtures (a metadata file with and without the version); no network in the test. |
+| 2 | krizaka-java | **The properties PR.** `krizaka-service-kit.version` → 0.3.0; users, notifications and billing stay 0.2.0. Opened only after those releases exist, so the guard passes. | The guard itself. |
 | 3 | krizaka-users, krizaka-notifications, krizaka-billing | **release-please, as in the kit** (`release-please-config.json`, manifest, `release-please.yml` dispatching `ci.yml` on the tag). Each repository gets its own `<version>` instead of inheriting the parent's, because a parent bump must never re-version a domain block. | CI green; the release PR lists the right files. |
 | 4 | krizaka-users | Restore `japicmp.breakBuildOnBinaryIncompatibleModifications=true` once 0.2.0 is on Central (#15). | `verify -Prelease`. |
-| 5 | krizaka-build `site/` | **Refresh after a release elsewhere.** App Platform builds the site only on a push to `main` (`.do/app.yaml` `deploy_on_push`); the weekly cron in `site.yml` runs CI, not a deployment. Add the pattern krizaka/.github `changelog-rebuild.yml` already uses for krizaka-com: on `repository_dispatch: central-release` and daily, `doctl apps create-deployment --force-rebuild` for `krizaka-java-site`, with the `dev` environment's `DIGITALOCEAN_ACCESS_TOKEN`. Each Java repository's release job sends the dispatch after its upload. | `tests/` on the workflow (as krizaka/.github `tests/ci-workflows.test.mjs` does). |
+| 5 | krizaka-java `site/` | **Refresh after a release elsewhere.** App Platform builds the site only on a push to `main` (`.do/app.yaml` `deploy_on_push`); the weekly cron in `site.yml` runs CI, not a deployment. Add the pattern krizaka/.github `changelog-rebuild.yml` already uses for krizaka-com: on `repository_dispatch: central-release` and daily, `doctl apps create-deployment --force-rebuild` for `krizaka-java-site`, with the `dev` environment's `DIGITALOCEAN_ACCESS_TOKEN`. Each Java repository's release job sends the dispatch after its upload. | `tests/` on the workflow (as krizaka/.github `tests/ci-workflows.test.mjs` does). |
 
 ### 4.3 The releases (CTO and Oussama, in this order)
 
 **Prerequisites (Oussama):**
 - #13: a new Central token.
-- #14: the organisation secrets `MAVEN_CENTRAL_USERNAME`, `MAVEN_CENTRAL_PASSWORD`, `MAVEN_GPG_KEY` and `MAVEN_GPG_PASSPHRASE`, and the `maven-central` environment on krizaka-users, krizaka-notifications and krizaka-billing. Today it exists only on krizaka-build and krizaka-platform-kit.
+- #14: the organisation secrets `MAVEN_CENTRAL_USERNAME`, `MAVEN_CENTRAL_PASSWORD`, `MAVEN_GPG_KEY` and `MAVEN_GPG_PASSPHRASE`, and the `maven-central` environment on krizaka-users, krizaka-notifications and krizaka-billing. Today it exists only on krizaka-java and krizaka-service-kit.
 - The Central publishing quota for the month (#15: the October allowance was spent).
 
 **The steps:**
 1. **Kit 0.3.0.** Merge krizaka-platform-kit#10. release-please tags `v0.3.0` and dispatches `ci.yml` on it. The `maven` job verifies, signs and uploads. Then press **Publish** on central.sonatype.com (`autoPublish=false`). This first CI release is the test of #10 and #14.
 2. **Users 0.2.0, notifications 0.2.0, billing 0.2.0, in that order.** With §4.2 #3 merged, each one's release-please PR is merged, which tags `v0.2.0`, uploads, and waits for Publish. Without #3, a CTO pushes the `v0.2.0` tag by hand on `main`, and the same job runs.
 3. **Check:** `curl -s https://repo1.maven.org/maven2/com/krizaka/<artifact>/maven-metadata.xml` lists the new versions for the 17 artifacts. The search index lags; the metadata file does not.
-4. **BOM 0.3.0.** Merge §4.2 #2, the properties PR, then krizaka-build#8 rebased. The guard (§4.2 #1) proves that every managed artifact resolves before signing. Publish.
-5. **The site.** The krizaka-build release is a push to `main`, so java.krizaka.com rebuilds. `gen-registry-versions.mjs` reads BOM 0.3.0, and the three blocks turn from « pending » to « ready » (`site/lib/project.ts:42-47`).
+4. **BOM 0.3.0.** Merge §4.2 #2, the properties PR, then krizaka-java#8 rebased. The guard (§4.2 #1) proves that every managed artifact resolves before signing. Publish.
+5. **The site.** The krizaka-java release is a push to `main`, so java.krizaka.com rebuilds. `gen-registry-versions.mjs` reads BOM 0.3.0, and the three blocks turn from « pending » to « ready » (`site/lib/project.ts:42-47`).
 
 **Can the release move to CI?** Yes, and it is designed for it: `krizaka/.github` `maven.yml` signs and uploads on a `v*` tag in the `maven-central` environment, and a human presses Publish. What blocks it is only §4.3's prerequisites. A local release stays the fallback, never the norm.
 
@@ -96,5 +96,5 @@ The map is ADR-001 and `docs/design/module-map.md` §4 in krizaka-ts (PR krizaka
 | Java block | TypeScript module | Names | Boundary |
 |---|---|---|---|
 | `krizaka-users` (`-api`, `-client`, `-core`, `-persistence`, `-service`) | `@krizaka/auth` | they differ: the TS packages are published and the Java artifacts are on Central, so both names stay and the docs say « auth ↔ users » | **Java:** a central identity service (JWT, OAuth, API keys). **TS:** accounts inside each product's database. They meet at **federation**: `@krizaka/auth`'s `IdentityProvider` port with a krizaka-users adapter (krizaka/krizaka-ts#32). The users client is what a Java service uses; a TS product never calls it directly. |
-| `krizaka-billing` (`-api`, `-client`, `-service`) | `@krizaka/credits` + `@krizaka/payments` | partly the same | **One ledger model:** buckets `GRANTED`/`PURCHASED`; entries `GRANT\|PURCHASE\|DEBIT\|REFUND\|EXPIRY\|ADJUSTMENT`; holds with a TTL; `idempotency_key` per entry (`krizaka-billing/infra/initdb/70-billing.sql:145-184`); events `evt.credit.*.v1`. Java has no payment provider; TS has Stripe. Coupons get a Java twin in krizaka-billing for Orazaka (krizaka/krizaka-ts ADR-002 §7). |
+| `krizaka-billing` (`-api`, `-client`, `-service`) | `@krizaka/credits` + `@krizaka/payments` | partly the same | **One ledger model:** buckets `GRANTED`/`PURCHASED`; entries `GRANT\|PURCHASE\|DEBIT\|REFUND\|EXPIRY\|ADJUSTMENT`; holds with a TTL; `idempotency_key` per entry (`krizaka-billing/infra/initdb/70-billing.sql:145-184`); events `evt.credit.*.v1`. Java has no payment provider; TS has Stripe. Coupons get a Java twin in krizaka-billing for Sovkora (krizaka/krizaka-ts ADR-002 §7). |
 | `krizaka-app-config` + starter | `@krizaka/app-config` (krizaka-ui) | **the same** | One contract: the JSON Schema `@krizaka/app-config/contract/app-config.schema.json`, served by both. It is not `@krizaka/settings`: app-config is version compatibility, and settings are the admin's parameters. |

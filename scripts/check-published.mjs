@@ -1,13 +1,13 @@
 #!/usr/bin/env node
-// Guard (ADR-021): a release is « released » only when every module is on GitHub Packages.
+// Guard (ADR-021): a release is « released » only when every module is on Maven Central (the one registry since 2026-11-06).
 //
 // release-please tags the release as soon as its pull request merges; the deploy is a separate workflow that can fail
-// (2026-11-01: v0.6.0, HTTP 422 on the platform-kit packages, still linked to krizaka/krizaka-platform-kit). This script reads
+// (2026-11-01: v0.6.0, HTTP 422 on the service-kit packages, still linked to the service kit's former repository). This script reads
 // the reactor (root pom.xml, <module> recursively), drops the modules that do not ship (maven.deploy.skip=true) and asks the
 // registry for each artifact's versions. Any module missing the version: exit 1 and the list.
 //
-//   node scripts/check-published.mjs <vX.Y.Z> [--org krizaka] [--group com.krizaka]
-// GITHUB_TOKEN needs `packages: read`.
+//   node scripts/check-published.mjs <vX.Y.Z> [--group com.krizaka]
+// Central's deployments wait for Publish (autoPublish=false): until it is pressed, the release is not released.
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -57,29 +57,29 @@ export async function missing(artifacts, version, versionsOf) {
   return gaps;
 }
 
-function registry(org, group, token) {
-  const headers = { Accept: "application/vnd.github+json", ...(token ? { Authorization: `Bearer ${token}` } : {}) };
+/** The versions a Maven repository's maven-metadata.xml lists (empty when none). */
+export function versionsFromMetadata(xml) {
+  return [...xml.matchAll(/<version>([^<]+)<\/version>/g)].map((m) => m[1].trim());
+}
+
+/** Maven Central, the one registry of com.krizaka since 2026-11-06 (GitHub Packages is abandoned for Maven). */
+function central(group, base = "https://repo1.maven.org/maven2") {
   return async (artifactId) => {
-    const names = [];
-    for (let page = 1; ; page += 1) {
-      const res = await fetch(`https://api.github.com/orgs/${org}/packages/maven/${group}.${artifactId}/versions?per_page=100&page=${page}`, { headers });
-      if (res.status === 404) return page === 1 ? null : names;
-      if (!res.ok) throw new Error(`${artifactId}: HTTP ${res.status}`);
-      const batch = (await res.json()).map((v) => v.name);
-      names.push(...batch);
-      if (batch.length < 100) return names;
-    }
+    const res = await fetch(`${base}/${group.replaceAll(".", "/")}/${artifactId}/maven-metadata.xml`);
+    if (res.status === 404) return null;
+    if (!res.ok) throw new Error(`${artifactId}: HTTP ${res.status}`);
+    return versionsFromMetadata(await res.text());
   };
 }
 
 async function main(argv) {
   const flag = (n, d) => { const i = argv.indexOf(`--${n}`); return i >= 0 ? argv[i + 1] : d; };
   const version = argv.find((a) => /^v?\d+\.\d+\.\d+$/.test(a))?.replace(/^v/, "");
-  if (!version) { console.error("usage: check-published.mjs <vX.Y.Z> [--org krizaka] [--group com.krizaka]"); return 2; }
+  if (!version) { console.error("usage: check-published.mjs <vX.Y.Z> [--group com.krizaka]"); return 2; }
   const root = join(dirname(fileURLToPath(import.meta.url)), "..");
   const artifacts = publishable(root);
-  const gaps = await missing(artifacts, version, registry(flag("org", "krizaka"), flag("group", "com.krizaka"), process.env.GITHUB_TOKEN));
-  if (gaps.length === 0) { console.log(`v${version}: ${artifacts.length} modules are on GitHub Packages`); return 0; }
+  const gaps = await missing(artifacts, version, central(flag("group", "com.krizaka")));
+  if (gaps.length === 0) { console.log(`v${version}: ${artifacts.length} modules are on Maven Central`); return 0; }
   console.error(`v${version} is NOT fully published: ${gaps.length} of ${artifacts.length} modules missing`);
   for (const g of gaps) console.error(`  - ${g.artifactId} (${g.why})`);
   return 1;

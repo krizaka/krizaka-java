@@ -4,7 +4,7 @@ description: The Spring Boot building blocks of every Krizaka service — one bu
 ---
 
 The cross-cutting code every Spring Boot service writes — security, error format, messaging, observability — written
-once in the [Krizaka Platform Kit](https://github.com/krizaka/krizaka-platform-kit), with its invariants tested on a
+once in the [Krizaka Service Kit](https://github.com/krizaka/krizaka-java/tree/main/krizaka-service-kit), with its invariants tested on a
 real PostgreSQL and RabbitMQ. Everything is published on Maven Central under `com.krizaka` (Apache-2.0) and requires
 **Java 21** and **Spring Boot 4.0**.
 
@@ -56,7 +56,7 @@ krizaka:
 
 ## Domain services
 
-The business layer built on the kit — reusable by any application, used by Orazaka. Each is cut the same way
+The business layer built on the kit — reusable by any application, used by Sovkora. Each is cut the same way
 ([ports and adapters](/architecture)): a published `*-api` contract and `*-client`, a host you deploy.
 
 | Service | What it does |
@@ -65,5 +65,5 @@ The business layer built on the kit — reusable by any application, used by Ora
 | [`krizaka-billing`](/billing) | Credits, wallets, plans, subscriptions, a versioned price book, metering (hold → settle → release) |
 | [`krizaka-notifications`](/notifications) | E-mail, SMS and webhooks behind one port, driven by events |
 
-Orazaka's own business layer — intentions and use-cases — is documented with the engine:
-[Business Layer](https://www.krizaka.com/docs/orazaka/business).
+Sovkora's own business layer — intentions and use-cases — is documented with the engine:
+[Business Layer](https://www.krizaka.com/docs/sovkora/business).

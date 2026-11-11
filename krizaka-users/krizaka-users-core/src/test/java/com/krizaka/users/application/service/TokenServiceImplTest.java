@@ -41,7 +41,7 @@ class TokenServiceImplTest {
         new User(
             id,
             "testuser",
-            "test@orazaka.com",
+            "test@sovkora.com",
             true,
             Set.of("ROLE_ADMIN"),
             Map.of(),
@@ -54,7 +54,7 @@ class TokenServiceImplTest {
         NimbusJwtDecoder.withSecretKey(key).macAlgorithm(MacAlgorithm.HS256).build().decode(token);
     assertThat(jwt.getSubject()).isEqualTo(id.toString());
     assertThat(jwt.getClaimAsString("username")).isEqualTo("testuser");
-    assertThat(jwt.getClaimAsString("email")).isEqualTo("test@orazaka.com");
+    assertThat(jwt.getClaimAsString("email")).isEqualTo("test@sovkora.com");
     assertThat(jwt.getClaimAsStringList("roles")).containsExactly("ROLE_ADMIN");
     assertThat(jwt.getClaimAsString("tier")).isEqualTo("premium");
     assertThat(jwt.getClaimAsString("iss")).isEqualTo("krizaka-users");
@@ -65,7 +65,7 @@ class TokenServiceImplTest {
   @DisplayName("Omits the tier claim when the user has no tier")
   void omitsTierWhenAbsent() {
     User user =
-        new User(UUID.randomUUID(), "u", "u@orazaka.com", true, Set.of("ROLE_USER"), Map.of());
+        new User(UUID.randomUUID(), "u", "u@sovkora.com", true, Set.of("ROLE_USER"), Map.of());
 
     Jwt jwt =
         NimbusJwtDecoder.withSecretKey(key)

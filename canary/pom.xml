@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Canary consumer (krizaka-build#105): a module that inherits krizaka-parent and has NO pmd-baseline.properties
+<!-- Canary consumer (krizaka-java#105): a module that inherits krizaka-parent and has NO pmd-baseline.properties
      nor spotbugs-exclude.xml, verified with the quality checks ON. CI builds it after installing the quality rules
      and the parent, so a parent change that breaks consumers fails here, before the merge. Never published. -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.krizaka</groupId>
         <artifactId>krizaka-parent</artifactId>
-        <version>0.11.1</version>
+        <version>0.13.1</version>
         <relativePath>../krizaka-parent/pom.xml</relativePath>
     </parent>
     <artifactId>krizaka-canary</artifactId>
@@ -15,7 +15,7 @@
     <description>Consumer of krizaka-parent without baselines, verified with PMD, SpotBugs and NullAway on.</description>
 
     <dependencies>
-        <!-- @NullMarked: the canary's package is checked by NullAway (ADR-015, krizaka-build#120). -->
+        <!-- @NullMarked: the canary's package is checked by NullAway (ADR-015, krizaka-java#120). -->
         <dependency>
             <groupId>org.jspecify</groupId>
             <artifactId>jspecify</artifactId>

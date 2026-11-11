@@ -12,13 +12,13 @@ const BOM_POM = `<project>
   <artifactId>krizaka-bom</artifactId>
   <version>0.2.0</version>
   <properties>
-    <krizaka-platform-kit.version>0.2.0</krizaka-platform-kit.version>
+    <krizaka-service-kit.version>0.2.0</krizaka-service-kit.version>
     <krizaka-users.version>0.2.0</krizaka-users.version>
   </properties>
   <dependencyManagement>
     <dependencies>
       <dependency><groupId>com.krizaka</groupId><artifactId>krizaka-test-support</artifactId><version>\${project.version}</version></dependency>
-      <dependency><groupId>com.krizaka</groupId><artifactId>krizaka-spring-boot-starter-web</artifactId><version>\${krizaka-platform-kit.version}</version></dependency>
+      <dependency><groupId>com.krizaka</groupId><artifactId>krizaka-spring-boot-starter-web</artifactId><version>\${krizaka-service-kit.version}</version></dependency>
       <dependency><groupId>com.krizaka</groupId><artifactId>krizaka-users-client</artifactId><version>\${krizaka-users.version}</version></dependency>
       <dependency><groupId>org.example</groupId><artifactId>not-ours</artifactId><version>1.0</version></dependency>
     </dependencies>

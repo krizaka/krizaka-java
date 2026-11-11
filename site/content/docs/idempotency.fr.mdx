@@ -12,7 +12,7 @@ description: krizaka-idempotency — une action HTTP s'exécute au plus une fois
 
 Un client dont la connexion a coupé après que ton service a accepté une requête ne peut pas savoir si elle a abouti.
 Réessayer à l'aveugle fait payer deux fois, ne pas réessayer perd la commande. Avec un en-tête `Idempotency-Key`, la
-reprise est sûre — promu depuis Orazaka, où chaque lancement payant fonctionne ainsi.
+reprise est sûre — promu depuis Sovkora, où chaque lancement payant fonctionne ainsi.
 
 ```yaml
 krizaka:
@@ -50,7 +50,7 @@ empreinte par le SHA-256 de son JSON canonique : l'ordre de ses champs n'est pas
 ## Prouvé
 
 `JdbcIdempotencyIT` l'exécute sur PostgreSQL — rejeu, réutilisation, annulation, deux requêtes simultanées sur une clé,
-purge — et [l'application d'exemple](https://github.com/krizaka/krizaka-platform-kit/tree/main/examples/krizaka-idempotency-example)
+purge — et [l'application d'exemple](https://github.com/krizaka/krizaka-java/tree/main/krizaka-service-kit/examples/krizaka-idempotency-example)
 le prouve en HTTP. Chaque exécution est observée en `krizaka.idempotency` (voir [Observabilité](/observability)).
 
 ## Configuration

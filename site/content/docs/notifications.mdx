@@ -3,7 +3,7 @@ title: Notifications
 description: krizaka-notifications — e-mail, SMS and webhooks behind one port, driven by events; templates per locale.
 ---
 
-[krizaka-notifications](https://github.com/krizaka/krizaka-platform-kit) sends notifications according to the channel.
+[krizaka-notifications](https://github.com/krizaka/krizaka-java/tree/main/krizaka-service-kit) sends notifications according to the channel.
 Applications never talk to an SMTP server or an SMS provider: they publish an event, this service renders and delivers.
 
 ## Channels
@@ -44,4 +44,4 @@ Publish a `NotificationRequest` as JSON on the events exchange with the routing 
 `events/evt.notification.requested.v1.json`.
 
 The full configuration and the run instructions are in the
-[repository's README](https://github.com/krizaka/krizaka-platform-kit/blob/main/docs/notifications.md).
+[repository's README](https://github.com/krizaka/krizaka-java/blob/main/krizaka-service-kit/docs/notifications.md).

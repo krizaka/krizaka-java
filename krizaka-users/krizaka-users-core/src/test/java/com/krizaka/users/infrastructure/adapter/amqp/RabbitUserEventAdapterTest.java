@@ -35,7 +35,7 @@ class RabbitUserEventAdapterTest {
   void shouldPublishEvent() {
     User user =
         new User(
-            UUID.randomUUID(), "testuser", "test@orazaka.com", true, Set.of("ROLE_USER"), Map.of());
+            UUID.randomUUID(), "testuser", "test@sovkora.com", true, Set.of("ROLE_USER"), Map.of());
     UserRegisteredEvent event = new UserRegisteredEvent(user, "token123");
 
     adapter.publish(event);

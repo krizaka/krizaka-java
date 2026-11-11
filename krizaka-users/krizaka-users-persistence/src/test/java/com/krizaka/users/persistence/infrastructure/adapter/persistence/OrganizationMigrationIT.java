@@ -10,7 +10,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 /**
- * The migration of orazaka#372 ({@code db/migration/V4__organizations.sql}, run on deploy by
+ * The migration of sovkora#372 ({@code db/migration/V4__organizations.sql}, run on deploy by
  * Flyway) applied to an identity database that predates organizations: it creates the same tables
  * as {@code V1__users_baseline.sql}, seeds the Krizaka organization with the existing {@code svc_*}
  * accounts, and can be applied twice.
@@ -76,7 +76,7 @@ class OrganizationMigrationIT extends AbstractContainerIntegrationTest {
       s.execute(withoutOrganizations);
       for (String[] u :
           List.of(
-              new String[] {"u1", "svc_akinaza"}, new String[] {"u2", "svc_yomizaka"},
+              new String[] {"u1", "svc_folioviv"}, new String[] {"u2", "svc_verikora"},
               new String[] {"u3", "oussama"}, new String[] {"u4", "svcxfoo"})) {
         s.execute(
             "INSERT INTO users (id, username, email, enabled) VALUES ('"
@@ -140,7 +140,7 @@ class OrganizationMigrationIT extends AbstractContainerIntegrationTest {
       reset(s);
       s.execute(withoutOrganizations);
       s.execute(
-          "INSERT INTO users (id, username, email, enabled) VALUES ('u1', 'svc_akinaza',"
+          "INSERT INTO users (id, username, email, enabled) VALUES ('u1', 'svc_folioviv',"
               + " 'a@x.test', TRUE)");
     }
     var flyway = flyway();

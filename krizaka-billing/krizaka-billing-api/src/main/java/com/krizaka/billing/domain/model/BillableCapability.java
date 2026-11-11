@@ -4,7 +4,7 @@ package com.krizaka.billing.domain.model;
  * The capabilities whose consumption is metered and charged against a credit wallet.
  *
  * <p>Deliberate <b>contract-copy</b> of {@code business.api.Capability} (AGENTS.md §6): this is a
- * Tier-1 contract with zero implementation dependencies and {@code orazaka-business} is Tier-3, so
+ * Tier-1 contract with zero implementation dependencies and {@code sovkora-business} is Tier-3, so
  * the billing contract declares its own enum rather than importing the business one. The shape is
  * pinned by a fixture, exactly like the AMQP contract copies.
  *

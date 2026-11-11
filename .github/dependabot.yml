@@ -37,7 +37,7 @@ updates:
         patterns: ["*"]
     ignore:
       # Spring Boot 4.1 changes runtime behaviour downstream (Spring AMQP 4.1: the dead-letter stack trace becomes
-      # opt-in) — a coordinated move with krizaka-platform-kit, tracked in krizaka/krizaka-build#25. Patches of 4.0 still come.
+      # opt-in) — a coordinated move with krizaka-service-kit, tracked in krizaka/krizaka-java#25. Patches of 4.0 still come.
       - dependency-name: "org.springframework.boot:*"
         versions: [">=4.1"]
     commit-message:

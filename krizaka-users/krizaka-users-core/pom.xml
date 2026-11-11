@@ -5,13 +5,13 @@
     <parent>
         <groupId>com.krizaka</groupId>
         <artifactId>krizaka-users</artifactId>
-        <version>0.11.1</version>
+        <version>0.13.1</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>krizaka-users-core</artifactId>
     <name>krizaka-users-core</name>
-    <description>Orazaka Identity and Access Management Domain</description>
+    <description>Sovkora Identity and Access Management Domain</description>
 
     <dependencies>
         <!-- Internal Modules -->
@@ -67,7 +67,7 @@
         </dependency>
 
         <!-- AMQP publishers of identity domain events (evt.user.* / evt.password.* on
-             orazaka.events, AGENTS.md §6). Optional: hosts provide the broker runtime;
+             sovkora.events, AGENTS.md §6). Optional: hosts provide the broker runtime;
              the adapters are @ConditionalOnClass(RabbitTemplate). -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

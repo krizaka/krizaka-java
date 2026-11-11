@@ -12,13 +12,13 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { locate } from "./gen-building-blocks.mjs";
+import { locate, sourceUrl } from "./gen-building-blocks.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const OUT = join(here, "..", "lib", "generated", "configuration.json");
 
 /** The repositories whose artifacts have properties, in the order the reference lists them. */
-export const CONFIG_REPOSITORIES = ["krizaka-platform-kit", "krizaka-users", "krizaka-billing"];
+export const CONFIG_REPOSITORIES = ["krizaka-service-kit", "krizaka-users", "krizaka-billing"];
 export const METADATA = "docs/configuration-metadata.json";
 
 const fail = (message) => {
@@ -53,7 +53,7 @@ export function extract(dirs) {
       const file = join(dirs.get(name), METADATA);
       if (!existsSync(file)) fail(`${name} has no ${METADATA} — its ConfigurationReferenceTest writes it`);
       const reference = checkReference(JSON.parse(readFileSync(file, "utf8")), name);
-      return { name, url: `https://github.com/krizaka/${name}`, modules: reference.modules };
+      return { name, url: sourceUrl(name), modules: reference.modules };
     }),
   };
 }

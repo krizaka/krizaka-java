@@ -299,13 +299,13 @@
     "proof": {
       "eyebrow": "La preuve",
       "title": "Nos propres services tournent dessus",
-      "lead": "Les services d'Orazaka ci-dessous dépendent de ces artefacts. La liste et les chiffres sont lus dans leurs POM et leurs tests à chaque build.",
+      "lead": "Les services d'Sovkora ci-dessous dépendent de ces artefacts. La liste et les chiffres sont lus dans leurs POM et leurs tests à chaque build.",
       "tests": "tests dans les dépôts de Krizaka Java",
       "real": "démarrent un vrai PostgreSQL ou RabbitMQ (Testcontainers)",
-      "services": "services d'Orazaka construits dessus",
+      "services": "services d'Sovkora construits dessus",
       "uses": "{count} artefacts Krizaka",
       "usesOne": "1 artefact Krizaka",
-      "listLabel": "Les services d'Orazaka et les artefacts Krizaka Java qu'ils utilisent",
+      "listLabel": "Les services d'Sovkora et les artefacts Krizaka Java qu'ils utilisent",
       "domain": "Des services de domaine construits de la même façon : users, billing et notifications.",
       "domainLink": "Voir la carte"
     },
@@ -472,7 +472,7 @@
       },
       "idempotency-keys": {
         "name": "Idempotency-Key HTTP",
-        "note": "Au plus une fois par clé, rejeu avec Idempotent-Replayed, 422 en cas de réutilisation ; stockage PostgreSQL dans la transaction de l'action. Promu depuis Orazaka."
+        "note": "Au plus une fois par clé, rejeu avec Idempotent-Replayed, 422 en cas de réutilisation ; stockage PostgreSQL dans la transaction de l'action. Promu depuis Sovkora."
       },
       "health": {
         "name": "Santé Actuator",

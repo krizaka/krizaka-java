@@ -16,7 +16,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 /**
  * The request id of the call (ADR-085): the edge's {@code X-Request-Id} when well-formed, else a
  * fresh UUID, in the logging context as {@code requestId} for the whole call and echoed on the
- * response. Replaced by the platform kit's {@code CorrelationIdFilter} when billing takes the kit's
+ * response. Replaced by the service kit's {@code CorrelationIdFilter} when billing takes the kit's
  * next release.
  */
 @Component

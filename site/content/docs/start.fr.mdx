@@ -4,7 +4,7 @@ description: Les briques Spring Boot de tous les services Krizaka — un build, 
 ---
 
 Le code transversal que tout service Spring Boot réécrit — sécurité, format d'erreur, messagerie, observabilité — écrit
-une seule fois dans le [Krizaka Platform Kit](https://github.com/krizaka/krizaka-platform-kit), dont les invariants sont
+une seule fois dans le [Krizaka Service Kit](https://github.com/krizaka/krizaka-java/tree/main/krizaka-service-kit), dont les invariants sont
 testés sur un vrai PostgreSQL et un vrai RabbitMQ. Tout est publié sur Maven Central sous `com.krizaka` (Apache-2.0) et
 demande **Java 21** et **Spring Boot 4.0**.
 
@@ -56,7 +56,7 @@ krizaka:
 
 ## Services de domaine
 
-La couche métier construite sur le kit — réutilisable par toute application, utilisée par Orazaka. Chacun est découpé de
+La couche métier construite sur le kit — réutilisable par toute application, utilisée par Sovkora. Chacun est découpé de
 la même façon ([ports et adaptateurs](/architecture)) : un contrat `*-api` publié et un `*-client`, un hôte que tu déploies.
 
 | Service | Ce qu'il fait |
@@ -65,5 +65,5 @@ la même façon ([ports et adaptateurs](/architecture)) : un contrat `*-api` pub
 | [`krizaka-billing`](/billing) | Crédits, portefeuilles, forfaits, abonnements, un catalogue de prix versionné, mesure (réserver → solder → libérer) |
 | [`krizaka-notifications`](/notifications) | E-mail, SMS et webhooks derrière un seul port, pilotés par des événements |
 
-La couche métier propre à Orazaka — intentions et cas d'usage — est documentée avec le moteur :
-[Business Layer](https://www.krizaka.com/docs/orazaka/business).
+La couche métier propre à Sovkora — intentions et cas d'usage — est documentée avec le moteur :
+[Business Layer](https://www.krizaka.com/docs/sovkora/business).

@@ -1,6 +1,6 @@
 # ══════════════════════════════════════════════════════════════════════════════
-# ORAZAKA IDENTITY SERVICE — infrastructure wiring only (env-driven)
-# Shares orazaka_db until the Phase 2f database split (IDENTITY_DB_URL flips to
+# SOVKORA IDENTITY SERVICE — infrastructure wiring only (env-driven)
+# Shares sovkora_db until the Phase 2f database split (IDENTITY_DB_URL flips to
 # the dedicated krizaka_users_db with its own role).
 # ══════════════════════════════════════════════════════════════════════════════
 spring:
@@ -86,7 +86,7 @@ krizaka:
     # from `hs256-cutoff` on (ISO-8601 instant, e.g. 2026-12-01T00:00:00Z). Unset the secret once
     # every caller has its own key.
     jwt:
-      secret: ${IDENTITY_JWT_SECRET:orazaka-local-dev-identity-jwt-secret-256bit!}
+      secret: ${IDENTITY_JWT_SECRET:sovkora-local-dev-identity-jwt-secret-256bit!}
       hs256-cutoff: ${AUTH_JWT_HS256_CUTOFF:}
       # The calling services' PUBLIC keys (SPKI PEM, P-256) by the name they put in `sub`:
       # KRIZAKA_USERS_JWT_CALLERS_<NAME>=<public PEM>. Public material only.
@@ -107,7 +107,7 @@ krizaka:
     # model call may redeem a grant there; the grant itself is the gate, this list is defence in depth.
     internal:
       allowed-callers:
-        "[/internal/v1/credentials/**]": ${AUTH_CREDENTIAL_REDEEMERS:orazaka-conversation-service,orazaka-job-service}
+        "[/internal/v1/credentials/**]": ${AUTH_CREDENTIAL_REDEEMERS:sovkora-conversation-service,sovkora-job-service}
     #   "[/internal/v1/users/**]": billing,studio
     # A credential grant lives this long (1 min to 1 h): long enough for a queued run to start.
     credential-grant:

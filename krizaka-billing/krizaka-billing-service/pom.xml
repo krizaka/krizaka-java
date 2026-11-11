@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.krizaka</groupId>
         <artifactId>krizaka-billing</artifactId>
-        <version>0.11.1</version>
+        <version>0.13.1</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -20,12 +20,12 @@
     </properties>
 
     <dependencies>
-        <!-- Krizaka platform kit: idempotent message consumption (claim / release). -->
+        <!-- Krizaka service kit: idempotent message consumption (claim / release). -->
         <dependency>
             <groupId>com.krizaka</groupId>
             <artifactId>krizaka-messaging</artifactId>
         </dependency>
-        <!-- Krizaka platform kit: session-JWT security baseline and service-to-service tokens. -->
+        <!-- Krizaka service kit: session-JWT security baseline and service-to-service tokens. -->
         <dependency>
             <groupId>com.krizaka</groupId>
             <artifactId>krizaka-security</artifactId>
@@ -76,7 +76,7 @@
         </dependency>
 
         <!-- JDBC over the service's OWN database. Deliberately NOT spring-boot-starter-data-jpa:
-             AGENTS.md §5 forbids JPA entities outside orazaka-persistence, the authorisation UPDATE
+             AGENTS.md §5 forbids JPA entities outside sovkora-persistence, the authorisation UPDATE
              is a single conditional statement, and an append-only ledger must have no
              dirty-checking path that could rewrite a financial record. -->
         <dependency>

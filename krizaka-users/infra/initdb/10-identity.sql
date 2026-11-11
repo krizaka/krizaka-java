@@ -1,5 +1,5 @@
 -- ============================================================================
--- ORAZAKA — Local DB bootstrap · 10 — IDENTITY CONTEXT
+-- SOVKORA — Local DB bootstrap · 10 — IDENTITY CONTEXT
 -- ----------------------------------------------------------------------------
 -- Owner: Identity service (krizaka-users-core + persistence-identity).
 -- Everything "who is the actor and what may they do": users, credentials,
@@ -10,7 +10,7 @@
 -- ============================================================================
 
 -- The password is NOT set here. psql 15 cannot read the environment (\getenv is 16+)
--- and ERR-125 bans a shell script, so `orazaka start` applies ALTER ROLE from
+-- and ERR-125 bans a shell script, so `sovkora start` applies ALTER ROLE from
 -- IDENTITY_DB_PASSWORD once the container is healthy. A role created without a
 -- password cannot authenticate, so a skipped step fails closed rather than leaving a
 -- guessable one — which is what the committed literal was (ADR-035, audit #5).

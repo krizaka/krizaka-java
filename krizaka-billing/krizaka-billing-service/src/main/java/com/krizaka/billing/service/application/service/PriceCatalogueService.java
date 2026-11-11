@@ -24,7 +24,7 @@ import tools.jackson.databind.ObjectMapper;
 
 /**
  * The price catalogue — same semantics as the prices of {@code @krizaka/settings} (ADR-009,
- * krizaka/orazaka#417). One source: packs read their amount through it, never from their own copy.
+ * krizaka/sovkora#417). One source: packs read their amount through it, never from their own copy.
  *
  * <p>Versions are append-only rows of {@code billing_price}; the one in force at an instant is the
  * latest that started at or before it. A change is a new version from a date that is not in the

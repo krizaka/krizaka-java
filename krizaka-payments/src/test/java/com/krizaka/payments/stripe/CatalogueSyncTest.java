@@ -12,7 +12,7 @@ class CatalogueSyncTest {
 
   private static final CataloguePlan PLAN =
       new CataloguePlan(
-          "orazaka.plan.pro", "Orazaka Pro", 4900L, "usd", Price.Interval.MONTH, "txcd_10103001");
+          "sovkora.plan.pro", "Sovkora Pro", 4900L, "usd", Price.Interval.MONTH, "txcd_10103001");
 
   private static FakeStripe.Reply existing(FakeStripe.Call call, String listJson) {
     return switch (call.path()) {
@@ -28,21 +28,21 @@ class CatalogueSyncTest {
   @Test
   void createsTheProductAndThePriceWhenTheLookupKeyIsNew() throws Exception {
     try (var fake = new FakeStripe(c -> existing(c, ""))) {
-      var out = new CatalogueSync("sk_test_x", fake.base(), "orazaka", false).sync(List.of(PLAN));
+      var out = new CatalogueSync("sk_test_x", fake.base(), "sovkora", false).sync(List.of(PLAN));
       assertThat(out)
           .containsExactly(
-              new CatalogueSync.Result("orazaka.plan.pro", CatalogueSync.Status.CREATED));
+              new CatalogueSync.Result("sovkora.plan.pro", CatalogueSync.Status.CREATED));
       var product = fake.calls().get(1).form();
       assertThat(product)
-          .containsEntry("name", "Orazaka Pro")
+          .containsEntry("name", "Sovkora Pro")
           .containsEntry("tax_code", "txcd_10103001")
-          .containsEntry("metadata[product]", "orazaka");
+          .containsEntry("metadata[product]", "sovkora");
       assertThat(fake.calls().get(2).form())
           .containsEntry("product", "prod_1")
           .containsEntry("unit_amount", "4900")
           .containsEntry("currency", "usd")
           .containsEntry("tax_behavior", "exclusive")
-          .containsEntry("lookup_key", "orazaka.plan.pro")
+          .containsEntry("lookup_key", "sovkora.plan.pro")
           .containsEntry("recurring[interval]", "month")
           .doesNotContainKey("transfer_lookup_key");
     }
@@ -53,7 +53,7 @@ class CatalogueSyncTest {
     String row =
         "{\"id\":\"price_old\",\"product\":\"prod_1\",\"unit_amount\":4900,\"currency\":\"usd\",\"recurring\":{\"interval\":\"month\"}}";
     try (var fake = new FakeStripe(c -> existing(c, row))) {
-      var out = new CatalogueSync("sk_test_x", fake.base(), "orazaka", false).sync(List.of(PLAN));
+      var out = new CatalogueSync("sk_test_x", fake.base(), "sovkora", false).sync(List.of(PLAN));
       assertThat(out.getFirst().status()).isEqualTo(CatalogueSync.Status.EXISTS);
       assertThat(fake.calls()).hasSize(1);
     }
@@ -64,7 +64,7 @@ class CatalogueSyncTest {
     String row =
         "{\"id\":\"price_old\",\"product\":\"prod_1\",\"unit_amount\":3900,\"currency\":\"usd\",\"recurring\":{\"interval\":\"month\"}}";
     try (var fake = new FakeStripe(c -> existing(c, row))) {
-      var out = new CatalogueSync("sk_test_x", fake.base(), "orazaka", false).sync(List.of(PLAN));
+      var out = new CatalogueSync("sk_test_x", fake.base(), "sovkora", false).sync(List.of(PLAN));
       assertThat(out.getFirst().status()).isEqualTo(CatalogueSync.Status.REPLACED);
       assertThat(fake.calls().get(1).form())
           .containsEntry("product", "prod_1")
@@ -80,11 +80,11 @@ class CatalogueSyncTest {
     try (var fake = new FakeStripe(c -> existing(c, ""))) {
       assertThatThrownBy(
               () ->
-                  new CatalogueSync("sk_live_x", fake.base(), "orazaka", false).sync(List.of(PLAN)))
+                  new CatalogueSync("sk_live_x", fake.base(), "sovkora", false).sync(List.of(PLAN)))
           .isInstanceOfSatisfying(
               PaymentsException.class, e -> assertThat(e.status()).isEqualTo(403));
       assertThat(fake.calls()).isEmpty();
-      new CatalogueSync("sk_live_x", fake.base(), "orazaka", true).sync(List.of());
+      new CatalogueSync("sk_live_x", fake.base(), "sovkora", true).sync(List.of());
     }
   }
 }

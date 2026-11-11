@@ -11,7 +11,7 @@ class PersonaTest {
     User user = Persona.freeUser();
     assertNotNull(user);
     assertEquals("test-user", user.username());
-    assertEquals("test-user@orazaka.com", user.email());
+    assertEquals("test-user@sovkora.com", user.email());
     assertTrue(user.enabled());
     assertEquals("free", user.rateLimitTier());
     assertTrue(user.authorities().contains("ROLE_USER"));

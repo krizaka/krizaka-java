@@ -2,18 +2,18 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- Reactor of krizaka-build: the parent POM, the BOM and the test kit. -->
+    <!-- Reactor of krizaka-java: the parent POM, the BOM and the test kit. -->
     <parent>
         <groupId>com.krizaka</groupId>
         <artifactId>krizaka-parent</artifactId>
-        <version>0.11.1</version>
+        <version>0.13.1</version>
         <relativePath>krizaka-parent/pom.xml</relativePath>
     </parent>
 
-    <artifactId>krizaka-build</artifactId>
+    <artifactId>krizaka-java</artifactId>
     <packaging>pom</packaging>
-    <name>Krizaka Build</name>
-    <description>Build foundation of the Krizaka JVM artifacts: parent POM, BOM, test kit, the platform kit, the users service and the billing service.</description>
+    <name>Krizaka Java</name>
+    <description>Build foundation of the Krizaka JVM artifacts: parent POM, BOM, test kit, the service kit, the users service and the billing service.</description>
 
     <properties>
         <!-- The reactor itself is not an artifact anyone depends on. -->
@@ -35,7 +35,7 @@
         <module>krizaka-rewrite-style</module>
         <module>krizaka-test-support</module>
         <module>krizaka-payments</module>
-        <module>krizaka-platform-kit</module>
+        <module>krizaka-service-kit</module>
         <module>krizaka-users</module>
         <module>krizaka-billing</module>
     </modules>

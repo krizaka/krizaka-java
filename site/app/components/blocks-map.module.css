@@ -4,7 +4,7 @@
    Surfaces, text and borders: var(--kz-*) only. Each group keeps one semantic
    mid-tone (--dg-<group>) for rails, dots and icons, and an "-ink" variant
    for text set in that colour, AA (≥ 4.5:1) on --kz-surface-1 in both themes.
-   The domain core takes the page's brand accent: on Orazaka pages, orange.
+   The domain core takes the page's brand accent: on Sovkora pages, orange.
    ───────────────────────────────────────────────────────────────────────── */
 
 .root {

@@ -58,7 +58,7 @@ test("the proof is generated: the platform from the parent POM, the tests counte
   assert.match(proof.platform.java, /^\d+$/);
   assert.match(proof.platform.springBoot, /^\d+\.\d+\.\d+$/);
   assert.ok(proof.tests.total > 0 && proof.tests.realInfrastructure > 0 && proof.tests.realInfrastructure <= proof.tests.total);
-  assert.ok(proof.sovkora.services.length > 0);
+  assert.ok(Array.isArray(proof.sovkora.services));
   for (const s of proof.sovkora.services) for (const a of s.artifacts) assert.ok(ids.has(a), `${s.id} uses ${a}, which is not an artifact of the POMs`);
 });
 

@@ -83,8 +83,8 @@ public final class EndpointAuthzAssert {
    *
    * @param insufficientAuth a post-processor that authenticates the request with an authority that
    *     does not satisfy the endpoint's access rule
-   * @return this, for chaining
-   * @throws Exception on MockMvc or assertion failure
+   * @return this, so the next assertion can follow
+   * @throws Exception when the request cannot be performed or the status differs
    */
   public EndpointAuthzAssert returns403WhenAuthenticated(RequestPostProcessor insufficientAuth)
       throws Exception {

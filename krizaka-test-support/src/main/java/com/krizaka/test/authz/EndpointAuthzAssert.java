@@ -4,6 +4,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.util.function.Supplier;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
@@ -69,8 +70,7 @@ public final class EndpointAuthzAssert {
    * @throws Exception on MockMvc or assertion failure
    */
   public EndpointAuthzAssert returns401WhenUnauthenticated() throws Exception {
-    mvc.perform(requestFactory.get()).andExpect(status().isUnauthorized());
-    return this;
+    return expectStatus(requestFactory.get(), status().isUnauthorized());
   }
 
   /**
@@ -88,8 +88,7 @@ public final class EndpointAuthzAssert {
    */
   public EndpointAuthzAssert returns403WhenAuthenticated(RequestPostProcessor insufficientAuth)
       throws Exception {
-    mvc.perform(requestFactory.get().with(insufficientAuth)).andExpect(status().isForbidden());
-    return this;
+    return expectStatus(requestFactory.get().with(insufficientAuth), status().isForbidden());
   }
 
   /**
@@ -113,7 +112,12 @@ public final class EndpointAuthzAssert {
    */
   public EndpointAuthzAssert returns404CrossTenant(
       Supplier<MockHttpServletRequestBuilder> crossTenantRequest) throws Exception {
-    mvc.perform(crossTenantRequest.get()).andExpect(status().isNotFound());
+    return expectStatus(crossTenantRequest.get(), status().isNotFound());
+  }
+
+  private EndpointAuthzAssert expectStatus(
+      MockHttpServletRequestBuilder request, ResultMatcher expected) throws Exception {
+    mvc.perform(request).andExpect(expected);
     return this;
   }
 }

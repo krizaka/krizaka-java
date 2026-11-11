@@ -18,6 +18,7 @@ import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.BadJwtException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 
 /**
@@ -47,12 +48,18 @@ final class IdentityTokenDecoder implements JwtDecoder {
             JWSAlgorithm.ES256, new ImmutableJWKSet<SecurityContext>(keys.publicSet())));
     this.session = new NimbusJwtDecoder(processor);
     this.service = new ServiceTokenVerifier(callerKeys(properties.callers()), clock);
-    this.legacy =
-        properties.secret() == null
-            ? null
-            : NimbusJwtDecoder.withSecretKey(JwtConfig.hmacKey(properties))
-                .macAlgorithm(MacAlgorithm.HS256)
-                .build();
+    if (properties.secret() == null) {
+      this.legacy = null;
+    } else {
+      var legacyDecoder =
+          NimbusJwtDecoder.withSecretKey(JwtConfig.hmacKey(properties))
+              .macAlgorithm(MacAlgorithm.HS256)
+              .build();
+      var ts = new JwtTimestampValidator();
+      ts.setClock(clock);
+      legacyDecoder.setJwtValidator(ts);
+      this.legacy = legacyDecoder;
+    }
   }
 
   private static Map<String, ECPublicKey> callerKeys(Map<String, String> pems) {

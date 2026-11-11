@@ -46,6 +46,12 @@ test("Sovkora's services are the deployable modules that depend on a Krizaka art
   ]);
 });
 
+test("sovkoraServices returns an empty array when no repository is accessible (all archived)", () => {
+  // locateSovkora filters out repos that fail to clone; the build must not fail when all are inaccessible
+  assert.deepEqual(sovkoraServices([]), []);
+  assert.deepEqual(sovkoraServices([tree({})]), []);
+});
+
 test("the platform is read from the parent POM, never typed", () => {
   const pom = "<properties><java.version>21</java.version><spring-boot.version>4.0.8</spring-boot.version></properties>";
   assert.deepEqual(platformOf(pom), { java: "21", springBoot: "4.0.8", springBootMinor: "4.0" });

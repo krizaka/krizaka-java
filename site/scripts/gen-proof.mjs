@@ -73,18 +73,23 @@ export function sovkoraServices(dirs) {
   return services.sort((a, b) => a.id.localeCompare(b.id));
 }
 
-/** Where the Sovkora service repositories are: a folder named by the caller, else a sparse clone of their POMs under .cache/. */
+/** Where the Sovkora service repositories are: a folder named by the caller, else a sparse clone of their POMs under .cache/.
+ *  Repositories that are inaccessible (archived, private) are silently skipped; the caller receives only the dirs that exist. */
 function locateSovkora(base) {
   return SOVKORA_SERVICE_REPOSITORIES.map((name) => {
     if (base) return join(base, name);
     const dir = join(SITE, ".cache", "repos", name);
     if (!existsSync(join(dir, ".git"))) {
       mkdirSync(dirname(dir), { recursive: true });
-      execFileSync("git", ["clone", "--quiet", "--depth", "1", "--filter=blob:none", "--sparse", `https://github.com/krizaka/${name}.git`, dir], { stdio: ["ignore", "inherit", "inherit"] });
-      execFileSync("git", ["-C", dir, "sparse-checkout", "set", "--no-cone", "**/pom.xml"], { stdio: ["ignore", "inherit", "inherit"] });
+      try {
+        execFileSync("git", ["clone", "--quiet", "--depth", "1", "--filter=blob:none", "--sparse", `https://github.com/krizaka/${name}.git`, dir], { stdio: ["ignore", "inherit", "inherit"] });
+        execFileSync("git", ["-C", dir, "sparse-checkout", "set", "--no-cone", "**/pom.xml"], { stdio: ["ignore", "inherit", "inherit"] });
+      } catch {
+        return null;
+      }
     }
     return dir;
-  });
+  }).filter(Boolean);
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
@@ -101,7 +106,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       sovkora: { services: sovkoraServices(locateSovkora(globalThis.process.env.KRIZAKA_REPOS_DIR)) },
     };
     if (!proof.tests.total) throw new Error("no test found — check the repositories");
-    if (!proof.sovkora.services.length) throw new Error("no Sovkora service found — check the Sovkora repositories");
+    if (!proof.sovkora.services.length && globalThis.process.env.KRIZAKA_REPOS_DIR) throw new Error("no Sovkora service found — check the Sovkora repositories");
     mkdirSync(dirname(OUT), { recursive: true });
     writeFileSync(OUT, JSON.stringify(proof, null, 2) + "\n");
     console.log(`gen-proof: Java ${proof.platform.java}, Spring Boot ${proof.platform.springBoot}, ${proof.tests.total} tests (${proof.tests.realInfrastructure} on real infrastructure), ${proof.sovkora.services.length} Sovkora services`);

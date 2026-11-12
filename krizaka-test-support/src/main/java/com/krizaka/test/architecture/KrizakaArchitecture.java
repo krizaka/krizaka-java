@@ -30,8 +30,10 @@ import java.util.regex.Pattern;
  * package-private {@code @HttpExchange} interfaces, at most {@value
  * #MAX_TOP_LEVEL_CLASSES_PER_PACKAGE} top-level classes per package, every package
  * {@code @NullMarked}, the environment read in a {@code config} package or a configuration class
- * only. A module with layers also calls {@link ArchitectureRules#assertLayers}; a module with its
- * own rules adds them beside this call, never in place of it.
+ * only; and, on the module's test classes, no test server bound to every interface ({@link
+ * CodeRules#testServersBindToLoopbackRule}, never frozen). A module with layers also calls {@link
+ * ArchitectureRules#assertLayers}; a module with its own rules adds them beside this call, never in
+ * place of it.
  *
  * <p><b>Freezing existing debt.</b> A module that cannot pass a rule yet freezes it, with the issue
  * that will remove the debt, through {@link #assertStandard(JavaClasses, String, Map)}:
@@ -103,6 +105,7 @@ public final class KrizakaArchitecture {
         });
     requireProductionClasses(classes, modulePackage, "");
     List<String> failures = new ArrayList<>();
+    List<AssertionError> causes = new ArrayList<>();
     standardRules(modulePackage)
         .forEach(
             (rule, archRule) -> {
@@ -114,10 +117,22 @@ public final class KrizakaArchitecture {
                 }
               } catch (AssertionError e) {
                 failures.add("[" + rule + "] " + e.getMessage());
+                causes.add(e);
               }
             });
+    try {
+      CodeRules.testServersBindToLoopbackRule()
+          .allowEmptyShould(true)
+          .check(CodeRules.importTestClasses(modulePackage));
+    } catch (AssertionError e) {
+      failures.add("[TEST_SERVERS_BIND_TO_LOOPBACK] " + e.getMessage());
+      causes.add(e);
+    }
     if (!failures.isEmpty()) {
-      throw new AssertionError(String.join("\n\n", failures));
+      // Every rule's own error travels as a suppressed cause (Sonar S1166).
+      AssertionError all = new AssertionError(String.join("\n\n", failures));
+      causes.forEach(all::addSuppressed);
+      throw all;
     }
   }
 

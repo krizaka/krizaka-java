@@ -104,10 +104,11 @@
             <version>${testcontainers.version}</version>
         </dependency>
 
+        <!-- LoopbackServerAddressPostProcessor: present wherever a Spring Boot test runs. -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot</artifactId>
-            <scope>test</scope>
+            <optional>true</optional>
         </dependency>
         <!-- The fixtures of ArchitectureRulesTest wear the real Spring annotations. -->
         <dependency>

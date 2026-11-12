@@ -2,11 +2,11 @@ package com.krizaka.users.client;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.krizaka.test.net.LoopbackTestServers;
 import com.krizaka.users.domain.model.User;
 import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -32,7 +32,7 @@ class HttpUserDirectoryClientTest {
 
   @BeforeAll
   static void startStub() throws IOException {
-    stub = HttpServer.create(new InetSocketAddress(0), 0);
+    stub = LoopbackTestServers.httpServer();
     stub.createContext(
         "/api/v1/credentials/openai/grants",
         exchange -> {

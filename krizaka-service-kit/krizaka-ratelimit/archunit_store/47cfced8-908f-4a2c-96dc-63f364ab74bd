@@ -1,0 +1,2 @@
+Field <val$interceptor> in <com.krizaka.ratelimit.KrizakaRateLimitAutoConfiguration$1> must be private
+Field <val$properties> in <com.krizaka.ratelimit.KrizakaRateLimitAutoConfiguration$1> must be private

@@ -1,0 +1,3 @@
+#
+#Thu Nov 12 11:00:21 EST 2026
+every\ package\ is\ @NullMarked,\ because\ NullAway\ only\ checks\ what\ is\ marked;\ null\ is\ part\ of\ a\ contract,\ not\ a\ convention\ (ADR-015)=6f6b853c-8267-4d3b-98b4-31e1baa66fb8

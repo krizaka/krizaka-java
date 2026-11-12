@@ -1,0 +1,4 @@
+Package <com.krizaka.appconfig.model> is not @NullMarked (no package-info with it)
+Package <com.krizaka.appconfig.store> is not @NullMarked (no package-info with it)
+Package <com.krizaka.appconfig.web> is not @NullMarked (no package-info with it)
+Package <com.krizaka.appconfig> is not @NullMarked (no package-info with it)

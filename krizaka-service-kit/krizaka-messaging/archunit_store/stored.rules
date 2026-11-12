@@ -1,0 +1,4 @@
+#
+#Thu Nov 12 11:00:25 EST 2026
+a\ package\ holds\ at\ most\ 7\ top-level\ classes,\ because\ a\ package\ that\ holds\ more\ is\ several\ features\ in\ one\ folder\:\ split\ it\ by\ feature=7027350e-5947-4e63-b1dc-cf9b9a8b280b
+every\ package\ is\ @NullMarked,\ because\ NullAway\ only\ checks\ what\ is\ marked;\ null\ is\ part\ of\ a\ contract,\ not\ a\ convention\ (ADR-015)=308514b4-fd96-4859-bace-3ced5e9adb93

@@ -31,5 +31,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
+        <!-- binds every test web server to the loopback (krizaka-internal#3265) -->
+        <dependency>
+            <groupId>com.krizaka</groupId>
+            <artifactId>krizaka-test-support</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

@@ -9,6 +9,7 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noMethods;
 import com.tngtech.archunit.base.DescribedPredicate;
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaClasses;
+import com.tngtech.archunit.core.domain.JavaConstructorCall;
 import com.tngtech.archunit.core.domain.JavaField;
 import com.tngtech.archunit.core.domain.JavaMethod;
 import com.tngtech.archunit.core.domain.JavaMethodCall;
@@ -136,6 +137,56 @@ public final class CodeRules {
   public static ArchRule noStandardStreamsRule() {
     return GeneralCodingRules.NO_CLASSES_SHOULD_ACCESS_STANDARD_STREAMS.because(
         "output goes through an SLF4J logger, which levels, routes and redacts it");
+  }
+
+  /**
+   * The test classes of a module, for the rules that look at how a test is written.
+   *
+   * @param basePackage the root package to import
+   * @return the test classes under {@code basePackage}
+   */
+  public static JavaClasses importTestClasses(String basePackage) {
+    return new ClassFileImporter()
+        .withImportOption(ImportOption.Predefined.ONLY_INCLUDE_TESTS)
+        .importPackages(basePackage);
+  }
+
+  /**
+   * A test server listens on the loopback, never on every interface.
+   *
+   * <p><b>Why.</b> {@code new ServerSocket(0)} and {@code new InetSocketAddress(0)} bind the
+   * wildcard address: the stub is reachable from the LAN while the tests run, and macOS asks the
+   * developer « accept incoming network connections? » on every new build. Name the address: {@code
+   * new InetSocketAddress(InetAddress.getLoopbackAddress(), 0)} or {@link
+   * com.krizaka.test.net.LoopbackTestServers}. A Spring Boot test server is held by {@code
+   * server.address=127.0.0.1}, which this library sets for every test through an environment
+   * post-processor.
+   *
+   * @return the rule, for the test classes ({@link #importTestClasses})
+   */
+  public static ArchRule testServersBindToLoopbackRule() {
+    return noClasses()
+        .should()
+        .callConstructorWhere(wildcardBinding())
+        .because(
+            "a test server bound to every interface is reachable from the network and makes macOS"
+                + " ask for incoming connections; bind InetAddress.getLoopbackAddress()");
+  }
+
+  private static DescribedPredicate<JavaConstructorCall> wildcardBinding() {
+    return DescribedPredicate.describe(
+        "bind a server to the wildcard address (new ServerSocket(port), new InetSocketAddress(port))",
+        call -> {
+          String owner = call.getTargetOwner().getFullName();
+          List<String> parameters =
+              call.getTarget().getRawParameterTypes().stream().map(JavaClass::getFullName).toList();
+          if ("java.net.ServerSocket".equals(owner)) {
+            return !parameters.isEmpty()
+                && !parameters.contains("java.net.InetAddress")
+                && "int".equals(parameters.get(0));
+          }
+          return "java.net.InetSocketAddress".equals(owner) && parameters.equals(List.of("int"));
+        });
   }
 
   /**

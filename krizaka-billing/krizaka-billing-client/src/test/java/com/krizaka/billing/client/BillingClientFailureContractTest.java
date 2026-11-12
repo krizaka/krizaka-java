@@ -29,6 +29,7 @@ import com.krizaka.billing.domain.port.PackPricingClient;
 import com.krizaka.billing.domain.port.PackProvisioningClient;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.util.List;
 import java.util.Map;
@@ -614,7 +615,7 @@ class BillingClientFailureContractTest {
 
   /** A base URL nothing listens on: the connection is refused. */
   private static String unreachableUrl() {
-    try (ServerSocket socket = new ServerSocket(0)) {
+    try (ServerSocket socket = new ServerSocket(0, 1, InetAddress.getLoopbackAddress())) {
       return "http://127.0.0.1:" + socket.getLocalPort();
     } catch (IOException e) {
       throw new IllegalStateException(e);

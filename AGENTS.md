@@ -39,6 +39,15 @@
   is proven by the workspace build of every consumer (definition of done, 2), never assumed.
 - **A fix starts with a failing test** (or a failing consumer build) that reproduces the bug.
 - CI runs `./mvnw verify -Prelease -Dgpg.skip` on every pull request and must be green; nothing is skipped to get there.
+- **A test server listens on the loopback, never on every interface** (krizaka-internal#3265). A server bound to the wildcard
+  address is reachable from the LAN while the tests run, and macOS asks the developer « accept incoming network connections? »
+  on every new build. A Spring Boot test (`RANDOM_PORT` / `DEFINED_PORT`) gets `server.address=127.0.0.1` from
+  `krizaka-test-support` (`LoopbackServerAddressPostProcessor`, registered in `spring.factories`; a test that sets
+  `server.address` itself wins), so there is nothing to write. A stub server or probe socket is made with
+  `LoopbackTestServers.httpServer()` / `serverSocket()` / `address(port)`, or names `InetAddress.getLoopbackAddress()`; never
+  `new ServerSocket(port)` or `new InetSocketAddress(port)`. `KrizakaArchitecture.assertStandard` also checks the module's
+  **test classes** (`CodeRules.testServersBindToLoopbackRule`), so a module that calls it fails on a wildcard bind; this rule is
+  never frozen. Sovkora adopts it with the shared test support.
 
 ## The documentation site — `site/` (java.krizaka.com)
 

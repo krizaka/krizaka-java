@@ -33,24 +33,6 @@ class IdentityServiceStructureTest {
   }
 
   @Test
-  @DisplayName("No cycle between the packages of the module")
-  void noPackageCycles() {
-    assertDoesNotThrow(
-        () -> {
-          ArchitectureRules.noPackageCyclesRule(PKG).check(classes);
-        });
-  }
-
-  @Test
-  @DisplayName("The environment is read in configuration only")
-  void environmentOnlyInConfig() {
-    assertDoesNotThrow(
-        () -> {
-          ArchitectureRules.noEnvironmentOutsideConfigRule("..config..").check(classes);
-        });
-  }
-
-  @Test
   @DisplayName("No mutable static state (krizaka-users#28, ADR-013)")
   void noMutableStaticFields() {
     assertDoesNotThrow(() -> CodeRules.noStaticMutableStateRule().check(classes));

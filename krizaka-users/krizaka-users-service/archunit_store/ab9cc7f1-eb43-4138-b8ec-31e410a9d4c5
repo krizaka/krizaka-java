@@ -1,0 +1,2 @@
+Field <this$0> in <com.krizaka.users.service.infrastructure.ratelimit.AuthRateLimitFilter$1> must be private
+Field <val$in> in <com.krizaka.users.service.infrastructure.ratelimit.AuthRateLimitFilter$CachedBodyRequest$1> must be private

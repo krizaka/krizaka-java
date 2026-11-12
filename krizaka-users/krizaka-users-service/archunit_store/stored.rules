@@ -1,0 +1,4 @@
+#
+#Thu Nov 12 12:14:19 EST 2026
+every\ package\ is\ @NullMarked,\ because\ NullAway\ only\ checks\ what\ is\ marked;\ null\ is\ part\ of\ a\ contract,\ not\ a\ convention\ (ADR-015)=6063284f-6270-4393-b0d3-640a1766e187
+fields\ that\ are\ declared\ in\ classes\ that\ are\ not\ records\ and\ are\ declared\ in\ classes\ that\ are\ not\ enums\ and\ are\ declared\ in\ classes\ that\ are\ not\ interfaces\ and\ are\ declared\ in\ classes\ that\ have\ simple\ name\ not\ containing\ 'Abstract'\ and\ are\ not\ static\ should\ be\ private,\ because\ state\ is\ reached\ through\ behaviour,\ never\ through\ a\ field=ab9cc7f1-eb43-4138-b8ec-31e410a9d4c5

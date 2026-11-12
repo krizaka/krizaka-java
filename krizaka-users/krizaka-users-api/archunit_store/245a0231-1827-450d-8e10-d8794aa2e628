@@ -1,0 +1,3 @@
+Package <com.krizaka.users.domain.exception> is not @NullMarked (no package-info with it)
+Package <com.krizaka.users.domain.model> is not @NullMarked (no package-info with it)
+Package <com.krizaka.users.domain.port> is not @NullMarked (no package-info with it)

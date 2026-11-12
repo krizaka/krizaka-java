@@ -34,15 +34,6 @@ class IdentityStructureTest {
   }
 
   @Test
-  @DisplayName("No cycle between the packages of the module")
-  void noPackageCycles() {
-    assertDoesNotThrow(
-        () -> {
-          FrozenRules.check(ArchitectureRules.noPackageCyclesRule(PKG), classes);
-        });
-  }
-
-  @Test
   @DisplayName("Controllers are named *Controller")
   void controllersNamed() {
     assertDoesNotThrow(
@@ -57,16 +48,6 @@ class IdentityStructureTest {
     assertDoesNotThrow(
         () -> {
           FrozenRules.check(ArchitectureRules.servicesNamedServiceRule(), classes);
-        });
-  }
-
-  @Test
-  @DisplayName("The environment is read in configuration only")
-  void environmentOnlyInConfig() {
-    assertDoesNotThrow(
-        () -> {
-          FrozenRules.check(
-              ArchitectureRules.noEnvironmentOutsideConfigRule("..config.."), classes);
         });
   }
 

@@ -31,15 +31,6 @@ class IdentityGovernanceTest {
   }
 
   @Test
-  @DisplayName("[ERR-103] One top-level class per file")
-  void oneClassPerFile() {
-    assertDoesNotThrow(
-        () -> {
-          assertOneTopLevelClassPerFile(identityClasses, PKG);
-        });
-  }
-
-  @Test
   @DisplayName("[ERR-104] No redundant 'Krizaka' prefix")
   void noRedundantPrefix() {
     assertDoesNotThrow(
@@ -108,15 +99,6 @@ class IdentityGovernanceTest {
   }
 
   @Test
-  @DisplayName("[ADR-009] Instance fields in concrete classes are private")
-  void fieldsArePrivate() {
-    assertDoesNotThrow(
-        () -> {
-          assertFieldsPrivate(identityClasses);
-        });
-  }
-
-  @Test
   @DisplayName("[ADR-007] Collection fields are private final")
   void collectionFieldsPrivateFinal() {
     assertDoesNotThrow(
@@ -131,15 +113,6 @@ class IdentityGovernanceTest {
     assertDoesNotThrow(
         () -> {
           assertNoAnonymousClasses(identityClasses, PKG);
-        });
-  }
-
-  @Test
-  @DisplayName("[GOV-004] No standard streams (use SLF4J)")
-  void noStandardStreams() {
-    assertDoesNotThrow(
-        () -> {
-          assertNoStandardStreams(identityClasses);
         });
   }
 

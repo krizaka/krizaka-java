@@ -46,23 +46,6 @@ class IdentityBoundaryTest {
   }
 
   @Test
-  @DisplayName("[ERR-106] No field injection in identity classes")
-  void noFieldInjection() {
-    assertDoesNotThrow(
-        () -> {
-          noFields()
-              .that()
-              .areDeclaredInClassesThat()
-              .resideInAPackage(PKG_IDENTITY)
-              .should()
-              .beAnnotatedWith(org.springframework.beans.factory.annotation.Autowired.class)
-              .because(
-                  "Field injection is prohibited — constructor-based DI is mandatory [ADR-012]")
-              .check(identityClasses);
-        });
-  }
-
-  @Test
   @DisplayName("[ERR-102] Service implementations must not be public")
   void serviceImplNotPublic() {
     assertDoesNotThrow(

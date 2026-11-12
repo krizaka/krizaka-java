@@ -67,9 +67,10 @@ public interface ApiKeyRepositoryPort {
   long deleteByIdAndUserId(String id, String userId);
 
   /**
-   * Deletes a user's API key unless it is their last one (atomic: the owner is locked first).
+   * Revokes a key only while its owner keeps another one, atomically with respect to concurrent
+   * revocations of the same owner.
    *
-   * @return 1 when deleted, 0 when the key is the owner's last or is not theirs.
+   * @return 1 if revoked; 0 if it is the owner's only key or does not belong to them.
    */
   long deleteUnlessLast(String id, String userId);
 

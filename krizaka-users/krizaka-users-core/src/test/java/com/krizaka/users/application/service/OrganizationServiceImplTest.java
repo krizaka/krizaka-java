@@ -37,6 +37,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class OrganizationServiceImplTest {
 
   private static final String ORG = "org-1";
+  private static final List<ApiKey> PRODUCT_KEYS =
+      List.of(new ApiKey("k1", "svc-id", "prod", "oz_live_abcd", Instant.EPOCH, null));
 
   @Mock private OrganizationRepositoryPort organizations;
   @Mock private UserRepositoryPort users;
@@ -276,16 +278,21 @@ class OrganizationServiceImplTest {
     verify(apiKeys, never()).deleteByIdAndUserId("someone-elses-key", "svc-id");
   }
 
+  /** The organization's one service key "k1", owned by the product account {@code svc_folioviv}. */
+  private User productKeyOfTheOrganization() {
+    var svc = user("svc-id", "svc_folioviv", true);
+    when(organizations.findServiceKeys(ORG)).thenReturn(PRODUCT_KEYS);
+    when(users.findById("svc-id")).thenReturn(Optional.of(svc));
+    return svc;
+  }
+
   @Test
   void aManagerRevokingAProductKeyLeavesAnAuditRowNamingTheAccountTheKeyAndTheActor() {
     orgExists();
     role(admin, OrganizationRole.ADMIN);
-    var svc = user("svc-id", "svc_folioviv", true);
-    ApiKey key = new ApiKey("k1", "svc-id", "prod", "oz_live_abcd", Instant.EPOCH, null);
-    when(organizations.findServiceKeys(ORG)).thenReturn(List.of(key));
-    when(users.findById("svc-id")).thenReturn(Optional.of(svc));
+    var svc = productKeyOfTheOrganization();
     when(users.findById("admin")).thenReturn(Optional.of(user("admin", "ada", true)));
-    when(apiKeys.findByUserId(svc.id().toString())).thenReturn(List.of(key));
+    when(apiKeys.findByUserId(svc.id().toString())).thenReturn(PRODUCT_KEYS);
     when(apiKeys.deleteUnlessLast("k1", svc.id().toString())).thenReturn(1L);
 
     assertThat(service.revokeServiceKey(admin, ORG, "k1")).isTrue();
@@ -304,12 +311,9 @@ class OrganizationServiceImplTest {
   void aManagerCannotRevokeTheLastKeyOfAProductAccount() {
     orgExists();
     role(admin, OrganizationRole.ADMIN);
-    var svc = user("svc-id", "svc_folioviv", true);
-    ApiKey key = new ApiKey("k1", "svc-id", "prod", "oz_live_abcd", Instant.EPOCH, null);
-    when(organizations.findServiceKeys(ORG)).thenReturn(List.of(key));
-    when(users.findById("svc-id")).thenReturn(Optional.of(svc));
+    var svc = productKeyOfTheOrganization();
     when(users.findById("admin")).thenReturn(Optional.empty());
-    when(apiKeys.findByUserId(svc.id().toString())).thenReturn(List.of(key));
+    when(apiKeys.findByUserId(svc.id().toString())).thenReturn(PRODUCT_KEYS);
     when(apiKeys.deleteUnlessLast("k1", svc.id().toString())).thenReturn(0L);
 
     assertThatThrownBy(() -> service.revokeServiceKey(admin, ORG, "k1"))

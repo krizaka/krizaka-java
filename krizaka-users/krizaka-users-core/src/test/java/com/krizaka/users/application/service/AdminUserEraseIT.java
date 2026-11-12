@@ -7,17 +7,19 @@ import com.krizaka.test.container.AbstractContainerIntegrationTest;
 import com.krizaka.users.domain.exception.ServiceAccountProtectedException;
 import com.krizaka.users.domain.model.AdminActor;
 import com.krizaka.users.domain.ports.inbound.AdminUserService;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.sql.DriverManager;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.init.ScriptUtils;
 import org.springframework.orm.jpa.persistenceunit.PersistenceManagedTypes;
 
 /**
@@ -26,17 +28,13 @@ import org.springframework.orm.jpa.persistenceunit.PersistenceManagedTypes;
  * audit row, an ordinary account is still erased (krizaka-internal#3214).
  */
 @SpringBootTest(
-    classes = AdminUserEraseIT.App.class,
+    classes = AdminUserEraseIT.Wiring.class,
     properties = {
-      "krizaka.users.crypto.key=test-crypto-key-0123456789abcdef!",
-      "krizaka.users.crypto.salt=0123456789abcdef",
-      "spring.jpa.hibernate.ddl-auto=none",
-      "spring.flyway.enabled=false",
-      "krizaka.messaging.outbox.enabled=false",
       "krizaka.messaging.consumer.enabled=false",
-      "spring.autoconfigure.exclude="
-          + "org.springframework.boot.amqp.autoconfigure.RabbitAutoConfiguration,"
-          + "org.springframework.boot.data.jpa.autoconfigure.DataJpaRepositoriesAutoConfiguration"
+      "krizaka.messaging.outbox.enabled=false",
+      "spring.flyway.enabled=false",
+      "spring.jpa.hibernate.ddl-auto=none",
+      "spring.autoconfigure.exclude=org.springframework.boot.amqp.autoconfigure.RabbitAutoConfiguration"
     })
 class AdminUserEraseIT extends AbstractContainerIntegrationTest {
 
@@ -47,26 +45,11 @@ class AdminUserEraseIT extends AbstractContainerIntegrationTest {
 
   @BeforeAll
   static void createTheRealTables() throws Exception {
-    String sql =
-        new String(
-            java.util.Objects.requireNonNull(
-                    AdminUserEraseIT.class.getResourceAsStream(
-                        "/db/migration/V1__users_baseline.sql"))
-                .readAllBytes(),
-            java.nio.charset.StandardCharsets.UTF_8);
     try (var connection =
-            java.sql.DriverManager.getConnection(
-                postgres().getJdbcUrl(), postgres().getUsername(), postgres().getPassword());
-        var statement = connection.createStatement()) {
-      for (String table :
-          new String[] {"rate_limit_tiers", "users", "authorities", "api_keys", "admin_audit"}) {
-        Matcher m =
-            Pattern.compile("CREATE TABLE " + table + " \\(.*?\\n\\);", Pattern.DOTALL)
-                .matcher(sql);
-        assertThat(m.find()).as(table + " in V1__users_baseline.sql").isTrue();
-        statement.execute("DROP TABLE IF EXISTS " + table + " CASCADE");
-        statement.execute(m.group());
-      }
+        DriverManager.getConnection(
+            postgres().getJdbcUrl(), postgres().getUsername(), postgres().getPassword())) {
+      ScriptUtils.executeSqlScript(
+          connection, new ClassPathResource("/db/migration/V1__users_baseline.sql"));
     }
   }
 
@@ -113,25 +96,24 @@ class AdminUserEraseIT extends AbstractContainerIntegrationTest {
         .isZero();
   }
 
+  /** The administration on the real tables: native SQL, so no entity is needed. */
   @SpringBootConfiguration
-  @EnableAutoConfiguration
+  @EnableAutoConfiguration(
+      exclude =
+          org.springframework.boot.data.jpa.autoconfigure.DataJpaRepositoriesAutoConfiguration
+              .class)
   @ComponentScan(
-      basePackages = {
-        "com.krizaka.users.persistence",
-        "com.krizaka.users.application.service",
-        "com.krizaka.users.infrastructure.adapter.persistence"
-      },
+      basePackages = "com.krizaka.users",
       useDefaultFilters = false,
       includeFilters =
           @ComponentScan.Filter(
               type = FilterType.REGEX,
               pattern =
-                  ".*\\.(AdminUserPersistenceProviderImpl|AdminUserRepositoryAdapter|AdminUserServiceImpl)"))
-  static class App {
+                  ".*\\.Admin(UserPersistenceProviderImpl|UserRepositoryAdapter|UserServiceImpl)"))
+  static class Wiring {
 
-    /** No entity: the administration is native SQL over the identity tables. */
-    @org.springframework.context.annotation.Bean
-    PersistenceManagedTypes persistenceManagedTypes() {
+    @Bean
+    PersistenceManagedTypes noEntity() {
       return PersistenceManagedTypes.of();
     }
   }

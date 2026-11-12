@@ -19,10 +19,10 @@ public interface ApiKeyPersistenceProvider {
   long deleteByIdAndUserId(String id, String userId);
 
   /**
-   * Deletes a user's key unless it is their last one; the owner's row is locked first, so two
-   * concurrent calls cannot each remove one of two keys.
+   * Removes a key if the owner has at least one other; the owner row is locked first so that two
+   * simultaneous calls cannot empty a two-key account.
    *
-   * @return 1 when deleted, 0 when the key is the owner's last or is not theirs.
+   * @return 1 when removed, 0 otherwise.
    */
   long deleteUnlessLast(String id, String userId);
 

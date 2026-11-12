@@ -198,14 +198,15 @@ class OrganizationServiceImpl implements OrganizationService {
       return false;
     }
     Optional<User> owner = users.findById(key.get().userId());
-    boolean revoked =
-        owner.isPresent() && ServiceAccountKeyRevocation.isServiceAccount(owner.get())
-            ? serviceAccountKeys.revoke(
-                owner.get(),
-                keyId,
-                actor.userId(),
-                users.findById(actor.userId()).map(User::username).orElse(actor.userId()))
-            : apiKeys.deleteByIdAndUserId(keyId, key.get().userId()) > 0;
+    boolean serviceAccount =
+        owner.isPresent() && ServiceAccountKeyRevocation.isServiceAccount(owner.get());
+    boolean revoked;
+    if (serviceAccount) {
+      String actorLabel = users.findById(actor.userId()).map(User::username).orElse(actor.userId());
+      revoked = serviceAccountKeys.revoke(owner.get(), keyId, actor.userId(), actorLabel);
+    } else {
+      revoked = apiKeys.deleteByIdAndUserId(keyId, key.get().userId()) > 0;
+    }
     if (revoked) {
       logger.info(
           "Key {} of service account {} revoked from organization {} by {}",

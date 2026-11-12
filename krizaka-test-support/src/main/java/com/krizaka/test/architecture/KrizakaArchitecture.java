@@ -29,8 +29,9 @@ import java.util.regex.Pattern;
  * fields, no field injection, no standard streams, no raw HTTP client outside {@code config},
  * package-private {@code @HttpExchange} interfaces, at most {@value
  * #MAX_TOP_LEVEL_CLASSES_PER_PACKAGE} top-level classes per package, every package
- * {@code @NullMarked}. A module with layers also calls {@link ArchitectureRules#assertLayers}; a
- * module with its own rules adds them beside this call, never in place of it.
+ * {@code @NullMarked}, the environment read in a {@code config} package or a configuration class
+ * only. A module with layers also calls {@link ArchitectureRules#assertLayers}; a module with its
+ * own rules adds them beside this call, never in place of it.
  *
  * <p><b>Freezing existing debt.</b> A module that cannot pass a rule yet freezes it, with the issue
  * that will remove the debt, through {@link #assertStandard(JavaClasses, String, Map)}:
@@ -63,7 +64,8 @@ public final class KrizakaArchitecture {
     NO_RAW_HTTP_CLIENT_IN_ADAPTERS,
     HTTP_EXCHANGE_PACKAGE_PRIVATE,
     MAX_TOP_LEVEL_CLASSES_PER_PACKAGE,
-    EVERY_PACKAGE_NULL_MARKED
+    EVERY_PACKAGE_NULL_MARKED,
+    NO_ENVIRONMENT_OUTSIDE_CONFIG
   }
 
   private KrizakaArchitecture() {}
@@ -129,26 +131,30 @@ public final class KrizakaArchitecture {
    * @return the rules, in a stable order
    */
   public static Map<Rule, ArchRule> standardRules(String modulePackage) {
-    Map<Rule, ArchRule> rules = new EnumMap<>(Rule.class);
-    // a module with no sub-package has nothing to cycle: an empty set is the right answer there
-    rules.put(
-        Rule.NO_PACKAGE_CYCLES,
-        ArchitectureRules.noPackageCyclesRule(modulePackage).allowEmptyShould(true));
-    rules.put(
+    Map<Rule, ArchRule> strict = new EnumMap<>(Rule.class);
+    strict.put(Rule.NO_PACKAGE_CYCLES, ArchitectureRules.noPackageCyclesRule(modulePackage));
+    strict.put(
         Rule.ONE_TOP_LEVEL_CLASS_PER_FILE, CodeRules.oneTopLevelClassPerFileRule(modulePackage));
-    rules.put(Rule.FIELDS_PRIVATE, CodeRules.fieldsPrivateRule());
-    rules.put(Rule.NO_FIELD_INJECTION, CodeRules.noFieldInjectionRule(modulePackage));
-    rules.put(Rule.NO_STANDARD_STREAMS, CodeRules.noStandardStreamsRule());
-    rules.put(
+    strict.put(Rule.FIELDS_PRIVATE, CodeRules.fieldsPrivateRule());
+    strict.put(Rule.NO_FIELD_INJECTION, CodeRules.noFieldInjectionRule(modulePackage));
+    strict.put(Rule.NO_STANDARD_STREAMS, CodeRules.noStandardStreamsRule());
+    strict.put(
         Rule.NO_RAW_HTTP_CLIENT_IN_ADAPTERS,
         CodeRules.noRawHttpClientInAdaptersRule(modulePackage));
-    rules.put(
+    strict.put(
         Rule.HTTP_EXCHANGE_PACKAGE_PRIVATE, CodeRules.httpExchangeInterfacesPackagePrivateRule());
-    rules.put(
+    strict.put(
         Rule.MAX_TOP_LEVEL_CLASSES_PER_PACKAGE,
         CodeRules.maxTopLevelClassesPerPackageRule(
             modulePackage, MAX_TOP_LEVEL_CLASSES_PER_PACKAGE));
-    rules.put(Rule.EVERY_PACKAGE_NULL_MARKED, AuditRules.everyPackageNullMarkedRule());
+    strict.put(Rule.EVERY_PACKAGE_NULL_MARKED, AuditRules.everyPackageNullMarkedRule());
+    strict.put(
+        Rule.NO_ENVIRONMENT_OUTSIDE_CONFIG,
+        ArchitectureRules.noEnvironmentOutsideConfigRule("..config.."));
+    // a library of records and interfaces has no field to check: an empty subject set is a pass
+    // here, the module that imported nothing at all is refused by Subjects.require
+    Map<Rule, ArchRule> rules = new EnumMap<>(Rule.class);
+    strict.forEach((rule, archRule) -> rules.put(rule, archRule.allowEmptyShould(true)));
     return rules;
   }
 }

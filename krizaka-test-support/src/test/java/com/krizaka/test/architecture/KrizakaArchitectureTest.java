@@ -37,6 +37,17 @@ class KrizakaArchitectureTest {
   }
 
   @Test
+  void aModuleOfRecordsOnlyPassesTheStandard() {
+    String records = "com.krizaka.test.architecture.fixture.standard.records";
+
+    assertThatCode(
+            () ->
+                KrizakaArchitecture.assertStandard(
+                    new ClassFileImporter().importPackages(records), records))
+        .doesNotThrowAnyException();
+  }
+
+  @Test
   void aWellFormedModulePassesTheStandard() {
     assertThatCode(() -> KrizakaArchitecture.assertStandard(GOOD_CLASSES, GOOD))
         .doesNotThrowAnyException();
@@ -48,6 +59,7 @@ class KrizakaArchitectureTest {
         .hasMessageContaining("[NO_RAW_HTTP_CLIENT_IN_ADAPTERS]")
         .hasMessageContaining("[FIELDS_PRIVATE]")
         .hasMessageContaining("[NO_STANDARD_STREAMS]")
+        .hasMessageContaining("[NO_ENVIRONMENT_OUTSIDE_CONFIG]")
         .hasMessageContaining("[EVERY_PACKAGE_NULL_MARKED]");
   }
 
@@ -80,13 +92,15 @@ class KrizakaArchitectureTest {
         Map.of(
             Rule.NO_RAW_HTTP_CLIENT_IN_ADAPTERS, "krizaka-internal#1",
             Rule.FIELDS_PRIVATE, "krizaka-internal#1",
-            Rule.NO_STANDARD_STREAMS, "krizaka-internal#1");
+            Rule.NO_STANDARD_STREAMS, "krizaka-internal#1",
+            Rule.NO_ENVIRONMENT_OUTSIDE_CONFIG, "krizaka-internal#1");
     ArchConfiguration.get().setProperty("freeze.store.default.allowStoreCreation", "true");
 
     assertThatThrownBy(() -> KrizakaArchitecture.assertStandard(BAD_CLASSES, BAD, everyDefect))
         .as("the null-marking debt is not frozen, so it still fails")
         .hasMessageContaining("[EVERY_PACKAGE_NULL_MARKED]")
         .hasMessageNotContaining("[FIELDS_PRIVATE]")
+        .hasMessageNotContaining("[NO_ENVIRONMENT_OUTSIDE_CONFIG]")
         .hasMessageNotContaining("[NO_RAW_HTTP_CLIENT_IN_ADAPTERS]");
 
     ArchConfiguration.get().setProperty("freeze.store.default.allowStoreCreation", "false");

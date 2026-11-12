@@ -1,0 +1,6 @@
+Package <com.krizaka.web.correlation> is not @NullMarked (no package-info with it)
+Package <com.krizaka.web.cors> is not @NullMarked (no package-info with it)
+Package <com.krizaka.web.json> is not @NullMarked (no package-info with it)
+Package <com.krizaka.web.pagination> is not @NullMarked (no package-info with it)
+Package <com.krizaka.web.problem> is not @NullMarked (no package-info with it)
+Package <com.krizaka.web> is not @NullMarked (no package-info with it)

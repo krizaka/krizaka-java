@@ -1,0 +1,8 @@
+Package <com.krizaka.notifications.service.application.service> is not @NullMarked (no package-info with it)
+Package <com.krizaka.notifications.service.domain.exception> is not @NullMarked (no package-info with it)
+Package <com.krizaka.notifications.service.domain.model> is not @NullMarked (no package-info with it)
+Package <com.krizaka.notifications.service.domain.port> is not @NullMarked (no package-info with it)
+Package <com.krizaka.notifications.service.infrastructure.adapter.amqp> is not @NullMarked (no package-info with it)
+Package <com.krizaka.notifications.service.infrastructure.adapter.delivery> is not @NullMarked (no package-info with it)
+Package <com.krizaka.notifications.service.infrastructure.config> is not @NullMarked (no package-info with it)
+Package <com.krizaka.notifications.service> is not @NullMarked (no package-info with it)

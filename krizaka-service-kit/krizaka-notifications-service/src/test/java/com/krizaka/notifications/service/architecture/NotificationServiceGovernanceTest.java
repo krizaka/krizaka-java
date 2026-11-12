@@ -2,7 +2,6 @@ package com.krizaka.notifications.service.architecture;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
-import com.krizaka.test.architecture.CodeRules;
 import com.krizaka.test.architecture.ConfigBindingRules;
 import com.krizaka.test.architecture.SourceRules;
 import com.tngtech.archunit.core.domain.JavaClasses;
@@ -74,25 +73,6 @@ class NotificationServiceGovernanceTest {
               .resideInAnyPackage("com.krizaka.sovkora..", "com.sovkora..")
               .because("a Krizaka building block depends on no product — products depend on it")
               .check(productionClasses);
-        });
-  }
-
-  @Test
-  @DisplayName("[ERR-103] One top-level class per file")
-  void oneClassPerFile() {
-    assertDoesNotThrow(
-        () -> {
-          CodeRules.assertOneTopLevelClassPerFile(productionClasses, BASE_PACKAGE);
-        });
-  }
-
-  @Test
-  @DisplayName("[GOV-004/005] No standard streams, no field injection")
-  void codeHygiene() {
-    assertDoesNotThrow(
-        () -> {
-          CodeRules.assertNoStandardStreams(productionClasses);
-          CodeRules.assertNoFieldInjection(productionClasses, BASE_PACKAGE);
         });
   }
 }

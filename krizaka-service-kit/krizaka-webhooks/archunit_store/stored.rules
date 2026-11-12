@@ -1,0 +1,4 @@
+#
+#Thu Nov 12 11:00:41 EST 2026
+every\ package\ is\ @NullMarked,\ because\ NullAway\ only\ checks\ what\ is\ marked;\ null\ is\ part\ of\ a\ contract,\ not\ a\ convention\ (ADR-015)=dd6c8395-5d1b-43e1-8c79-8d3b4e9b5657
+no\ RestClient,\ RestTemplate\ or\ WebClient\ outside\ a\ config\ package,\ because\ an\ HTTP\ call\ is\ a\ package-private\ @HttpExchange\ interface\ registered\ with\ @ImportHttpServices;\ the\ client,\ its\ base\ URL,\ timeouts\ and\ authentication\ are\ built\ once,\ in\ config=a32f1cef-23bc-4159-b019-410820eb1cfb

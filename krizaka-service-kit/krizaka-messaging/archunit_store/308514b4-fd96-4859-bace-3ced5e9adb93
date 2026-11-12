@@ -1,0 +1,5 @@
+Package <com.krizaka.messaging.consume> is not @NullMarked (no package-info with it)
+Package <com.krizaka.messaging.dedup> is not @NullMarked (no package-info with it)
+Package <com.krizaka.messaging.event> is not @NullMarked (no package-info with it)
+Package <com.krizaka.messaging.outbox> is not @NullMarked (no package-info with it)
+Package <com.krizaka.messaging.topology> is not @NullMarked (no package-info with it)

@@ -113,6 +113,8 @@ How a Java module is written, order of work first. Each rule points to the test 
 
 **Tests stay small because of the design.** The adapter depends on its `@HttpExchange` interface, so its unit test stubs that interface in plain Java (mapping, cache, failure contract; no HTTP server: `HttpPackPricingClientTest`). One wiring test per module proves the method, path, body and token against a stub HTTP server (`BillingClientFailureContractTest`, `BillingHttpGroupTest`).
 
+**Adoption.** Wave 1 is done: the 11 library modules of `krizaka-service-kit/` call `assertStandard`, their debt frozen with an issue each (krizaka-internal#2725). Billing and payments are wave 2, users wave 3.
+
 **Self-review before the PR:** no domain type in an `@HttpExchange` signature; adapters, `@HttpExchange` interfaces and DTOs package-private; the module's `ArchitectureTest` calls `assertStandard`; `./mvnw -pl krizaka-billing/krizaka-billing-client -am verify` (the module's own path) is green — that is « done ».
 
 ## Definition of done

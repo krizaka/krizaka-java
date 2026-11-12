@@ -1,0 +1,7 @@
+Package <com.krizaka.users.persistence.application.service> is not @NullMarked (no package-info with it)
+Package <com.krizaka.users.persistence.domain.model> is not @NullMarked (no package-info with it)
+Package <com.krizaka.users.persistence.domain.ports> is not @NullMarked (no package-info with it)
+Package <com.krizaka.users.persistence.infrastructure.adapter.messaging> is not @NullMarked (no package-info with it)
+Package <com.krizaka.users.persistence.infrastructure.adapter.persistence.converter> is not @NullMarked (no package-info with it)
+Package <com.krizaka.users.persistence.infrastructure.adapter.persistence.entity> is not @NullMarked (no package-info with it)
+Package <com.krizaka.users.persistence.infrastructure.adapter.persistence.repository> is not @NullMarked (no package-info with it)

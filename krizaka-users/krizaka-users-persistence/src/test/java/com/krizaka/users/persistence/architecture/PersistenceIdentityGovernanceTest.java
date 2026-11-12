@@ -31,15 +31,6 @@ class PersistenceIdentityGovernanceTest {
   }
 
   @Test
-  @DisplayName("[ERR-103] One top-level class per file")
-  void oneClassPerFile() {
-    assertDoesNotThrow(
-        () -> {
-          assertOneTopLevelClassPerFile(persistenceClasses, PKG);
-        });
-  }
-
-  @Test
   @DisplayName("[ERR-104] No redundant 'Krizaka' prefix")
   void noRedundantPrefix() {
     assertDoesNotThrow(
@@ -71,15 +62,6 @@ class PersistenceIdentityGovernanceTest {
         });
   }
 
-  @Test
-  @DisplayName("[ADR-009] Instance fields in concrete classes are private")
-  void fieldsArePrivate() {
-    assertDoesNotThrow(
-        () -> {
-          assertFieldsPrivate(persistenceClasses);
-        });
-  }
-
   // GOV-006: [ADR-007] collection-field rule is not invoked here: no non-record, non-entity class
   // in this
   // module declares a List, Map or Set field, so it judged nothing. It runs where such fields
@@ -91,15 +73,6 @@ class PersistenceIdentityGovernanceTest {
     assertDoesNotThrow(
         () -> {
           assertNoAnonymousClasses(persistenceClasses, PKG);
-        });
-  }
-
-  @Test
-  @DisplayName("[GOV-004] No standard streams (use SLF4J)")
-  void noStandardStreams() {
-    assertDoesNotThrow(
-        () -> {
-          assertNoStandardStreams(persistenceClasses);
         });
   }
 

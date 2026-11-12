@@ -42,6 +42,11 @@
             <artifactId>spring-boot-starter-json</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.krizaka</groupId>
+            <artifactId>krizaka-test-support</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

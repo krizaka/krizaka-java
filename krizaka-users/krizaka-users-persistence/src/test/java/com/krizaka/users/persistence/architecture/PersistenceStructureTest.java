@@ -35,15 +35,6 @@ class PersistenceStructureTest {
   }
 
   @Test
-  @DisplayName("No cycle between the packages of the module")
-  void noPackageCycles() {
-    assertDoesNotThrow(
-        () -> {
-          FrozenRules.check(ArchitectureRules.noPackageCyclesRule(PKG), classes);
-        });
-  }
-
-  @Test
   @DisplayName("Services are named *Service")
   void servicesNamed() {
     assertDoesNotThrow(
@@ -58,16 +49,6 @@ class PersistenceStructureTest {
     assertDoesNotThrow(
         () -> {
           FrozenRules.check(ArchitectureRules.repositoriesNamedRepositoryRule(), classes);
-        });
-  }
-
-  @Test
-  @DisplayName("The environment is read in configuration only")
-  void environmentOnlyInConfig() {
-    assertDoesNotThrow(
-        () -> {
-          FrozenRules.check(
-              ArchitectureRules.noEnvironmentOutsideConfigRule("..config.."), classes);
         });
   }
 

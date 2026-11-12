@@ -10,6 +10,7 @@ import com.krizaka.users.domain.exception.OrganizationAccessDeniedException;
 import com.krizaka.users.domain.exception.OrganizationConflictException;
 import com.krizaka.users.domain.exception.OrganizationNotFoundException;
 import com.krizaka.users.domain.exception.RegistrationClosedException;
+import com.krizaka.users.domain.exception.ServiceAccountProtectedException;
 import com.krizaka.users.domain.exception.UserAlreadyExistsException;
 import com.krizaka.users.domain.exception.UserNotFoundException;
 import java.util.Map;
@@ -53,7 +54,19 @@ public class IdentityErrorResolver {
     return errorResponse(HttpStatus.CONFLICT, ex);
   }
 
-  /** Maps an invalid request to 400 Bad Request. */
+  /**
+   * Maps a protected service account (erase, last key) to 409 Problem Details with a stable code.
+   */
+  @ExceptionHandler(ServiceAccountProtectedException.class)
+  public ProblemDetail handleServiceAccountProtected(ServiceAccountProtectedException ex) {
+    logger.warn("Service account change refused ({})", ex.code());
+    ProblemDetail problem = ProblemDetail.forStatusAndDetail(HttpStatus.CONFLICT, ex.getMessage());
+    problem.setTitle("Service account protected");
+    problem.setProperty("code", ex.code());
+    return problem;
+  }
+
+  /** Maps a refused administrative action to 409 Conflict. */
   @ExceptionHandler(AdminActionRefusedException.class)
   public ResponseEntity<Map<String, String>> handleAdminActionRefused(
       AdminActionRefusedException ex) {

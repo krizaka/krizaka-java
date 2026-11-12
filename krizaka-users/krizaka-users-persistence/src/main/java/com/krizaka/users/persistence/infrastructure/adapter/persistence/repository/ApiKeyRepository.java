@@ -49,6 +49,29 @@ public interface ApiKeyRepository extends JpaRepository<ApiKeyEntity, String> {
   long deleteByIdAndUserId(String id, String userId);
 
   /**
+   * Takes the row lock of a key's owner, so two revocations of the same account run one after the
+   * other.
+   *
+   * @param userId The owning user ID.
+   * @return The owner's ID, if the account exists.
+   */
+  @Query(value = "SELECT id FROM users WHERE id = :userId FOR UPDATE", nativeQuery = true)
+  Optional<String> lockOwner(@Param("userId") String userId);
+
+  /**
+   * Deletes a key only when its owner holds another one.
+   *
+   * @return The number of rows deleted (0 when the key is the owner's last, or not theirs).
+   */
+  @Modifying
+  @Query(
+      value =
+          "DELETE FROM api_keys WHERE id = :id AND user_id = :userId"
+              + " AND (SELECT count(*) FROM api_keys WHERE user_id = :userId) > 1",
+      nativeQuery = true)
+  int deleteUnlessLast(@Param("id") String id, @Param("userId") String userId);
+
+  /**
    * Stamps the last-used timestamp of a key without a read-before-write (ERR-109).
    *
    * @param id The key ID.

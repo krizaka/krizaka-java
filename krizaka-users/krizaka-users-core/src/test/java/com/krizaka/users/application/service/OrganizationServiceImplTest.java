@@ -16,6 +16,7 @@ import com.krizaka.users.domain.model.OrganizationActor;
 import com.krizaka.users.domain.model.OrganizationMember;
 import com.krizaka.users.domain.model.OrganizationRole;
 import com.krizaka.users.domain.model.User;
+import com.krizaka.users.domain.ports.outbound.AdminUserRepositoryPort;
 import com.krizaka.users.domain.ports.outbound.ApiKeyRepositoryPort;
 import com.krizaka.users.domain.ports.outbound.OrganizationRepositoryPort;
 import com.krizaka.users.domain.ports.outbound.UserRepositoryPort;
@@ -40,6 +41,7 @@ class OrganizationServiceImplTest {
   @Mock private OrganizationRepositoryPort organizations;
   @Mock private UserRepositoryPort users;
   @Mock private ApiKeyRepositoryPort apiKeys;
+  @Mock private AdminUserRepositoryPort audit;
 
   private OrganizationServiceImpl service;
   private final OrganizationActor owner = new OrganizationActor("owner", false);
@@ -49,7 +51,9 @@ class OrganizationServiceImplTest {
 
   @BeforeEach
   void setUp() {
-    service = new OrganizationServiceImpl(organizations, users, apiKeys);
+    service =
+        new OrganizationServiceImpl(
+            organizations, users, apiKeys, new ServiceAccountKeyRevocation(apiKeys, audit));
   }
 
   private void orgExists() {
@@ -270,6 +274,50 @@ class OrganizationServiceImplTest {
     assertThat(service.revokeServiceKey(admin, ORG, "k1")).isTrue();
     assertThat(service.revokeServiceKey(admin, ORG, "someone-elses-key")).isFalse();
     verify(apiKeys, never()).deleteByIdAndUserId("someone-elses-key", "svc-id");
+  }
+
+  @Test
+  void aManagerRevokingAProductKeyLeavesAnAuditRowNamingTheAccountTheKeyAndTheActor() {
+    orgExists();
+    role(admin, OrganizationRole.ADMIN);
+    var svc = user("svc-id", "svc_folioviv", true);
+    ApiKey key = new ApiKey("k1", "svc-id", "prod", "oz_live_abcd", Instant.EPOCH, null);
+    when(organizations.findServiceKeys(ORG)).thenReturn(List.of(key));
+    when(users.findById("svc-id")).thenReturn(Optional.of(svc));
+    when(users.findById("admin")).thenReturn(Optional.of(user("admin", "ada", true)));
+    when(apiKeys.findByUserId(svc.id().toString())).thenReturn(List.of(key));
+    when(apiKeys.deleteUnlessLast("k1", svc.id().toString())).thenReturn(1L);
+
+    assertThat(service.revokeServiceKey(admin, ORG, "k1")).isTrue();
+
+    verify(audit)
+        .appendAudit(
+            "admin",
+            "ada",
+            "service_account.key_revoked",
+            svc.id().toString(),
+            "product=folioviv key=k1 prefix=oz_live_abcd");
+    verify(apiKeys, never()).deleteByIdAndUserId(any(), any());
+  }
+
+  @Test
+  void aManagerCannotRevokeTheLastKeyOfAProductAccount() {
+    orgExists();
+    role(admin, OrganizationRole.ADMIN);
+    var svc = user("svc-id", "svc_folioviv", true);
+    ApiKey key = new ApiKey("k1", "svc-id", "prod", "oz_live_abcd", Instant.EPOCH, null);
+    when(organizations.findServiceKeys(ORG)).thenReturn(List.of(key));
+    when(users.findById("svc-id")).thenReturn(Optional.of(svc));
+    when(users.findById("admin")).thenReturn(Optional.empty());
+    when(apiKeys.findByUserId(svc.id().toString())).thenReturn(List.of(key));
+    when(apiKeys.deleteUnlessLast("k1", svc.id().toString())).thenReturn(0L);
+
+    assertThatThrownBy(() -> service.revokeServiceKey(admin, ORG, "k1"))
+        .isInstanceOf(com.krizaka.users.domain.exception.ServiceAccountProtectedException.class);
+    verify(audit, never()).appendAudit(any(), any(), any(), any(), any());
+    verify(audit)
+        .appendAuditOutcome(
+            eq("admin"), eq("admin"), any(), eq(svc.id().toString()), any(), eq("refused"));
   }
 
   @Test

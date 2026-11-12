@@ -133,10 +133,11 @@ public final class KrizakaArchitecture {
   static void requireProductionClasses(JavaClasses classes, String modulePackage, String artifact) {
     boolean any = classes.stream().anyMatch(c -> c.getPackageName().startsWith(modulePackage));
     if (!any) {
+      String where = artifact.isEmpty() ? "" : (" in " + artifact);
       throw new AssertionError(
           "no production class under "
               + modulePackage
-              + (artifact.isEmpty() ? "" : " in " + artifact)
+              + where
               + " — every rule of the standard passes on an empty set, so the base package or the"
               + " artifact fragment is wrong");
     }

@@ -66,6 +66,7 @@ public abstract class StandardArchitectureTest {
             .withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_TESTS)
             .withImportOption(location -> location.contains(artifact()))
             .importPackages(modulePackage);
+    KrizakaArchitecture.requireProductionClasses(classes, modulePackage, artifact());
     KrizakaArchitecture.assertStandard(classes, modulePackage, frozenDebt);
   }
 }

@@ -101,10 +101,7 @@ public final class KrizakaArchitecture {
                 "Rule " + rule + " is frozen without an issue (expected repo#number): " + issue);
           }
         });
-    Subjects.require(
-        "KA-001",
-        "classes under " + modulePackage,
-        classes.stream().filter(c -> c.getPackageName().startsWith(modulePackage)).toList());
+    requireProductionClasses(classes, modulePackage, "");
     List<String> failures = new ArrayList<>();
     standardRules(modulePackage)
         .forEach(
@@ -121,6 +118,27 @@ public final class KrizakaArchitecture {
             });
     if (!failures.isEmpty()) {
       throw new AssertionError(String.join("\n\n", failures));
+    }
+  }
+
+  /**
+   * Refuses an empty import: every standard rule passes on an empty set, so a wrong base package or
+   * an artifact fragment that matches nothing would read as a green module.
+   *
+   * @param classes the imported classes
+   * @param modulePackage the module's base package
+   * @param artifact the location fragment that selected the classes, empty when none
+   * @throws AssertionError when no class lives under {@code modulePackage}
+   */
+  static void requireProductionClasses(JavaClasses classes, String modulePackage, String artifact) {
+    boolean any = classes.stream().anyMatch(c -> c.getPackageName().startsWith(modulePackage));
+    if (!any) {
+      throw new AssertionError(
+          "no production class under "
+              + modulePackage
+              + (artifact.isEmpty() ? "" : " in " + artifact)
+              + " — every rule of the standard passes on an empty set, so the base package or the"
+              + " artifact fragment is wrong");
     }
   }
 
@@ -152,7 +170,7 @@ public final class KrizakaArchitecture {
         Rule.NO_ENVIRONMENT_OUTSIDE_CONFIG,
         ArchitectureRules.noEnvironmentOutsideConfigRule("..config.."));
     // a library of records and interfaces has no field to check: an empty subject set is a pass
-    // here, the module that imported nothing at all is refused by Subjects.require
+    // here, the module that imported nothing at all is refused by requireProductionClasses
     Map<Rule, ArchRule> rules = new EnumMap<>(Rule.class);
     strict.forEach((rule, archRule) -> rules.put(rule, archRule.allowEmptyShould(true)));
     return rules;

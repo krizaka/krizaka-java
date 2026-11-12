@@ -73,7 +73,7 @@ class KrizakaArchitectureTest {
     JavaClasses nothing = new ClassFileImporter().importPackages("com.krizaka.test.nowhere");
 
     assertThatThrownBy(() -> KrizakaArchitecture.assertStandard(nothing, GOOD))
-        .hasMessageContaining("examined no");
+        .hasMessageContaining("no production class under " + GOOD);
   }
 
   @Test

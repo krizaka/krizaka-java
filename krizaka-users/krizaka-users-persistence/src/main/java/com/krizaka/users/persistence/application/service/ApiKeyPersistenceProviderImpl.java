@@ -83,6 +83,14 @@ class ApiKeyPersistenceProviderImpl implements ApiKeyPersistenceProvider {
   }
 
   @Override
+  public long deleteUnlessLast(String id, String userId) {
+    Objects.requireNonNull(id, ID_NULL);
+    Objects.requireNonNull(userId, USER_ID_NULL);
+    repository.lockOwner(userId);
+    return repository.deleteUnlessLast(id, userId);
+  }
+
+  @Override
   public void touchLastUsed(String id, Instant lastUsedAt) {
     Objects.requireNonNull(id, ID_NULL);
     Objects.requireNonNull(lastUsedAt, "lastUsedAt cannot be null");

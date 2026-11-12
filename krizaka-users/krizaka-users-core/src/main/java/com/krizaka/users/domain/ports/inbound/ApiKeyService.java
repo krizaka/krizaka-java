@@ -55,6 +55,8 @@ public interface ApiKeyService {
    * @param userId The owning user ID.
    * @param keyId The key ID to revoke.
    * @return {@code true} if a key was revoked; {@code false} if none matched.
+   * @throws com.krizaka.users.domain.exception.ServiceAccountProtectedException if the owner is a
+   *     {@code svc_} account and the key is its last active one (create the new key first).
    */
   boolean revoke(String userId, String keyId);
 

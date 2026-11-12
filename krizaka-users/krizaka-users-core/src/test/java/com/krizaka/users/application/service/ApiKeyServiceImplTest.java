@@ -11,6 +11,7 @@ import com.krizaka.users.domain.model.ApiKey;
 import com.krizaka.users.domain.model.GeneratedApiKey;
 import com.krizaka.users.domain.model.User;
 import com.krizaka.users.domain.ports.inbound.ApiKeyService;
+import com.krizaka.users.domain.ports.outbound.AdminUserRepositoryPort;
 import com.krizaka.users.domain.ports.outbound.ApiKeyRepositoryPort;
 import com.krizaka.users.domain.ports.outbound.CryptographyPort;
 import com.krizaka.users.domain.ports.outbound.UserRepositoryPort;
@@ -22,7 +23,6 @@ import java.util.UUID;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -34,8 +34,18 @@ class ApiKeyServiceImplTest {
   @Mock private ApiKeyRepositoryPort apiKeyRepository;
   @Mock private UserRepositoryPort userRepository;
   @Mock private CryptographyPort cryptography;
+  @Mock private AdminUserRepositoryPort audit;
 
-  @InjectMocks private ApiKeyServiceImpl service;
+  private ServiceAccountKeyRevocation serviceAccountKeys;
+
+  private ApiKeyServiceImpl service;
+
+  @org.junit.jupiter.api.BeforeEach
+  void setUp() {
+    serviceAccountKeys = new ServiceAccountKeyRevocation(apiKeyRepository, audit);
+    service =
+        new ApiKeyServiceImpl(apiKeyRepository, userRepository, cryptography, serviceAccountKeys);
+  }
 
   private User enabledUser() {
     return new User(
@@ -197,5 +207,85 @@ class ApiKeyServiceImplTest {
     when(apiKeyRepository.findByKeyHash("h")).thenReturn(Optional.empty());
 
     assertThat(service.authenticate("oz_live_secret")).isEmpty();
+  }
+
+  private static final String SVC_ID = "550e8400-e29b-41d4-a716-446655440009";
+
+  private User serviceAccount() {
+    return new User(
+        UUID.fromString(SVC_ID),
+        "svc_folioviv",
+        "svc@example.com",
+        true,
+        Set.of("ROLE_USER"),
+        Map.of());
+  }
+
+  private static ApiKey key(String id, String prefix) {
+    return new ApiKey(id, SVC_ID, "dev-deploy", prefix, Instant.EPOCH, null, Set.of());
+  }
+
+  @Test
+  @DisplayName(
+      "rotation: the account revokes its old key once the new one exists; audited, no secret")
+  void aServiceAccountRotatesItsKey() {
+    when(userRepository.findById(SVC_ID)).thenReturn(Optional.of(serviceAccount()));
+    when(apiKeyRepository.findByUserId(SVC_ID))
+        .thenReturn(java.util.List.of(key("new", "oz_live_new1"), key("old", "oz_live_old1")));
+    when(apiKeyRepository.deleteUnlessLast("old", SVC_ID)).thenReturn(1L);
+
+    assertThat(service.revoke(SVC_ID, "old")).isTrue();
+
+    verify(audit)
+        .appendAudit(
+            SVC_ID,
+            "svc_folioviv",
+            "service_account.key_revoked",
+            SVC_ID,
+            "product=folioviv key=old prefix=oz_live_old1");
+    verify(apiKeyRepository, never()).deleteByIdAndUserId(any(), any());
+  }
+
+  @Test
+  @DisplayName("the last active key of a service account is refused, and the refusal is audited")
+  void theLastServiceKeyIsKept() {
+    when(userRepository.findById(SVC_ID)).thenReturn(Optional.of(serviceAccount()));
+    when(apiKeyRepository.findByUserId(SVC_ID))
+        .thenReturn(java.util.List.of(key("only", "oz_live_onl1")));
+    when(apiKeyRepository.deleteUnlessLast("only", SVC_ID)).thenReturn(0L);
+
+    assertThatThrownBy(() -> service.revoke(SVC_ID, "only"))
+        .isInstanceOfSatisfying(
+            com.krizaka.users.domain.exception.ServiceAccountProtectedException.class,
+            e -> assertThat(e.code()).isEqualTo("SERVICE_ACCOUNT_LAST_KEY"));
+    verify(audit)
+        .appendAuditOutcome(
+            eq(SVC_ID),
+            eq("svc_folioviv"),
+            eq("service_account.key_revoked"),
+            eq(SVC_ID),
+            contains("product=folioviv"),
+            eq("refused"));
+    verify(audit, never()).appendAudit(any(), any(), any(), any(), any());
+  }
+
+  @Test
+  @DisplayName("revoking a key a service account does not have is false and audits nothing")
+  void anUnknownServiceKeyIsNotRevoked() {
+    when(userRepository.findById(SVC_ID)).thenReturn(Optional.of(serviceAccount()));
+    when(apiKeyRepository.findByUserId(SVC_ID)).thenReturn(java.util.List.of());
+
+    assertThat(service.revoke(SVC_ID, "ghost")).isFalse();
+    verifyNoInteractions(audit);
+  }
+
+  @Test
+  @DisplayName("a person's own key is revoked as before, without the service-account rules")
+  void aPersonRevokesAnyOfTheirKeys() {
+    when(userRepository.findById(USER_ID)).thenReturn(Optional.of(enabledUser()));
+    when(apiKeyRepository.deleteByIdAndUserId("k", USER_ID)).thenReturn(1L);
+
+    assertThat(service.revoke(USER_ID, "k")).isTrue();
+    verifyNoInteractions(audit);
   }
 }

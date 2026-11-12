@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import com.krizaka.users.domain.exception.AdminActionRefusedException;
+import com.krizaka.users.domain.exception.ServiceAccountProtectedException;
 import com.krizaka.users.domain.exception.UserNotFoundException;
 import com.krizaka.users.domain.model.AdminActor;
 import com.krizaka.users.domain.model.AdminUserView;
@@ -138,6 +139,36 @@ class AdminUserServiceImplTest {
     order
         .verify(repository)
         .appendAudit("admin-1", "admin@example.test", "admin.account_deleted", "u3", null);
+  }
+
+  @Test
+  void aProductsServiceAccountIsNeverErasedAndTheRefusalIsAudited() {
+    when(repository.find("svc1"))
+        .thenReturn(
+            Optional.of(
+                new AdminUserView(
+                    "svc1",
+                    "svc_folioviv",
+                    "svc@x.test",
+                    true,
+                    false,
+                    "local",
+                    Set.of("ROLE_USER"),
+                    Instant.parse("2026-10-01T00:00:00Z"))));
+    assertThatThrownBy(() -> service.erase(ME, "svc1", "svc@x.test"))
+        .isInstanceOfSatisfying(
+            ServiceAccountProtectedException.class,
+            e -> assertThat(e.code()).isEqualTo("SERVICE_ACCOUNT_PROTECTED"));
+    verify(repository, never()).delete(any());
+    verify(repository, never()).anonymiseAudit(any());
+    verify(repository)
+        .appendAuditOutcome(
+            "admin-1",
+            "admin@example.test",
+            "admin.account_deleted",
+            "svc1",
+            "SERVICE_ACCOUNT_PROTECTED",
+            "refused");
   }
 
   @Test

@@ -1,12 +1,14 @@
 package com.krizaka.users.application.service;
 
 import com.krizaka.users.domain.exception.AdminActionRefusedException;
+import com.krizaka.users.domain.exception.ServiceAccountProtectedException;
 import com.krizaka.users.domain.exception.UserNotFoundException;
 import com.krizaka.users.domain.model.AdminActor;
 import com.krizaka.users.domain.model.AdminAuditEntry;
 import com.krizaka.users.domain.model.AdminUserPage;
 import com.krizaka.users.domain.model.AdminUserView;
 import com.krizaka.users.domain.ports.inbound.AdminUserService;
+import com.krizaka.users.domain.ports.inbound.OrganizationService;
 import com.krizaka.users.domain.ports.outbound.AdminUserRepositoryPort;
 import java.time.Instant;
 import java.util.LinkedHashMap;
@@ -106,6 +108,15 @@ class AdminUserServiceImpl implements AdminUserService {
   private void doErase(AdminActor actor, String id, String confirmEmail) {
     AdminUserView user = get(id);
     refuseSelf(actor, id);
+    // A product's service account holds the key it calls Sovkora with; erasing it (and, by cascade,
+    // its keys) is not an admin action (krizaka-internal#3214). No override exists: nobody needs
+    // one.
+    if (user.username() != null
+        && user.username().startsWith(OrganizationService.SERVICE_ACCOUNT_PREFIX)) {
+      throw new ServiceAccountProtectedException(
+          ServiceAccountProtectedException.ACCOUNT_PROTECTED,
+          "The service account of a product is not erased");
+    }
     if (user.admin() && user.enabled() && repository.countEnabledAdmins() <= 1) {
       throw new AdminActionRefusedException("LAST_ADMIN", "The last administrator keeps the role");
     }

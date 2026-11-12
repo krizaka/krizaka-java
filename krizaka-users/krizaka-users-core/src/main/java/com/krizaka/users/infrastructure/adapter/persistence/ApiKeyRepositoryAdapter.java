@@ -68,6 +68,13 @@ class ApiKeyRepositoryAdapter implements ApiKeyRepositoryPort {
   }
 
   @Override
+  public long deleteUnlessLast(String id, String userId) {
+    Objects.requireNonNull(id, ID_NULL);
+    Objects.requireNonNull(userId, USER_ID_NULL);
+    return provider.deleteUnlessLast(id, userId);
+  }
+
+  @Override
   public void touchLastUsed(String id, Instant lastUsedAt) {
     Objects.requireNonNull(id, ID_NULL);
     Objects.requireNonNull(lastUsedAt, "lastUsedAt cannot be null");

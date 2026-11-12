@@ -79,6 +79,8 @@ public interface OrganizationService {
    * Revokes a key of one of the organization's service accounts.
    *
    * @return true if a key was revoked, false if the organization has no such key
+   * @throws com.krizaka.users.domain.exception.ServiceAccountProtectedException if it is the
+   *     account's last active key
    */
   boolean revokeServiceKey(OrganizationActor actor, String organizationId, String keyId);
 }

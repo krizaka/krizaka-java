@@ -26,6 +26,7 @@ import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /** Concrete implementation of {@link OrganizationService}. */
 @Service
@@ -40,14 +41,18 @@ class OrganizationServiceImpl implements OrganizationService {
   private final OrganizationRepositoryPort organizations;
   private final UserRepositoryPort users;
   private final ApiKeyRepositoryPort apiKeys;
+  private final ServiceAccountKeyRevocation serviceAccountKeys;
 
   OrganizationServiceImpl(
       OrganizationRepositoryPort organizations,
       UserRepositoryPort users,
-      ApiKeyRepositoryPort apiKeys) {
+      ApiKeyRepositoryPort apiKeys,
+      ServiceAccountKeyRevocation serviceAccountKeys) {
     this.organizations = Objects.requireNonNull(organizations, "organizations is required");
     this.users = Objects.requireNonNull(users, "users is required");
     this.apiKeys = Objects.requireNonNull(apiKeys, "apiKeys is required");
+    this.serviceAccountKeys =
+        Objects.requireNonNull(serviceAccountKeys, "serviceAccountKeys is required");
   }
 
   @Override
@@ -180,6 +185,7 @@ class OrganizationServiceImpl implements OrganizationService {
   }
 
   @Override
+  @Transactional
   public boolean revokeServiceKey(OrganizationActor actor, String organizationId, String keyId) {
     Objects.requireNonNull(keyId, "keyId must not be null");
     organization(organizationId);
@@ -191,7 +197,16 @@ class OrganizationServiceImpl implements OrganizationService {
     if (key.isEmpty()) {
       return false;
     }
-    boolean revoked = apiKeys.deleteByIdAndUserId(keyId, key.get().userId()) > 0;
+    Optional<User> owner = users.findById(key.get().userId());
+    boolean serviceAccount =
+        owner.isPresent() && ServiceAccountKeyRevocation.isServiceAccount(owner.get());
+    boolean revoked;
+    if (serviceAccount) {
+      String actorLabel = users.findById(actor.userId()).map(User::username).orElse(actor.userId());
+      revoked = serviceAccountKeys.revoke(owner.get(), keyId, actor.userId(), actorLabel);
+    } else {
+      revoked = apiKeys.deleteByIdAndUserId(keyId, key.get().userId()) > 0;
+    }
     if (revoked) {
       logger.info(
           "Key {} of service account {} revoked from organization {} by {}",

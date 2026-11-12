@@ -21,6 +21,7 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Concrete implementation of the {@link ApiKeyService} port. Generates cryptographically strong
@@ -49,15 +50,19 @@ class ApiKeyServiceImpl implements ApiKeyService {
   private final ApiKeyRepositoryPort apiKeyRepository;
   private final UserRepositoryPort userRepository;
   private final CryptographyPort cryptography;
+  private final ServiceAccountKeyRevocation serviceAccountKeys;
 
   ApiKeyServiceImpl(
       ApiKeyRepositoryPort apiKeyRepository,
       UserRepositoryPort userRepository,
-      CryptographyPort cryptography) {
+      CryptographyPort cryptography,
+      ServiceAccountKeyRevocation serviceAccountKeys) {
     this.apiKeyRepository =
         Objects.requireNonNull(apiKeyRepository, "apiKeyRepository is required");
     this.userRepository = Objects.requireNonNull(userRepository, "userRepository is required");
     this.cryptography = Objects.requireNonNull(cryptography, "cryptography is required");
+    this.serviceAccountKeys =
+        Objects.requireNonNull(serviceAccountKeys, "serviceAccountKeys is required");
   }
 
   @Override
@@ -101,9 +106,17 @@ class ApiKeyServiceImpl implements ApiKeyService {
   }
 
   @Override
+  @Transactional
   public boolean revoke(String userId, String keyId) {
     Objects.requireNonNull(userId, USER_ID_REQUIRED);
     Objects.requireNonNull(keyId, "keyId must not be null");
+    Optional<User> serviceAccount =
+        userRepository.findById(userId).filter(ServiceAccountKeyRevocation::isServiceAccount);
+    if (serviceAccount.isPresent()) {
+      // A product's key: audited, and never the last one (rotation creates the new key first).
+      return serviceAccountKeys.revoke(
+          serviceAccount.get(), keyId, userId, serviceAccount.get().username());
+    }
     boolean revoked = apiKeyRepository.deleteByIdAndUserId(keyId, userId) > 0;
     if (revoked) {
       logger.info("Revoked API key {} for user {}", keyId, userId);

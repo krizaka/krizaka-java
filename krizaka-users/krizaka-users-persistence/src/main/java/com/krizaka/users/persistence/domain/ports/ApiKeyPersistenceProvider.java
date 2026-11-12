@@ -18,6 +18,14 @@ public interface ApiKeyPersistenceProvider {
 
   long deleteByIdAndUserId(String id, String userId);
 
+  /**
+   * Removes a key if the owner has at least one other; the owner row is locked first so that two
+   * simultaneous calls cannot empty a two-key account.
+   *
+   * @return 1 when removed, 0 otherwise.
+   */
+  long deleteUnlessLast(String id, String userId);
+
   void touchLastUsed(String id, Instant lastUsedAt);
 
   /**

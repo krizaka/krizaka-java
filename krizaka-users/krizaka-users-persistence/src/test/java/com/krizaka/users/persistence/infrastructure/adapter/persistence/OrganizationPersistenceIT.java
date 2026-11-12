@@ -192,6 +192,53 @@ class OrganizationPersistenceIT extends AbstractContainerIntegrationTest {
         .isZero();
   }
 
+  @Test
+  void theLastKeyOfAnAccountIsKeptAndAnotherIsDeletedWhileOneRemains() {
+    apiKeys.save(
+        new ApiKeyDto("a1", "svc-folioviv", "old", "oz_live_aaaa", "ha1", null, null, Set.of()));
+    assertThat(apiKeys.deleteUnlessLast("a1", "svc-folioviv")).isZero();
+    assertThat(apiKeys.countByUserId("svc-folioviv")).isEqualTo(1);
+
+    apiKeys.save(
+        new ApiKeyDto("a2", "svc-folioviv", "new", "oz_live_bbbb", "ha2", null, null, Set.of()));
+    assertThat(apiKeys.deleteUnlessLast("a1", "svc-folioviv")).isEqualTo(1);
+    assertThat(apiKeys.deleteUnlessLast("a2", "svc-folioviv")).isZero();
+    assertThat(apiKeys.deleteUnlessLast("a2", "svc-verikora")).isZero();
+    assertThat(apiKeys.findByUserId("svc-folioviv")).extracting("id").containsExactly("a2");
+  }
+
+  @Test
+  void twoConcurrentRevocationsNeverLeaveAnAccountWithoutAKey() throws Exception {
+    for (int round = 0; round < 10; round++) {
+      jdbc.update("DELETE FROM api_keys");
+      apiKeys.save(
+          new ApiKeyDto("c1", "svc-folioviv", "a", "oz_live_aaaa", "hc1", null, null, Set.of()));
+      apiKeys.save(
+          new ApiKeyDto("c2", "svc-folioviv", "b", "oz_live_bbbb", "hc2", null, null, Set.of()));
+      var start = new java.util.concurrent.CountDownLatch(1);
+      var pool = java.util.concurrent.Executors.newFixedThreadPool(2);
+      try {
+        var first =
+            pool.submit(
+                () -> {
+                  start.await();
+                  return apiKeys.deleteUnlessLast("c1", "svc-folioviv");
+                });
+        var second =
+            pool.submit(
+                () -> {
+                  start.await();
+                  return apiKeys.deleteUnlessLast("c2", "svc-folioviv");
+                });
+        start.countDown();
+        assertThat(first.get() + second.get()).isEqualTo(1);
+      } finally {
+        pool.shutdownNow();
+      }
+      assertThat(apiKeys.countByUserId("svc-folioviv")).isEqualTo(1);
+    }
+  }
+
   @SpringBootConfiguration
   @EnableAutoConfiguration
   @EnableJpaRepositories(basePackageClasses = UserRepository.class)

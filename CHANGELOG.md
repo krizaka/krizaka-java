@@ -5,6 +5,13 @@ Versions follow [Semantic Versioning](https://semver.org/) per repository; the B
 [release-please](https://github.com/googleapis/release-please) from the Conventional Commits merged on `main`; the
 hand-written history is under *Before release-please*.
 
+## [0.14.1](https://github.com/krizaka/krizaka-java/compare/v0.14.0...v0.14.1) (2026-11-12)
+
+
+### Bug Fixes
+
+* **test-support:** test servers bind to the loopback, never to all interfaces ([#252](https://github.com/krizaka/krizaka-java/issues/252)) ([23962a9](https://github.com/krizaka/krizaka-java/commit/23962a9a4b4169c3855274bcce96bf8b4514ad67))
+
 ## [0.14.0](https://github.com/krizaka/krizaka-java/compare/v0.13.1...v0.14.0) (2026-11-12)
 
 

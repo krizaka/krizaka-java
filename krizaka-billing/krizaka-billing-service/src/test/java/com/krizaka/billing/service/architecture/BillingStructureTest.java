@@ -11,9 +11,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
- * The structure of {@code krizaka-billing-service}: the shared {@link ArchitectureRules}, all
- * checked strictly (no debt found). A rule that fails later is fixed, or (existing debt only)
- * frozen with {@code FrozenRules}.
+ * The service-specific structure of {@code krizaka-billing-service}: naming and transaction
+ * boundary, all checked strictly (the standard is {@code ArchitectureTest}). A rule that fails
+ * later is fixed, or (existing debt only) frozen with {@code FrozenRules}.
  */
 class BillingStructureTest {
 
@@ -32,15 +32,6 @@ class BillingStructureTest {
   }
 
   @Test
-  @DisplayName("No cycle between the packages of the module")
-  void noPackageCycles() {
-    assertDoesNotThrow(
-        () -> {
-          ArchitectureRules.noPackageCyclesRule(PKG).check(classes);
-        });
-  }
-
-  @Test
   @DisplayName("Controllers are named *Controller")
   void controllersNamed() {
     assertDoesNotThrow(
@@ -55,15 +46,6 @@ class BillingStructureTest {
     assertDoesNotThrow(
         () -> {
           ArchitectureRules.servicesNamedServiceRule().check(classes);
-        });
-  }
-
-  @Test
-  @DisplayName("The environment is read in configuration only")
-  void environmentOnlyInConfig() {
-    assertDoesNotThrow(
-        () -> {
-          ArchitectureRules.noEnvironmentOutsideConfigRule("..config..").check(classes);
         });
   }
 

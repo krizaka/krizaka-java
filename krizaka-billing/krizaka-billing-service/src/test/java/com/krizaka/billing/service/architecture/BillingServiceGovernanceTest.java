@@ -48,15 +48,6 @@ class BillingServiceGovernanceTest {
   }
 
   @Test
-  @DisplayName("[ERR-103] one top-level type per file")
-  void oneTopLevelClassPerFile() {
-    assertDoesNotThrow(
-        () -> {
-          CodeRules.assertOneTopLevelClassPerFile(productionClasses, BASE_PACKAGE);
-        });
-  }
-
-  @Test
   @DisplayName("[ERR-104] no redundant Sovkora prefix")
   void noRedundantPrefix() {
     assertDoesNotThrow(
@@ -85,29 +76,11 @@ class BillingServiceGovernanceTest {
   }
 
   @Test
-  @DisplayName("[AGENTS §4] no field injection")
-  void noFieldInjection() {
-    assertDoesNotThrow(
-        () -> {
-          CodeRules.assertNoFieldInjection(productionClasses, BASE_PACKAGE);
-        });
-  }
-
-  @Test
   @DisplayName("[java:S2229] no class calls its own @Transactional method through this")
   void noSelfInvocationOfTransactional() {
     assertDoesNotThrow(
         () -> {
           CodeRules.assertNoSelfInvocationOfTransactional(productionClasses);
-        });
-  }
-
-  @Test
-  @DisplayName("[AGENTS §4] no System.out / System.err")
-  void noStandardStreams() {
-    assertDoesNotThrow(
-        () -> {
-          CodeRules.assertNoStandardStreams(productionClasses);
         });
   }
 

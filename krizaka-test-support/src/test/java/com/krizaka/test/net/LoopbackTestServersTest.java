@@ -62,15 +62,15 @@ class LoopbackTestServersTest {
 
   @Test
   void springBootLoadsThePostProcessorFromTheLibrary() throws IOException {
-    String registered = "";
+    StringBuilder registered = new StringBuilder();
     for (URL factories :
         Collections.list(getClass().getClassLoader().getResources("META-INF/spring.factories"))) {
       try (InputStream in = factories.openStream()) {
-        registered += new String(in.readAllBytes(), StandardCharsets.UTF_8);
+        registered.append(new String(in.readAllBytes(), StandardCharsets.UTF_8));
       }
     }
 
-    assertThat(registered)
+    assertThat(registered.toString())
         .contains(EnvironmentPostProcessor.class.getName())
         .contains(LoopbackServerAddressPostProcessor.class.getName());
   }

@@ -105,6 +105,7 @@ public final class KrizakaArchitecture {
         });
     requireProductionClasses(classes, modulePackage, "");
     List<String> failures = new ArrayList<>();
+    List<AssertionError> causes = new ArrayList<>();
     standardRules(modulePackage)
         .forEach(
             (rule, archRule) -> {
@@ -116,6 +117,7 @@ public final class KrizakaArchitecture {
                 }
               } catch (AssertionError e) {
                 failures.add("[" + rule + "] " + e.getMessage());
+                causes.add(e);
               }
             });
     try {
@@ -124,9 +126,13 @@ public final class KrizakaArchitecture {
           .check(CodeRules.importTestClasses(modulePackage));
     } catch (AssertionError e) {
       failures.add("[TEST_SERVERS_BIND_TO_LOOPBACK] " + e.getMessage());
+      causes.add(e);
     }
     if (!failures.isEmpty()) {
-      throw new AssertionError(String.join("\n\n", failures));
+      // Every rule's own error travels as a suppressed cause (Sonar S1166).
+      AssertionError all = new AssertionError(String.join("\n\n", failures));
+      causes.forEach(all::addSuppressed);
+      throw all;
     }
   }
 

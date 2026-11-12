@@ -5,6 +5,13 @@ Versions follow [Semantic Versioning](https://semver.org/) per repository; the B
 [release-please](https://github.com/googleapis/release-please) from the Conventional Commits merged on `main`; the
 hand-written history is under *Before release-please*.
 
+## [0.14.0](https://github.com/krizaka/krizaka-java/compare/v0.13.1...v0.14.0) (2026-11-12)
+
+
+### Features
+
+* **users:** protect the service account of a product, audit every key revocation ([#247](https://github.com/krizaka/krizaka-java/issues/247)) ([e530cd5](https://github.com/krizaka/krizaka-java/commit/e530cd53c75f1cf6e05fc141fe0bb7d3f570660d))
+
 ## [0.13.1](https://github.com/krizaka/krizaka-java/compare/v0.13.0...v0.13.1) (2026-11-11)
 
 

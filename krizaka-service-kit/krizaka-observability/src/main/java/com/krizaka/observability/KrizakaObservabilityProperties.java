@@ -3,6 +3,7 @@ package com.krizaka.observability;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.bind.ConstructorBinding;
 
 /**
  * The names a service is observed under ({@code krizaka.observability}).
@@ -21,18 +22,44 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  *     tagged on every meter.
  * @param version Version of the running build, usually filtered in by the build
  *     ('@project.version@'). Required: tagged on every meter.
+ * @param otlpEndpoint Base URL of the OTLP receiver (environment variable
+ *     OBSERVABILITY_OTLP_ENDPOINT). Optional: with none, traces and metrics are not exported at
+ *     all. Traces go to the endpoint's /v1/traces, metrics to its /v1/metrics.
+ * @param ingestToken Token sent as a bearer Authorization header to the receiver (environment
+ *     variable OBSERVABILITY_INGEST_TOKEN). Optional; never printed by toString.
+ * @param environment Name of the deployment environment, e.g. 'dev' (environment variable
+ *     OBSERVABILITY_ENVIRONMENT), exported as the resource attribute deployment.environment.name.
+ *     Optional.
  */
 @ConfigurationProperties(prefix = "krizaka.observability")
-public record KrizakaObservabilityProperties(String product, String service, String version) {
+public record KrizakaObservabilityProperties(
+    String product,
+    String service,
+    String version,
+    String otlpEndpoint,
+    String ingestToken,
+    String environment) {
 
   /** The prefix of the three properties, for messages and tests. */
   public static final String PREFIX = "krizaka.observability";
+
+  /**
+   * The three required names, with no OTLP export.
+   *
+   * @param product product the service belongs to
+   * @param service short name of the service
+   * @param version version of the running build
+   */
+  public KrizakaObservabilityProperties(String product, String service, String version) {
+    this(product, service, version, null, null, null);
+  }
 
   /**
    * Rejects a service that does not name itself.
    *
    * @throws IllegalArgumentException naming every missing or blank property
    */
+  @ConstructorBinding
   public KrizakaObservabilityProperties {
     List<String> missing = new ArrayList<>();
     if (isBlank(product)) {
@@ -55,5 +82,25 @@ public record KrizakaObservabilityProperties(String product, String service, Str
 
   private static boolean isBlank(String value) {
     return value == null || value.isBlank();
+  }
+
+  /**
+   * The names, without the token.
+   *
+   * @return a description safe to log
+   */
+  @Override
+  public String toString() {
+    return "KrizakaObservabilityProperties[product="
+        + product
+        + ", service="
+        + service
+        + ", version="
+        + version
+        + ", otlpEndpoint="
+        + otlpEndpoint
+        + ", environment="
+        + environment
+        + "]";
   }
 }

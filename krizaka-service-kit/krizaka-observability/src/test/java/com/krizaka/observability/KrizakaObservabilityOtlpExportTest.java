@@ -147,7 +147,7 @@ class KrizakaObservabilityOtlpExportTest {
   }
 
   @Test
-  void withNoEndpointNothingIsExportedAndNoExporterBeanExists() throws Exception {
+  void withNoEndpointNothingIsExportedAndNoExporterBeanExists() {
     try (ConfigurableApplicationContext context = run()) {
       context.getBean(Tracer.class).nextSpan().name("lost").start().end();
       context.getBean(MeterRegistry.class).counter("orders.created").increment();
@@ -156,7 +156,11 @@ class KrizakaObservabilityOtlpExportTest {
           .isEmpty();
       assertThat(context.getBeanNamesForType(io.micrometer.registry.otlp.OtlpMeterRegistry.class))
           .isEmpty();
-      Thread.sleep(1500);
+      // Two metric steps and several span batches would have passed: nothing arrived.
+      await()
+          .during(Duration.ofMillis(1500))
+          .atMost(Duration.ofSeconds(5))
+          .untilAsserted(() -> assertThat(received).isEmpty());
     }
     assertThat(received).isEmpty();
   }

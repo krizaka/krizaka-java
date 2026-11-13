@@ -1,6 +1,7 @@
 package com.krizaka.observability;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.awaitility.Awaitility.await;
 
 import com.krizaka.test.net.LoopbackTestServers;
@@ -16,6 +17,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.zip.GZIPInputStream;
+import net.minidev.json.parser.JSONParser;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -46,6 +48,9 @@ class KrizakaObservabilityOtlpExportTest {
   private static final String KEY_VALUE_SECRET = "kv-s3cr3t";
 
   private record Received(String path, String authorization, String body) {}
+
+  /** A key-value object written through its {@code toString()}. */
+  private record Buyer(String email) {}
 
   private final List<Received> received = new CopyOnWriteArrayList<>();
   private final List<String> downstreamTraceparents = new CopyOnWriteArrayList<>();
@@ -170,6 +175,7 @@ class KrizakaObservabilityOtlpExportTest {
         logger
             .atInfo()
             .addKeyValue("password", KEY_VALUE_SECRET)
+            .addKeyValue("buyer", new Buyer(EMAIL))
             .log("invoice sent to {} with Authorization: Bearer {}", EMAIL, BEARER);
         logger.error("refund failed", new IllegalStateException("no card on file for " + EMAIL));
       } finally {
@@ -192,7 +198,16 @@ class KrizakaObservabilityOtlpExportTest {
     String console = output.getAll();
     assertThat(console)
         .contains("invoice sent to [REDACTED] with Authorization: [REDACTED]")
-        .contains("no card on file for [REDACTED]");
+        .contains("no card on file for [REDACTED]")
+        .contains("Buyer[email=[REDACTED]]");
+    // The redaction rewrites values, never the shape: every ECS line stays strict JSON.
+    assertThat(console.lines().filter(line -> line.startsWith("{\"@timestamp\"")))
+        .isNotEmpty()
+        .allSatisfy(
+            line ->
+                assertThatCode(() -> new JSONParser(JSONParser.MODE_RFC4627).parse(line))
+                    .as(line)
+                    .doesNotThrowAnyException());
     for (String secret : List.of(EMAIL, BEARER, MDC_SECRET, KEY_VALUE_SECRET, TOKEN)) {
       assertThat(exported).as("OTLP export").doesNotContain(secret);
       assertThat(console).as("console").doesNotContain(secret);

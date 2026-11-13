@@ -1,10 +1,10 @@
 package com.krizaka.observability.logging;
 
-import java.util.Collection;
 import java.util.Map;
 import org.jspecify.annotations.Nullable;
 import org.springframework.boot.json.JsonWriter.MemberPath;
 import org.springframework.boot.json.JsonWriter.Members;
+import org.springframework.boot.json.WritableJson;
 import org.springframework.boot.logging.structured.StructuredLoggingJsonMembersCustomizer;
 
 /**
@@ -31,13 +31,18 @@ public final class RedactingJsonMembersCustomizer
     members.applyingValueProcessor(RedactingJsonMembersCustomizer::redact);
   }
 
-  /** A JSON-native value stays as is; any other value is redacted as the text it is written as. */
+  /**
+   * A value Spring Boot writes as JSON structure (a nested object, an array, a map, a number, a
+   * boolean) stays as is: its own members pass here one by one. Any other value is written as the
+   * text of its {@code toString()}, so that text is what is redacted.
+   */
   private static @Nullable Object redact(MemberPath path, @Nullable Object value) {
     if (value == null
         || value instanceof Number
         || value instanceof Boolean
         || value instanceof Map<?, ?>
-        || value instanceof Collection<?>
+        || value instanceof Iterable<?>
+        || value instanceof WritableJson
         || value.getClass().isArray()) {
       return value;
     }

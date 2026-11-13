@@ -58,9 +58,6 @@ management:
   endpoint:
     health:
       show-details: always
-  otlp:
-    tracing:
-      endpoint: ${OTEL_TRACES_ENDPOINT:http://localhost:4318/v1/traces}
   tracing:
     sampling:
       probability: ${TRACING_SAMPLING_PROBABILITY:1.0}

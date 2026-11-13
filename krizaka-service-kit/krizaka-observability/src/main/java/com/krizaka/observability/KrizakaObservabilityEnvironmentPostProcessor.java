@@ -149,17 +149,18 @@ public class KrizakaObservabilityEnvironmentPostProcessor implements Environment
     source.put(ENDPOINT_PROPERTY, endpoint);
     source.put(TRACES_ENDPOINT, endpoint + TRACES_PATH);
     source.put(METRICS_URL, endpoint + "/v1/metrics");
-    if (token != null) {
+    String authorization = token == null ? null : "Bearer " + token;
+    if (authorization != null) {
       source.put(TOKEN_PROPERTY, token);
-      source.put(TRACES_HEADER, "Bearer " + token);
-      source.put(METRICS_HEADER, "Bearer " + token);
+      source.put(TRACES_HEADER, authorization);
+      source.put(METRICS_HEADER, authorization);
     }
-    logs(source, endpoint, token, classLoader);
+    logs(source, endpoint, authorization, classLoader);
   }
 
   /** Logs leave a service only redacted (Law 25): no redaction, no log export. */
   private void logs(
-      Map<String, Object> source, String endpoint, String token, ClassLoader classLoader) {
+      Map<String, Object> source, String endpoint, String authorization, ClassLoader classLoader) {
     if (!redactionInstallable.test(classLoader)) {
       log.warn(
           "OTLP log export stays off: the log redaction cannot be installed (it needs Logback and"
@@ -169,8 +170,8 @@ public class KrizakaObservabilityEnvironmentPostProcessor implements Environment
     }
     source.put(LOGS_ENABLED, "true");
     source.put(LOGS_ENDPOINT, endpoint + "/v1/logs");
-    if (token != null) {
-      source.put(LOGS_HEADER, "Bearer " + token);
+    if (authorization != null) {
+      source.put(LOGS_HEADER, authorization);
     }
   }
 

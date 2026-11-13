@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -106,7 +105,7 @@ class ServicesLeaveTheOtlpEndpointToTheStarterTest {
     Map<String, Object> flat = new LinkedHashMap<>();
     if (file.getFileName().toString().endsWith(".properties")) {
       Properties properties = new Properties();
-      try (Reader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
+      try (Reader reader = Files.newBufferedReader(file)) {
         properties.load(reader);
       }
       properties.forEach((key, value) -> flat.put(String.valueOf(key), value));

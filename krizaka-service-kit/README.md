@@ -305,11 +305,11 @@ missing. Every meter is tagged `product`, `service`, `version`. At the lowest pr
 `logging.structured.format.console=ecs`, `management.endpoints.web.exposure.include=health,info,prometheus`,
 `management.tracing.sampling.probability=0.1` (sampling stays a setting).
 
-### Traces and metrics over OTLP
+### Traces, metrics and logs over OTLP
 
 | Variable | Typed property | What |
 |:---|:---|:---|
-| `OBSERVABILITY_OTLP_ENDPOINT` | `krizaka.observability.otlp-endpoint` | base URL of the receiver; traces go to `<endpoint>/v1/traces`, metrics to `<endpoint>/v1/metrics` |
+| `OBSERVABILITY_OTLP_ENDPOINT` | `krizaka.observability.otlp-endpoint` | base URL of the receiver; traces go to `<endpoint>/v1/traces`, metrics to `<endpoint>/v1/metrics`, logs (redacted) to `<endpoint>/v1/logs` |
 | `OBSERVABILITY_INGEST_TOKEN` | `krizaka.observability.ingest-token` | sent as `Authorization: Bearer <token>` with both; never logged, never in `toString()` |
 | `OBSERVABILITY_ENVIRONMENT` | `krizaka.observability.environment` | the resource attribute `deployment.environment.name` (`dev`, `prod`…) |
 
@@ -317,8 +317,10 @@ With no endpoint the starter exports **nothing** and starts cleanly: no local ad
 Spring Boot way (`management.opentelemetry.tracing.export.otlp.endpoint`, `management.otlp.metrics.export.url`) is
 left alone. `OTEL_TRACES_ENDPOINT` (the old name, a traces URL) is still accepted for one version and logs a
 deprecation warning (the name only, never a value). The HTTP clients built from Spring Boot's `RestClient.Builder`
-send the W3C `traceparent` header. Logs are **not** exported over OTLP (`management.logging.export.otlp.enabled=false`):
-that waits for the redaction of e-mails, bearer tokens and secrets.
+send the W3C `traceparent` header. Logs leave a service **only redacted**, on the console (ECS) and over OTLP alike:
+what is redacted and how the export fails closed is in [krizaka-observability/README.md](krizaka-observability/README.md).
+A service never sets an OTLP endpoint, URL or header in its own configuration: the starter owns them
+(`ServicesLeaveTheOtlpEndpointToTheStarterTest`).
 
 ### What the kit reports
 

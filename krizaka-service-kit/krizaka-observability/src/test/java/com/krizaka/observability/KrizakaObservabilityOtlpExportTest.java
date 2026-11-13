@@ -189,7 +189,7 @@ class KrizakaObservabilityOtlpExportTest {
     }
 
     String exported = logExports();
-    assertThat(received.stream().filter(r -> r.path().equals("/v1/logs")))
+    assertThat(received.stream().filter(r -> "/v1/logs".equals(r.path())))
         .allSatisfy(r -> assertThat(r.authorization()).isEqualTo("Bearer " + TOKEN));
     assertThat(exported)
         .contains("deployment.environment.name")
@@ -217,7 +217,7 @@ class KrizakaObservabilityOtlpExportTest {
   private String logExports() {
     return String.join(
         "\n",
-        received.stream().filter(r -> r.path().equals("/v1/logs")).map(Received::body).toList());
+        received.stream().filter(r -> "/v1/logs".equals(r.path())).map(Received::body).toList());
   }
 
   @Test

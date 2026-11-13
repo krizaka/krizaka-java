@@ -150,13 +150,13 @@ public final class LogRedaction {
     try {
       String canary =
           "user "
-              + CANARY_SECRETS.get(0)
+              + CANARY_SECRETS.getFirst()
               + " Authorization: Bearer "
               + CANARY_SECRETS.get(1)
               + " session "
               + CANARY_SECRETS.get(2)
               + " password="
-              + CANARY_SECRETS.get(3);
+              + CANARY_SECRETS.getLast();
       String redacted = redact(canary);
       return redacted != null && CANARY_SECRETS.stream().noneMatch(redacted::contains);
     } catch (RuntimeException e) {

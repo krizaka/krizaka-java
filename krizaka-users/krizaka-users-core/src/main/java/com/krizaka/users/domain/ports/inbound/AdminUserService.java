@@ -1,11 +1,14 @@
 package com.krizaka.users.domain.ports.inbound;
 
+import com.krizaka.users.domain.exception.InvalidRequestException;
 import com.krizaka.users.domain.model.AdminActor;
 import com.krizaka.users.domain.model.AdminAuditEntry;
 import com.krizaka.users.domain.model.AdminUserPage;
 import com.krizaka.users.domain.model.AdminUserView;
+import com.krizaka.users.domain.model.RateLimitInfo;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * The administration of accounts: list and search, suspend and restore, the administrator role, Law
@@ -41,4 +44,17 @@ public interface AdminUserService {
 
   /** The latest audit lines, newest first; {@code targetId} limits them to one account. */
   List<AdminAuditEntry> audit(String targetId, int limit);
+
+  /** A rate-limit tier's row, empty when it does not exist. */
+  Optional<RateLimitInfo> rateLimit(String tierKey);
+
+  /**
+   * Sets the tier's daily request quota, or clears it with {@code null} (the edge's default then
+   * applies). Audited with the old and the new value.
+   *
+   * @return the updated row, empty when the tier does not exist
+   * @throws InvalidRequestException when the quota is outside {@link
+   *     RateLimitInfo#MIN_DAILY_REQUESTS}..{@link RateLimitInfo#MAX_DAILY_REQUESTS}
+   */
+  Optional<RateLimitInfo> setDailyRequests(AdminActor actor, String tierKey, Integer dailyRequests);
 }

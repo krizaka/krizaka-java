@@ -83,7 +83,8 @@ class InternalUserController {
                       tokenService.issue(key.user()),
                       key.scopes().stream().sorted().toList(),
                       tier.map(RateLimitInfo::tierKey).orElse(null),
-                      tier.map(RateLimitInfo::requestsPerMinute).orElse(null)));
+                      tier.map(RateLimitInfo::requestsPerMinute).orElse(null),
+                      tier.map(RateLimitInfo::dailyRequests).orElse(null)));
             })
         .orElseGet(() -> ResponseEntity.status(401).build());
   }

@@ -145,8 +145,8 @@ class OrganizationMigrationIT extends AbstractContainerIntegrationTest {
     }
     var flyway = flyway();
     assertThat(flyway.migrate().migrationsExecuted)
-        .as("V2..V8 on the baselined database")
-        .isEqualTo(7);
+        .as("V2..V9 on the baselined database")
+        .isEqualTo(8);
     assertThat(flyway.migrate().migrationsExecuted).as("a second start does nothing").isZero();
     try (Connection c = connect();
         Statement s = c.createStatement()) {
@@ -164,7 +164,7 @@ class OrganizationMigrationIT extends AbstractContainerIntegrationTest {
       reset(s);
       s.execute(identitySql());
       String before = columns(s);
-      assertThat(flyway().migrate().migrationsExecuted).isEqualTo(7);
+      assertThat(flyway().migrate().migrationsExecuted).isEqualTo(8);
       assertThat(columns(s)).isEqualTo(before);
     }
   }

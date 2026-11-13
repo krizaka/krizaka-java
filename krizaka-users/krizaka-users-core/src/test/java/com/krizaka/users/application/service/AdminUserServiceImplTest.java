@@ -28,11 +28,12 @@ class AdminUserServiceImplTest {
   private static final AdminActor ME = new AdminActor("admin-1", "admin@example.test");
 
   @Mock private AdminUserRepositoryPort repository;
+  @Mock private com.krizaka.users.persistence.domain.ports.RateLimitPersistenceProvider rateLimits;
   private AdminUserServiceImpl service;
 
   @BeforeEach
   void setUp() {
-    service = new AdminUserServiceImpl(repository);
+    service = new AdminUserServiceImpl(repository, rateLimits);
   }
 
   private static AdminUserView user(String id, String email, boolean enabled, boolean admin) {

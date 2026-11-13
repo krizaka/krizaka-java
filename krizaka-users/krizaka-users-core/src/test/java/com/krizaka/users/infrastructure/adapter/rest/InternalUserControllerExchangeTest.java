@@ -13,11 +13,15 @@ import com.krizaka.users.domain.ports.inbound.RateLimitProvider;
 import com.krizaka.users.domain.ports.inbound.TokenService;
 import com.krizaka.users.domain.ports.inbound.UserProfileProvider;
 import com.krizaka.users.infrastructure.adapter.rest.dto.TokenExchangeRequest;
+import com.krizaka.users.infrastructure.adapter.rest.dto.TokenExchangeResponse;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 class InternalUserControllerExchangeTest {
 
@@ -116,5 +120,50 @@ class InternalUserControllerExchangeTest {
 
     assertThat(body.requestsPerMinute()).isNull();
     assertThat(body.tierKey()).isNull();
+  }
+
+  @Test
+  void theExchangeCarriesTheDailyRequestsOfTheOwnersTierRow() {
+    User u = user();
+    when(apiKeys.authenticateKey("oz_live_k"))
+        .thenReturn(Optional.of(new AuthenticatedApiKey(u, Set.of())));
+    when(tokens.issue(u)).thenReturn("jwt");
+    when(tiers.getDefaultTierKey()).thenReturn(Optional.of("service"));
+    when(tiers.getRateLimit("service"))
+        .thenReturn(Optional.of(new RateLimitInfo("service", 1000, 20, 50_000)));
+
+    assertThat(controller.exchange(new TokenExchangeRequest("oz_live_k")).getBody().dailyRequests())
+        .isEqualTo(50_000);
+  }
+
+  @Test
+  void theDailyRequestsIsNullWhenTheRowSetsNone() {
+    User u = user();
+    when(apiKeys.authenticateKey("oz_live_k"))
+        .thenReturn(Optional.of(new AuthenticatedApiKey(u, Set.of())));
+    when(tokens.issue(u)).thenReturn("jwt");
+    when(tiers.getDefaultTierKey()).thenReturn(Optional.of("free"));
+    when(tiers.getRateLimit("free")).thenReturn(Optional.of(new RateLimitInfo("free", 60, 1)));
+
+    assertThat(controller.exchange(new TokenExchangeRequest("oz_live_k")).getBody().dailyRequests())
+        .isNull();
+  }
+
+  /** The edge before this field: four fields, unknown ones ignored (Spring Boot's mapper). */
+  record LegacyExchange(
+      String token, List<String> scopes, String tierKey, Integer requestsPerMinute) {}
+
+  @Test
+  void anOlderEdgeIgnoringTheNewFieldStillParsesTheResponse() throws Exception {
+    JsonMapper json =
+        JsonMapper.builder().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
+    String wire =
+        json.writeValueAsString(
+            new TokenExchangeResponse("jwt", List.of("ai:embed"), "service", 1000, 50_000));
+
+    LegacyExchange old = json.readValue(wire, LegacyExchange.class);
+
+    assertThat(old).isEqualTo(new LegacyExchange("jwt", List.of("ai:embed"), "service", 1000));
+    assertThat(json.readTree(wire).has("dailyRequests")).isTrue();
   }
 }

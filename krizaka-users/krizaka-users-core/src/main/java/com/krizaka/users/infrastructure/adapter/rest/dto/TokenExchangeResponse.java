@@ -12,18 +12,30 @@ import java.util.Objects;
  *     null} when no tier is configured
  * @param requestsPerMinute that tier's requests per minute, a row of {@code rate_limits} the
  *     operator edits; {@code null} when no tier is configured — the edge then keeps its own default
+ * @param dailyRequests that tier's daily request quota; {@code null} when the row sets none — the
+ *     edge then keeps its own default. An older edge that does not know the field ignores it.
  */
 public record TokenExchangeResponse(
-    String token, java.util.List<String> scopes, String tierKey, Integer requestsPerMinute) {
+    String token,
+    java.util.List<String> scopes,
+    String tierKey,
+    Integer requestsPerMinute,
+    Integer dailyRequests) {
 
   public TokenExchangeResponse {
     Objects.requireNonNull(token, "token is required");
     scopes = scopes == null ? java.util.List.of() : java.util.List.copyOf(scopes);
   }
 
+  /** An exchange with a tier and no daily quota. */
+  public TokenExchangeResponse(
+      String token, java.util.List<String> scopes, String tierKey, Integer requestsPerMinute) {
+    this(token, scopes, tierKey, requestsPerMinute, null);
+  }
+
   /** An exchange with scopes and no tier. */
   public TokenExchangeResponse(String token, java.util.List<String> scopes) {
-    this(token, scopes, null, null);
+    this(token, scopes, null, null, null);
   }
 
   /** An unscoped exchange. */

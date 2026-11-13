@@ -116,5 +116,12 @@ class AdminUserEraseIT extends AbstractContainerIntegrationTest {
     PersistenceManagedTypes noEntity() {
       return PersistenceManagedTypes.of();
     }
+
+    /** The erase path never touches the rate-limit tiers; the service only needs the bean. */
+    @Bean
+    com.krizaka.users.persistence.domain.ports.RateLimitPersistenceProvider rateLimits() {
+      return org.mockito.Mockito.mock(
+          com.krizaka.users.persistence.domain.ports.RateLimitPersistenceProvider.class);
+    }
   }
 }

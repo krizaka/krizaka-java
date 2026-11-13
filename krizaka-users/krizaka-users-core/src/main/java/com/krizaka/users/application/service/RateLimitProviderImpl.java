@@ -38,6 +38,7 @@ class RateLimitProviderImpl implements RateLimitProvider {
   }
 
   private static RateLimitInfo toInfo(RateLimitDto dto) {
-    return new RateLimitInfo(dto.tierKey(), dto.requestsPerMinute(), dto.concurrentJobs());
+    return new RateLimitInfo(
+        dto.tierKey(), dto.requestsPerMinute(), dto.concurrentJobs(), dto.dailyRequests());
   }
 }

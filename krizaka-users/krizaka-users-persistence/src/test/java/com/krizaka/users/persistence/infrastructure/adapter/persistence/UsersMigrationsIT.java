@@ -54,8 +54,8 @@ class UsersMigrationsIT extends AbstractContainerIntegrationTest {
     }
 
     assertThat(flyway().migrate().migrationsExecuted)
-        .as("first run on an empty database: V1, then V2-V8 (idempotent, no-ops on V1)")
-        .isEqualTo(8);
+        .as("first run on an empty database: V1, then V2-V9 (idempotent, no-ops on V1)")
+        .isEqualTo(9);
     assertThat(flyway().migrate().migrationsExecuted).as("second run").isZero();
     flyway().validate();
 
@@ -92,5 +92,40 @@ class UsersMigrationsIT extends AbstractContainerIntegrationTest {
     assertThat(initdb)
         .doesNotContainIgnoringCase("CREATE TABLE")
         .doesNotContainIgnoringCase("INSERT INTO");
+  }
+
+  @Test
+  void theDailyQuotaColumnIsNullableAndBounded() throws Exception {
+    try (Connection admin =
+            DriverManager.getConnection(
+                postgres().getJdbcUrl(), postgres().getUsername(), postgres().getPassword());
+        Statement statement = admin.createStatement()) {
+      statement.execute("DROP DATABASE IF EXISTS " + DATABASE + "_quota");
+      statement.execute("CREATE DATABASE " + DATABASE + "_quota");
+    }
+    Flyway.configure()
+        .dataSource(url(DATABASE + "_quota"), postgres().getUsername(), postgres().getPassword())
+        .locations("classpath:db/migration")
+        .load()
+        .migrate();
+
+    try (Connection connection =
+            DriverManager.getConnection(
+                url(DATABASE + "_quota"), postgres().getUsername(), postgres().getPassword());
+        Statement statement = connection.createStatement()) {
+      assertThat(count(statement, "SELECT count(*) FROM rate_limits WHERE daily_requests IS NULL"))
+          .as("the seeded tiers keep the edge's default")
+          .isEqualTo(count(statement, "SELECT count(*) FROM rate_limits"));
+      statement.execute("UPDATE rate_limits SET daily_requests = 1 WHERE tier_key = 'free'");
+      statement.execute("UPDATE rate_limits SET daily_requests = 10000000 WHERE tier_key = 'free'");
+      for (String bad : new String[] {"0", "-1", "10000001"}) {
+        org.junit.jupiter.api.Assertions.assertThrows(
+            java.sql.SQLException.class,
+            () ->
+                statement.execute(
+                    "UPDATE rate_limits SET daily_requests = " + bad + " WHERE tier_key = 'free'"),
+            bad);
+      }
+    }
   }
 }

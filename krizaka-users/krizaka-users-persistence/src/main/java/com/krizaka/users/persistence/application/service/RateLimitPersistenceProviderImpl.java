@@ -36,6 +36,17 @@ class RateLimitPersistenceProviderImpl implements RateLimitPersistenceProvider {
   }
 
   @Override
+  public RateLimitDto updateDailyRequests(String tierKey, Integer dailyRequests) {
+    Objects.requireNonNull(tierKey, "Tier key cannot be null");
+    RateLimitEntity entity =
+        repository
+            .findById(tierKey)
+            .orElseThrow(() -> new IllegalArgumentException("Unknown tier: " + tierKey));
+    entity.setDailyRequests(dailyRequests);
+    return toDto(repository.save(entity));
+  }
+
+  @Override
   @Transactional(readOnly = true)
   public Optional<String> findDefaultTierKey() {
     return repository.findFirstByIsDefaultTrue().map(RateLimitEntity::getTierKey);
@@ -46,7 +57,10 @@ class RateLimitPersistenceProviderImpl implements RateLimitPersistenceProvider {
       return null;
     }
     return new RateLimitDto(
-        entity.getTierKey(), entity.getRequestsPerMinute(), entity.getConcurrentJobs());
+        entity.getTierKey(),
+        entity.getRequestsPerMinute(),
+        entity.getConcurrentJobs(),
+        entity.getDailyRequests());
   }
 
   static RateLimitEntity toEntity(RateLimitDto dto) {
@@ -57,6 +71,7 @@ class RateLimitPersistenceProviderImpl implements RateLimitPersistenceProvider {
     entity.setTierKey(dto.tierKey());
     entity.setRequestsPerMinute(dto.requestsPerMinute());
     entity.setConcurrentJobs(dto.concurrentJobs());
+    entity.setDailyRequests(dto.dailyRequests());
     return entity;
   }
 }

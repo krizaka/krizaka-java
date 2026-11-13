@@ -5,6 +5,13 @@ Versions follow [Semantic Versioning](https://semver.org/) per repository; the B
 [release-please](https://github.com/googleapis/release-please) from the Conventional Commits merged on `main`; the
 hand-written history is under *Before release-please*.
 
+## [0.16.0](https://github.com/krizaka/krizaka-java/compare/v0.15.0...v0.16.0) (2026-11-13)
+
+
+### Features
+
+* **observability:** logs leave a service only redacted, then over OTLP ([#260](https://github.com/krizaka/krizaka-java/issues/260)) ([8ffba0f](https://github.com/krizaka/krizaka-java/commit/8ffba0fc90b217768f209e6baf4739fbc29024b6))
+
 ## [0.15.0](https://github.com/krizaka/krizaka-java/compare/v0.14.1...v0.15.0) (2026-11-13)
 
 

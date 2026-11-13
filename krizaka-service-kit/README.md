@@ -64,7 +64,7 @@ capabilities, never the Spring list behind them; a Spring Boot upgrade changes t
 | `com.krizaka:krizaka-spring-boot-starter-web` | `krizaka-web` + `spring-boot-starter-webmvc` + `-validation` + `-actuator` |
 | `com.krizaka:krizaka-spring-boot-starter-security` | `krizaka-security` + `spring-boot-starter-security` + `-oauth2-resource-server` |
 | `com.krizaka:krizaka-spring-boot-starter-rabbitmq` | `krizaka-messaging` + `spring-boot-starter-amqp` + `-jdbc` + `-jackson` (add your JDBC driver) |
-| `com.krizaka:krizaka-spring-boot-starter-observability` | `krizaka-observability` + `spring-boot-starter-actuator` + OpenTelemetry tracing (`spring-boot-micrometer-tracing-opentelemetry`, `micrometer-tracing-bridge-otel`, `opentelemetry-exporter-otlp`) + `micrometer-registry-prometheus` |
+| `com.krizaka:krizaka-spring-boot-starter-observability` | `krizaka-observability` + `spring-boot-starter-actuator` + OpenTelemetry tracing (`spring-boot-micrometer-tracing-opentelemetry`, `micrometer-tracing-bridge-otel`, `opentelemetry-exporter-otlp`) + `micrometer-registry-otlp` + `micrometer-registry-prometheus` |
 | `com.krizaka:krizaka-spring-boot-starter-idempotency` | `krizaka-idempotency` + `krizaka-spring-boot-starter-web` + `spring-boot-starter-jdbc` (add your JDBC driver) |
 | `com.krizaka:krizaka-spring-boot-starter-webhooks` | `krizaka-webhooks` + `krizaka-spring-boot-starter-web` |
 | `com.krizaka:krizaka-spring-boot-starter-ratelimit` | `krizaka-ratelimit` + `krizaka-spring-boot-starter-web` |
@@ -303,8 +303,22 @@ krizaka:
 The three names are required — a service that cannot say who it is does not start, and the error lists what is
 missing. Every meter is tagged `product`, `service`, `version`. At the lowest priority, so `application.yml` still wins:
 `logging.structured.format.console=ecs`, `management.endpoints.web.exposure.include=health,info,prometheus`,
-`management.tracing.sampling.probability=0.1`. The OTLP exporter sends spans once
-`management.opentelemetry.tracing.export.otlp.endpoint` (Spring Boot 4) is set.
+`management.tracing.sampling.probability=0.1` (sampling stays a setting).
+
+### Traces and metrics over OTLP
+
+| Variable | Typed property | What |
+|:---|:---|:---|
+| `OBSERVABILITY_OTLP_ENDPOINT` | `krizaka.observability.otlp-endpoint` | base URL of the receiver; traces go to `<endpoint>/v1/traces`, metrics to `<endpoint>/v1/metrics` |
+| `OBSERVABILITY_INGEST_TOKEN` | `krizaka.observability.ingest-token` | sent as `Authorization: Bearer <token>` with both; never logged, never in `toString()` |
+| `OBSERVABILITY_ENVIRONMENT` | `krizaka.observability.environment` | the resource attribute `deployment.environment.name` (`dev`, `prod`…) |
+
+With no endpoint the starter exports **nothing** and starts cleanly: no local address is guessed. An endpoint set the
+Spring Boot way (`management.opentelemetry.tracing.export.otlp.endpoint`, `management.otlp.metrics.export.url`) is
+left alone. `OTEL_TRACES_ENDPOINT` (the old name, a traces URL) is still accepted for one version and logs a
+deprecation warning (the name only, never a value). The HTTP clients built from Spring Boot's `RestClient.Builder`
+send the W3C `traceparent` header. Logs are **not** exported over OTLP (`management.logging.export.otlp.enabled=false`):
+that waits for the redaction of e-mails, bearer tokens and secrets.
 
 ### What the kit reports
 

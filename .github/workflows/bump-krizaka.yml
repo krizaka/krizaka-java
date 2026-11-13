@@ -26,6 +26,7 @@ jobs:
     with:
       packages: ${{ github.event.client_payload.packages && toJSON(github.event.client_payload.packages) || inputs.packages }}
       dry-run: ${{ inputs.dry-run == true }}
+      working-directory: site # the npm package of this repository is site/ (no root package)
       app-id: ${{ vars.RELEASE_APP_ID }}
     secrets:
       app-private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}

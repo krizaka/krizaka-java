@@ -75,7 +75,7 @@ public final class LogRedaction {
           new Rule(
               "secret",
               Pattern.compile(
-                  "(?i)(\\b[\\w.-]{0,64}?(?:token|secret|passw(?:or)?d|api[_-]?key)[\\w.-]{0,64}"
+                  "(?i)(\\b[\\w.-]{0,64}(?:token|secret|passw|api.?key)[\\w.-]{0,64}"
                       + "[\"']?\\s{0,16}[:=]\\s{0,16}[\"']?)[^\\s\"',;&}]++"),
               "$1" + REDACTED),
           new Rule(
@@ -85,7 +85,7 @@ public final class LogRedaction {
               REDACTED));
 
   private static final Pattern SENSITIVE_KEY =
-      Pattern.compile("(?i)token|secret|passw(?:or)?d|api[_-]?key|authorization|cookie");
+      Pattern.compile("(?i)token|secret|passw|api.?key|authorization|cookie");
 
   /** The canary {@link #selfTest()} runs; every part of it must disappear. */
   private static final List<String> CANARY_SECRETS =
@@ -142,25 +142,22 @@ public final class LogRedaction {
 
   /**
    * Runs the rules on a canary line carrying one secret of each kind. The OTLP log export starts
-   * only when this passes: logs leave a service redacted or not at all.
+   * only when this passes: logs leave a service redacted or not at all. A rule that throws makes
+   * the caller fail, which keeps the export off as well.
    *
    * @return true when nothing of the canary survives
    */
   public static boolean selfTest() {
-    try {
-      String canary =
-          "user "
-              + CANARY_SECRETS.getFirst()
-              + " Authorization: Bearer "
-              + CANARY_SECRETS.get(1)
-              + " session "
-              + CANARY_SECRETS.get(2)
-              + " password="
-              + CANARY_SECRETS.getLast();
-      String redacted = redact(canary);
-      return redacted != null && CANARY_SECRETS.stream().noneMatch(redacted::contains);
-    } catch (RuntimeException e) {
-      return false;
-    }
+    String canary =
+        "user "
+            + CANARY_SECRETS.getFirst()
+            + " Authorization: Bearer "
+            + CANARY_SECRETS.get(1)
+            + " session "
+            + CANARY_SECRETS.get(2)
+            + " password="
+            + CANARY_SECRETS.getLast();
+    String redacted = redact(canary);
+    return redacted != null && CANARY_SECRETS.stream().noneMatch(redacted::contains);
   }
 }

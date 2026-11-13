@@ -149,8 +149,9 @@ public class KrizakaObservabilityEnvironmentPostProcessor implements Environment
     source.put(ENDPOINT_PROPERTY, endpoint);
     source.put(TRACES_ENDPOINT, endpoint + TRACES_PATH);
     source.put(METRICS_URL, endpoint + "/v1/metrics");
-    String authorization = token == null ? null : "Bearer " + token;
-    if (authorization != null) {
+    String authorization = null;
+    if (token != null) {
+      authorization = "Bearer " + token;
       source.put(TOKEN_PROPERTY, token);
       source.put(TRACES_HEADER, authorization);
       source.put(METRICS_HEADER, authorization);

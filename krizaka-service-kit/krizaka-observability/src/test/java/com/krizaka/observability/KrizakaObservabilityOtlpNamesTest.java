@@ -16,17 +16,17 @@ import org.springframework.core.env.StandardEnvironment;
 class KrizakaObservabilityOtlpNamesTest {
 
   private static final String TOKEN = "tok-4f9a1c";
-  private static final String TRACES_ENDPOINT =
-      "management.opentelemetry.tracing.export.otlp.endpoint";
-  private static final String TRACES_HEADER =
-      "management.opentelemetry.tracing.export.otlp.headers.Authorization";
+  private static final String TRACES = "management.opentelemetry.tracing.export.otlp";
+  private static final String METRICS = "management.otlp.metrics.export";
+  private static final String AUTH = ".headers.Authorization";
+  private static final String TRACES_ENDPOINT = TRACES + ".endpoint";
+  private static final String TRACES_HEADER = TRACES + AUTH;
   private static final String TRACES_ENABLED = "management.tracing.export.otlp.enabled";
-  private static final String METRICS_URL = "management.otlp.metrics.export.url";
-  private static final String METRICS_HEADER =
-      "management.otlp.metrics.export.headers.Authorization";
-  private static final String METRICS_ENABLED = "management.otlp.metrics.export.enabled";
+  private static final String METRICS_URL = METRICS + ".url";
+  private static final String METRICS_HEADER = METRICS + AUTH;
+  private static final String METRICS_ENABLED = METRICS + ".enabled";
   private static final String ENVIRONMENT_ATTRIBUTE =
-      "management.opentelemetry.resource-attributes.deployment.environment.name";
+      "management.opentelemetry.resource-attributes" + ".deployment.environment.name";
 
   private final List<String> logged = new ArrayList<>();
 

@@ -80,14 +80,14 @@ public class KrizakaObservabilityEnvironmentPostProcessor implements Environment
   }
 
   /**
-   * Adds the defaults below every other property source.
+   * Adds the defaults, and the Spring Boot settings derived from the OTLP names, as the last
+   * property source.
    *
-   * @param environment the application's environment
-   * @param application the application being started
+   * @param environment the environment being prepared
+   * @param app the application being started
    */
   @Override
-  public void postProcessEnvironment(
-      ConfigurableEnvironment environment, SpringApplication application) {
+  public void postProcessEnvironment(ConfigurableEnvironment environment, SpringApplication app) {
     if (environment.getPropertySources().contains(PROPERTY_SOURCE_NAME)) {
       return;
     }

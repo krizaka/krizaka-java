@@ -122,31 +122,26 @@ class InternalUserControllerExchangeTest {
     assertThat(body.tierKey()).isNull();
   }
 
-  @Test
-  void theExchangeCarriesTheDailyRequestsOfTheOwnersTierRow() {
+  private TokenExchangeResponse exchangeOnDefaultTier(RateLimitInfo tier) {
     User u = user();
     when(apiKeys.authenticateKey("oz_live_k"))
         .thenReturn(Optional.of(new AuthenticatedApiKey(u, Set.of())));
     when(tokens.issue(u)).thenReturn("jwt");
-    when(tiers.getDefaultTierKey()).thenReturn(Optional.of("service"));
-    when(tiers.getRateLimit("service"))
-        .thenReturn(Optional.of(new RateLimitInfo("service", 1000, 20, 50_000)));
+    when(tiers.getDefaultTierKey()).thenReturn(Optional.of(tier.tierKey()));
+    when(tiers.getRateLimit(tier.tierKey())).thenReturn(Optional.of(tier));
+    return controller.exchange(new TokenExchangeRequest("oz_live_k")).getBody();
+  }
 
-    assertThat(controller.exchange(new TokenExchangeRequest("oz_live_k")).getBody().dailyRequests())
+  @Test
+  void theExchangeCarriesTheDailyRequestsOfTheOwnersTierRow() {
+    assertThat(
+            exchangeOnDefaultTier(new RateLimitInfo("service", 1000, 20, 50_000)).dailyRequests())
         .isEqualTo(50_000);
   }
 
   @Test
   void theDailyRequestsIsNullWhenTheRowSetsNone() {
-    User u = user();
-    when(apiKeys.authenticateKey("oz_live_k"))
-        .thenReturn(Optional.of(new AuthenticatedApiKey(u, Set.of())));
-    when(tokens.issue(u)).thenReturn("jwt");
-    when(tiers.getDefaultTierKey()).thenReturn(Optional.of("free"));
-    when(tiers.getRateLimit("free")).thenReturn(Optional.of(new RateLimitInfo("free", 60, 1)));
-
-    assertThat(controller.exchange(new TokenExchangeRequest("oz_live_k")).getBody().dailyRequests())
-        .isNull();
+    assertThat(exchangeOnDefaultTier(new RateLimitInfo("free", 60, 1)).dailyRequests()).isNull();
   }
 
   /** The edge before this field: four fields, unknown ones ignored (Spring Boot's mapper). */

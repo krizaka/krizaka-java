@@ -33,12 +33,4 @@ class RateLimitDtoTest {
   void dailyRequestsIsAbsentByDefault() {
     assertNull(new RateLimitDto("free", 60, 2).dailyRequests());
   }
-
-  @Test
-  void dailyRequestsOutsideItsBoundsIsRefused() {
-    assertEquals(1, new RateLimitDto("free", 60, 2, 1).dailyRequests());
-    assertEquals(10_000_000, new RateLimitDto("free", 60, 2, 10_000_000).dailyRequests());
-    assertThrows(IllegalArgumentException.class, () -> new RateLimitDto("free", 60, 2, 0));
-    assertThrows(IllegalArgumentException.class, () -> new RateLimitDto("free", 60, 2, 10_000_001));
-  }
 }

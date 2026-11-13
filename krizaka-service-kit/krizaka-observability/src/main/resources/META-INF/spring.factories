@@ -1,2 +1,4 @@
 org.springframework.boot.EnvironmentPostProcessor=\
 com.krizaka.observability.KrizakaObservabilityEnvironmentPostProcessor
+org.springframework.boot.logging.structured.StructuredLoggingJsonMembersCustomizer=\
+com.krizaka.observability.logging.RedactingJsonMembersCustomizer

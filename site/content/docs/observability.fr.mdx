@@ -34,8 +34,10 @@ Ton `application.yml` l'emporte toujours sur chacun :
 Les traces et les métriques sont exportées en OTLP dès que `OBSERVABILITY_OTLP_ENDPOINT` (une URL de base) est défini ;
 sans lui, rien n'est exporté. `OBSERVABILITY_INGEST_TOKEN` est envoyé en `Authorization: Bearer`, et
 `OBSERVABILITY_ENVIRONMENT` devient l'attribut de ressource `deployment.environment.name`. L'ancien
-`OTEL_TRACES_ENDPOINT` reste accepté une version, avec un avertissement de dépréciation. Les logs ne sont pas exportés
-en OTLP.
+`OTEL_TRACES_ENDPOINT` reste accepté une version, avec un avertissement de dépréciation. Les logs partent aussi, vers `<endpoint>/v1/logs`, **seulement caviardés** : adresses
+e-mail, valeurs `Authorization` et `Bearer`, chaînes en forme de JWT et valeurs des clés nommées comme un jeton, un
+secret, un mot de passe ou une clé d'API deviennent `[REDACTED]`, dans le log ECS de la console comme dans l'export. Si
+le caviardage ne peut pas être installé, l'export des logs ne démarre pas.
 
 ## Ce que le kit rapporte
 

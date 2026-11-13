@@ -34,7 +34,10 @@ Your `application.yml` still wins over each of them:
 Traces and metrics are exported over OTLP once `OBSERVABILITY_OTLP_ENDPOINT` (a base URL) is set; with none, nothing
 is exported. `OBSERVABILITY_INGEST_TOKEN` is sent as `Authorization: Bearer`, and `OBSERVABILITY_ENVIRONMENT` becomes
 the resource attribute `deployment.environment.name`. The old `OTEL_TRACES_ENDPOINT` is still accepted for one version,
-with a deprecation warning. Logs are not exported over OTLP.
+with a deprecation warning. Logs go to `<endpoint>/v1/logs` too, **only redacted**: e-mail addresses, `Authorization`
+and `Bearer` values, JWT-shaped strings and the values of keys named like a token, a secret, a password or an API key
+become `[REDACTED]`, in the ECS console log and in the export alike. If the redaction cannot be installed, the log
+export does not start.
 
 ## What the kit reports
 

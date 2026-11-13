@@ -1,1 +1,2 @@
 com.krizaka.observability.KrizakaObservabilityAutoConfiguration
+com.krizaka.observability.logging.RedactedLogExportAutoConfiguration

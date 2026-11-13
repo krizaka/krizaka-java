@@ -46,9 +46,6 @@ management:
       exposure:
         # health for the harness's readiness gate, info for its identity check (ADR-071 §2).
         include: health, info
-  otlp:
-    tracing:
-      endpoint: ${OTEL_TRACES_ENDPOINT:http://localhost:4318/v1/traces}
   tracing:
     sampling:
       probability: ${TRACING_SAMPLING_PROBABILITY:1.0}

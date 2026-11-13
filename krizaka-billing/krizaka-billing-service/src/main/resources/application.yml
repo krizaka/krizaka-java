@@ -54,7 +54,8 @@ spring:
 server:
   port: ${BILLING_PORT:8095}
 
-# Distributed tracing (Phase 0): OTLP/HTTP export to the local Jaeger container.
+# Traces, metrics and logs go to OBSERVABILITY_OTLP_ENDPOINT (krizaka-spring-boot-starter-observability
+# owns the OTLP settings; a hand-set endpoint here is refused by a test, krizaka-internal#2843).
 management:
   endpoints:
     web:
@@ -63,9 +64,6 @@ management:
   endpoint:
     health:
       show-details: always
-  otlp:
-    tracing:
-      endpoint: ${OTEL_TRACES_ENDPOINT:http://localhost:4318/v1/traces}
   tracing:
     sampling:
       probability: ${TRACING_SAMPLING_PROBABILITY:1.0}

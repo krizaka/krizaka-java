@@ -6,9 +6,11 @@ import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import org.apache.commons.logging.Log;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.test.context.FilteredClassLoader;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.env.StandardEnvironment;
 
@@ -25,15 +27,26 @@ class KrizakaObservabilityOtlpNamesTest {
   private static final String METRICS_URL = METRICS + ".url";
   private static final String METRICS_HEADER = METRICS + AUTH;
   private static final String METRICS_ENABLED = METRICS + ".enabled";
+  private static final String LOGS_ENABLED = "management.logging.export.otlp.enabled";
+  private static final String DEPRECATED_LOGS_ENABLED = "management.otlp.logging.export.enabled";
+  private static final String LOGS_ENDPOINT =
+      "management.opentelemetry.logging.export.otlp.endpoint";
+  private static final String LOGS_HEADER = "management.opentelemetry.logging.export.otlp" + AUTH;
   private static final String ENVIRONMENT_ATTRIBUTE =
       "management.opentelemetry.resource-attributes" + ".deployment.environment.name";
 
   private final List<String> logged = new ArrayList<>();
 
   private StandardEnvironment process(Map<String, Object> variables) {
+    return process(variables, KrizakaObservabilityEnvironmentPostProcessor::redactionInstallable);
+  }
+
+  private StandardEnvironment process(
+      Map<String, Object> variables, Predicate<ClassLoader> redactionInstallable) {
     StandardEnvironment environment = new StandardEnvironment();
     environment.getPropertySources().addFirst(new MapPropertySource("variables", variables));
-    new KrizakaObservabilityEnvironmentPostProcessor(destination -> recordingLog())
+    new KrizakaObservabilityEnvironmentPostProcessor(
+            destination -> recordingLog(), redactionInstallable)
         .postProcessEnvironment(environment, new SpringApplication());
     return environment;
   }
@@ -146,14 +159,66 @@ class KrizakaObservabilityOtlpNamesTest {
   }
 
   @Test
-  void logsAreNeverExportedOverOtlpWhateverTheEndpoint() {
+  void logsFollowTheEndpointWithTheSameAuthorizationHeader() {
     StandardEnvironment environment =
-        process(Map.of("OBSERVABILITY_OTLP_ENDPOINT", "https://otlp.example.test"));
+        process(
+            Map.of(
+                "OBSERVABILITY_OTLP_ENDPOINT",
+                "https://otlp.example.test/",
+                "OBSERVABILITY_INGEST_TOKEN",
+                TOKEN));
 
-    assertThat(environment.getProperty("management.logging.export.otlp.enabled"))
-        .isEqualTo("false");
-    assertThat(environment.getProperty("management.otlp.logging.export.enabled"))
-        .isEqualTo("false");
+    assertThat(environment.getProperty(LOGS_ENABLED)).isEqualTo("true");
+    assertThat(environment.getProperty(LOGS_ENDPOINT))
+        .isEqualTo("https://otlp.example.test/v1/logs");
+    assertThat(environment.getProperty(LOGS_HEADER)).isEqualTo("Bearer " + TOKEN);
+    assertThat(logged).isEmpty();
+  }
+
+  @Test
+  void noEndpointMeansNoLogExport() {
+    StandardEnvironment environment = process(Map.of("OBSERVABILITY_INGEST_TOKEN", TOKEN));
+
+    assertThat(environment.getProperty(LOGS_ENABLED)).isEqualTo("false");
+    assertThat(environment.getProperty(DEPRECATED_LOGS_ENABLED)).isEqualTo("false");
+    assertThat(environment.getProperty(LOGS_ENDPOINT)).isNull();
+    assertThat(environment.getProperty(LOGS_HEADER)).isNull();
+  }
+
+  @Test
+  void withoutAnInstallableRedactionLogsStayHomeButTracesStillLeave() {
+    StandardEnvironment environment =
+        process(
+            Map.of(
+                "OBSERVABILITY_OTLP_ENDPOINT",
+                "https://otlp.example.test",
+                "OBSERVABILITY_INGEST_TOKEN",
+                TOKEN),
+            classLoader -> false);
+
+    assertThat(environment.getProperty(LOGS_ENABLED)).isEqualTo("false");
+    assertThat(environment.getProperty(DEPRECATED_LOGS_ENABLED)).isEqualTo("false");
+    assertThat(environment.getProperty(LOGS_ENDPOINT)).isNull();
+    assertThat(environment.getProperty(LOGS_HEADER)).isNull();
+    assertThat(environment.getProperty(TRACES_ENDPOINT))
+        .isEqualTo("https://otlp.example.test/v1/traces");
+    assertThat(logged)
+        .singleElement()
+        .asString()
+        .contains("OTLP log export stays off")
+        .doesNotContain(TOKEN, "otlp.example.test");
+  }
+
+  @Test
+  void theRedactionIsInstallableOnlyWithLogback() {
+    assertThat(
+            KrizakaObservabilityEnvironmentPostProcessor.redactionInstallable(
+                getClass().getClassLoader()))
+        .isTrue();
+    assertThat(
+            KrizakaObservabilityEnvironmentPostProcessor.redactionInstallable(
+                new FilteredClassLoader("ch.qos.logback.")))
+        .isFalse();
   }
 
   @Test

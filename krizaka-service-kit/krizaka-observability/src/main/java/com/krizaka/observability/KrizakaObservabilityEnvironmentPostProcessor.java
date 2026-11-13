@@ -2,6 +2,7 @@ package com.krizaka.observability;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 import org.apache.commons.logging.Log;
 import org.springframework.boot.EnvironmentPostProcessor;
 import org.springframework.boot.SpringApplication;
@@ -72,7 +73,7 @@ public class KrizakaObservabilityEnvironmentPostProcessor implements Environment
 
   /** Creates the post-processor; Spring Boot instantiates it from {@code spring.factories}. */
   public KrizakaObservabilityEnvironmentPostProcessor() {
-    this(destination -> destination.get());
+    this(Supplier::get);
   }
 
   /**

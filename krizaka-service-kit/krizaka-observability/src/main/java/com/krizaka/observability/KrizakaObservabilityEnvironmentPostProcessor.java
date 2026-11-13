@@ -27,6 +27,8 @@ import org.springframework.core.env.MapPropertySource;
  */
 public class KrizakaObservabilityEnvironmentPostProcessor implements EnvironmentPostProcessor {
 
+  private static final String OFF = "false";
+
   /** The name of the property source this post-processor adds. */
   public static final String PROPERTY_SOURCE_NAME = "krizakaObservabilityDefaults";
 
@@ -37,8 +39,8 @@ public class KrizakaObservabilityEnvironmentPostProcessor implements Environment
           "management.endpoints.web.exposure.include", "health,info,prometheus",
           "management.tracing.sampling.probability", "0.1",
           // Logs leave a service only once the redaction exists (Law 25): never over OTLP before.
-          "management.logging.export.otlp.enabled", "false",
-          "management.otlp.logging.export.enabled", "false");
+          "management.logging.export.otlp.enabled", OFF,
+          "management.otlp.logging.export.enabled", OFF);
 
   /** The OTLP names, by environment variable. */
   static final String ENDPOINT_VARIABLE = "OBSERVABILITY_OTLP_ENDPOINT";
@@ -47,9 +49,12 @@ public class KrizakaObservabilityEnvironmentPostProcessor implements Environment
   static final String ENVIRONMENT_VARIABLE = "OBSERVABILITY_ENVIRONMENT";
   static final String DEPRECATED_ENDPOINT_VARIABLE = "OTEL_TRACES_ENDPOINT";
 
-  private static final String ENDPOINT_PROPERTY = "krizaka.observability" + ".otlp-endpoint";
-  private static final String TOKEN_PROPERTY = "krizaka.observability" + ".ingest-token";
-  private static final String ENVIRONMENT_PROPERTY = "krizaka.observability" + ".environment";
+  private static final String ENDPOINT_PROPERTY =
+      KrizakaObservabilityProperties.PREFIX + ".otlp-endpoint";
+  private static final String TOKEN_PROPERTY =
+      KrizakaObservabilityProperties.PREFIX + ".ingest-token";
+  private static final String ENVIRONMENT_PROPERTY =
+      KrizakaObservabilityProperties.PREFIX + ".environment";
   private static final String TRACES_ENDPOINT =
       "management.opentelemetry.tracing.export.otlp.endpoint";
   private static final String TRACES_HEADER =
@@ -107,10 +112,10 @@ public class KrizakaObservabilityEnvironmentPostProcessor implements Environment
     if (endpoint == null) {
       // Fail closed: Spring Boot would otherwise export to localhost:4318 where nothing listens.
       if (!environment.containsProperty(TRACES_ENDPOINT)) {
-        source.put(TRACES_ENABLED, "false");
+        source.put(TRACES_ENABLED, OFF);
       }
       if (!environment.containsProperty(METRICS_URL)) {
-        source.put(METRICS_ENABLED, "false");
+        source.put(METRICS_ENABLED, OFF);
       }
       return;
     }

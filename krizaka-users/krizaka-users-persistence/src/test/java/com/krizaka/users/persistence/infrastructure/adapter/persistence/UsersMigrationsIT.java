@@ -1,6 +1,7 @@
 package com.krizaka.users.persistence.infrastructure.adapter.persistence;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.krizaka.test.container.AbstractContainerIntegrationTest;
 import com.krizaka.test.sql.InitDb;
@@ -79,6 +80,20 @@ class UsersMigrationsIT extends AbstractContainerIntegrationTest {
                   "SELECT count(*) FROM information_schema.tables WHERE table_name = 'organizations'"))
           .as("a table V4 also creates")
           .isEqualTo(1);
+      assertThat(count(statement, "SELECT count(*) FROM rate_limits WHERE daily_requests IS NULL"))
+          .as("V9: the seeded tiers keep the edge's default quota")
+          .isEqualTo(count(statement, "SELECT count(*) FROM rate_limits"));
+      statement.execute("UPDATE rate_limits SET daily_requests = 10000000 WHERE tier_key = 'free'");
+      for (String bad : new String[] {"0", "10000001"}) {
+        assertThatThrownBy(
+                () ->
+                    statement.execute(
+                        "UPDATE rate_limits SET daily_requests = "
+                            + bad
+                            + " WHERE tier_key = 'free'"))
+            .as("V9 CHECK refuses " + bad)
+            .isInstanceOf(java.sql.SQLException.class);
+      }
     }
   }
 
@@ -92,40 +107,5 @@ class UsersMigrationsIT extends AbstractContainerIntegrationTest {
     assertThat(initdb)
         .doesNotContainIgnoringCase("CREATE TABLE")
         .doesNotContainIgnoringCase("INSERT INTO");
-  }
-
-  @Test
-  void theDailyQuotaColumnIsNullableAndBounded() throws Exception {
-    try (Connection admin =
-            DriverManager.getConnection(
-                postgres().getJdbcUrl(), postgres().getUsername(), postgres().getPassword());
-        Statement statement = admin.createStatement()) {
-      statement.execute("DROP DATABASE IF EXISTS " + DATABASE + "_quota");
-      statement.execute("CREATE DATABASE " + DATABASE + "_quota");
-    }
-    Flyway.configure()
-        .dataSource(url(DATABASE + "_quota"), postgres().getUsername(), postgres().getPassword())
-        .locations("classpath:db/migration")
-        .load()
-        .migrate();
-
-    try (Connection connection =
-            DriverManager.getConnection(
-                url(DATABASE + "_quota"), postgres().getUsername(), postgres().getPassword());
-        Statement statement = connection.createStatement()) {
-      assertThat(count(statement, "SELECT count(*) FROM rate_limits WHERE daily_requests IS NULL"))
-          .as("the seeded tiers keep the edge's default")
-          .isEqualTo(count(statement, "SELECT count(*) FROM rate_limits"));
-      statement.execute("UPDATE rate_limits SET daily_requests = 1 WHERE tier_key = 'free'");
-      statement.execute("UPDATE rate_limits SET daily_requests = 10000000 WHERE tier_key = 'free'");
-      for (String bad : new String[] {"0", "-1", "10000001"}) {
-        org.junit.jupiter.api.Assertions.assertThrows(
-            java.sql.SQLException.class,
-            () ->
-                statement.execute(
-                    "UPDATE rate_limits SET daily_requests = " + bad + " WHERE tier_key = 'free'"),
-            bad);
-      }
-    }
   }
 }

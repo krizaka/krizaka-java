@@ -5,6 +5,13 @@ Versions follow [Semantic Versioning](https://semver.org/) per repository; the B
 [release-please](https://github.com/googleapis/release-please) from the Conventional Commits merged on `main`; the
 hand-written history is under *Before release-please*.
 
+## [0.17.0](https://github.com/krizaka/krizaka-java/compare/v0.16.2...v0.17.0) (2026-11-13)
+
+
+### Features
+
+* **users:** a daily request quota per API-key owner, on its rate-limit row and in the token exchange ([#266](https://github.com/krizaka/krizaka-java/issues/266)) ([3795fd2](https://github.com/krizaka/krizaka-java/commit/3795fd2d8fda1f60997f0ac4cd1eceb006f729b7))
+
 ## [0.16.2](https://github.com/krizaka/krizaka-java/compare/v0.16.1...v0.16.2) (2026-11-13)
 
 

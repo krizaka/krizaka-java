@@ -9,13 +9,13 @@
     <parent>
         <groupId>com.krizaka</groupId>
         <artifactId>krizaka-parent</artifactId>
-        <version>0.14.1</version> <!-- x-release-please-version -->
+        <version>0.15.0</version> <!-- x-release-please-version -->
         <relativePath>../krizaka-parent/pom.xml</relativePath>
     </parent>
 
     <artifactId>krizaka-service-kit</artifactId>
     <!-- One version for the whole family (ADR-021): the version of krizaka-java, released by release-please. -->
-    <version>0.14.1</version>
+    <version>0.15.0</version>
     <packaging>pom</packaging>
     <name>Krizaka Service Kit</name>
     <description>Cross-cutting building blocks for Spring Boot services: stateless JWT security with one baseline, service-to-service tokens, idempotent message consumption, a transactional outbox relay and the HTTP baseline (Problem Details, request correlation, Jackson defaults, cursor pagination, declared CORS).</description>

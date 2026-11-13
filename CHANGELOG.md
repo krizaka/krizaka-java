@@ -5,6 +5,19 @@ Versions follow [Semantic Versioning](https://semver.org/) per repository; the B
 [release-please](https://github.com/googleapis/release-please) from the Conventional Commits merged on `main`; the
 hand-written history is under *Before release-please*.
 
+## [0.15.0](https://github.com/krizaka/krizaka-java/compare/v0.14.1...v0.15.0) (2026-11-13)
+
+
+### Features
+
+* **observability:** export traces and metrics over OTLP under functional names ([#255](https://github.com/krizaka/krizaka-java/issues/255)) ([ed0778d](https://github.com/krizaka/krizaka-java/commit/ed0778dfbb8b44eba6598e5cd5b35b483dcafcbd))
+
+
+### Bug Fixes
+
+* **release:** the bump job grants contents: read, the pin moves to krizaka/.github a5c115f (krizaka-internal[#3342](https://github.com/krizaka/krizaka-java/issues/3342)) ([#256](https://github.com/krizaka/krizaka-java/issues/256)) ([291baa8](https://github.com/krizaka/krizaka-java/commit/291baa827a103ee4849000c6784303160d5b4c6b))
+* **release:** the bump workflow runs in site/, the npm package of this repository (krizaka-internal[#3342](https://github.com/krizaka/krizaka-java/issues/3342)) ([#258](https://github.com/krizaka/krizaka-java/issues/258)) ([4186eb5](https://github.com/krizaka/krizaka-java/commit/4186eb5dd3eae7b646cb9235dfabb0ca5e2d5a63))
+
 ## [0.14.1](https://github.com/krizaka/krizaka-java/compare/v0.14.0...v0.14.1) (2026-11-12)
 
 

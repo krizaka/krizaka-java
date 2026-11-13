@@ -61,7 +61,10 @@ class ConfigurationReferenceTest {
           "krizaka.webhooks.signing.previous-secret",
           "krizaka.webhooks.receiving.secrets",
           "krizaka.ratelimit.trusted-proxies",
-          "krizaka.web.cors.allowed-origins");
+          "krizaka.web.cors.allowed-origins",
+          "krizaka.observability.otlp-endpoint",
+          "krizaka.observability.ingest-token",
+          "krizaka.observability.environment");
 
   static final Path ROOT = Path.of("../..");
   static final Path REFERENCE = ROOT.resolve("docs/configuration-metadata.json");

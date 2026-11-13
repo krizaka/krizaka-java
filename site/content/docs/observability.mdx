@@ -31,7 +31,10 @@ Your `application.yml` still wins over each of them:
 | `management.endpoints.web.exposure.include` | `health,info,prometheus` |
 | `management.tracing.sampling.probability` | `0.1` |
 
-Spans are exported once `management.opentelemetry.tracing.export.otlp.endpoint` is set.
+Traces and metrics are exported over OTLP once `OBSERVABILITY_OTLP_ENDPOINT` (a base URL) is set; with none, nothing
+is exported. `OBSERVABILITY_INGEST_TOKEN` is sent as `Authorization: Bearer`, and `OBSERVABILITY_ENVIRONMENT` becomes
+the resource attribute `deployment.environment.name`. The old `OTEL_TRACES_ENDPOINT` is still accepted for one version,
+with a deprecation warning. Logs are not exported over OTLP.
 
 ## What the kit reports
 

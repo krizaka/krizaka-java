@@ -47,6 +47,18 @@
   }, {
     "artifact" : "krizaka-observability",
     "properties" : [ {
+      "name" : "krizaka.observability.environment",
+      "type" : "java.lang.String",
+      "description" : "Name of the deployment environment, e.g. 'dev' (environment variable OBSERVABILITY_ENVIRONMENT), exported as the resource attribute deployment.environment.name. Optional."
+    }, {
+      "name" : "krizaka.observability.ingest-token",
+      "type" : "java.lang.String",
+      "description" : "Token sent as a bearer Authorization header to the receiver (environment variable OBSERVABILITY_INGEST_TOKEN). Optional; never printed by toString."
+    }, {
+      "name" : "krizaka.observability.otlp-endpoint",
+      "type" : "java.lang.String",
+      "description" : "Base URL of the OTLP receiver (environment variable OBSERVABILITY_OTLP_ENDPOINT). Optional: with none, traces and metrics are not exported at all. Traces go to the endpoint's /v1/traces, metrics to its /v1/metrics."
+    }, {
       "name" : "krizaka.observability.product",
       "type" : "java.lang.String",
       "description" : "Product the service belongs to, e.g. 'sovkora'. Required: tagged on every meter."

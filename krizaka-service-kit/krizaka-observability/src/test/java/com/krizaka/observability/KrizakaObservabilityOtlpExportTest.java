@@ -8,6 +8,7 @@ import com.sun.net.httpserver.HttpServer;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.tracing.Span;
 import io.micrometer.tracing.Tracer;
+import io.opentelemetry.sdk.logs.export.LogRecordExporter;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -19,6 +20,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -36,6 +40,10 @@ import org.springframework.web.client.RestClient;
 class KrizakaObservabilityOtlpExportTest {
 
   private static final String TOKEN = "tok-4f9a1c";
+  private static final String EMAIL = "jane.doe@example.com";
+  private static final String BEARER = "b34r3r-v4lu3";
+  private static final String MDC_SECRET = "mdc-s3cr3t";
+  private static final String KEY_VALUE_SECRET = "kv-s3cr3t";
 
   private record Received(String path, String authorization, String body) {}
 
@@ -147,6 +155,57 @@ class KrizakaObservabilityOtlpExportTest {
   }
 
   @Test
+  void aLogLineWithAnEmailAndABearerTokenLeavesRedactedOnBothPaths(CapturedOutput output) {
+    try (ConfigurableApplicationContext context =
+        run(
+            "OBSERVABILITY_OTLP_ENDPOINT=" + receiverEndpoint(),
+            "OBSERVABILITY_INGEST_TOKEN=" + TOKEN,
+            "OBSERVABILITY_ENVIRONMENT=dev",
+            "management.opentelemetry.logging.export.otlp.compression=none")) {
+      assertThat(context.getBeanNamesForType(LogRecordExporter.class)).isNotEmpty();
+      Logger logger = LoggerFactory.getLogger("com.acme.orders.Invoices");
+      MDC.put("customer", EMAIL);
+      MDC.put("apiToken", MDC_SECRET);
+      try {
+        logger
+            .atInfo()
+            .addKeyValue("password", KEY_VALUE_SECRET)
+            .log("invoice sent to {} with Authorization: Bearer {}", EMAIL, BEARER);
+        logger.error("refund failed", new IllegalStateException("no card on file for " + EMAIL));
+      } finally {
+        MDC.clear();
+      }
+
+      await()
+          .atMost(Duration.ofSeconds(20))
+          .untilAsserted(
+              () -> assertThat(logExports()).contains("invoice sent to").contains("refund failed"));
+    }
+
+    String exported = logExports();
+    assertThat(received.stream().filter(r -> r.path().equals("/v1/logs")))
+        .allSatisfy(r -> assertThat(r.authorization()).isEqualTo("Bearer " + TOKEN));
+    assertThat(exported)
+        .contains("deployment.environment.name")
+        .contains("invoice sent to [REDACTED] with Authorization: [REDACTED]")
+        .contains("no card on file for [REDACTED]");
+    String console = output.getAll();
+    assertThat(console)
+        .contains("invoice sent to [REDACTED] with Authorization: [REDACTED]")
+        .contains("no card on file for [REDACTED]");
+    for (String secret : List.of(EMAIL, BEARER, MDC_SECRET, KEY_VALUE_SECRET, TOKEN)) {
+      assertThat(exported).as("OTLP export").doesNotContain(secret);
+      assertThat(console).as("console").doesNotContain(secret);
+    }
+  }
+
+  private String logExports() {
+    return String.join(
+        "\n",
+        received.stream().filter(r -> r.path().equals("/v1/logs")).map(Received::body).toList());
+  }
+
+  @Test
   void withNoEndpointNothingIsExportedAndNoExporterBeanExists() {
     try (ConfigurableApplicationContext context = run()) {
       context.getBean(Tracer.class).nextSpan().name("lost").start().end();
@@ -156,6 +215,8 @@ class KrizakaObservabilityOtlpExportTest {
           .isEmpty();
       assertThat(context.getBeanNamesForType(io.micrometer.registry.otlp.OtlpMeterRegistry.class))
           .isEmpty();
+      assertThat(context.getBeanNamesForType(LogRecordExporter.class)).isEmpty();
+      LoggerFactory.getLogger("com.acme.orders.Invoices").info("a line that stays home");
       // Two metric steps and several span batches would have passed: nothing arrived.
       await()
           .during(Duration.ofMillis(1500))

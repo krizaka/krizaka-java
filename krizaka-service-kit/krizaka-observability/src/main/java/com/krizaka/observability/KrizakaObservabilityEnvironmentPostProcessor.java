@@ -1,7 +1,9 @@
 package com.krizaka.observability;
 
+import com.krizaka.observability.logging.LogRedaction;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import org.apache.commons.logging.Log;
 import org.springframework.boot.EnvironmentPostProcessor;
@@ -9,6 +11,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.logging.DeferredLogFactory;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
+import org.springframework.util.ClassUtils;
 
 /**
  * The observability defaults every Krizaka service shares, at the <b>lowest priority</b>.
@@ -19,7 +22,8 @@ import org.springframework.core.env.MapPropertySource;
  *   <li>{@code management.endpoints.web.exposure.include=health,info,prometheus} — what a platform
  *       scrapes and probes, and nothing else;
  *   <li>{@code management.tracing.sampling.probability=0.1} — one request in ten traced;
- *   <li>OTLP log export switched off.
+ *   <li>OTLP log export only when an endpoint is set <b>and</b> the log redaction is installable
+ *       (Logback present, {@link LogRedaction#selfTest()} passing); otherwise switched off.
  * </ul>
  *
  * <p>The values are added as the last property source: {@code application.yaml}, the environment
@@ -38,10 +42,7 @@ public class KrizakaObservabilityEnvironmentPostProcessor implements Environment
       Map.of(
           "logging.structured.format.console", "ecs",
           "management.endpoints.web.exposure.include", "health,info,prometheus",
-          "management.tracing.sampling.probability", "0.1",
-          // Logs leave a service only once the redaction exists (Law 25): never over OTLP before.
-          "management.logging.export.otlp.enabled", OFF,
-          "management.otlp.logging.export.enabled", OFF);
+          "management.tracing.sampling.probability", "0.1");
 
   /** The OTLP names, by environment variable. */
   static final String ENDPOINT_VARIABLE = "OBSERVABILITY_OTLP_ENDPOINT";
@@ -67,9 +68,17 @@ public class KrizakaObservabilityEnvironmentPostProcessor implements Environment
   private static final String METRICS_ENABLED = "management.otlp.metrics.export.enabled";
   private static final String ENVIRONMENT_ATTRIBUTE =
       "management.opentelemetry.resource-attributes.deployment.environment.name";
+  private static final String LOGS_ENDPOINT =
+      "management.opentelemetry.logging.export.otlp.endpoint";
+  private static final String LOGS_HEADER =
+      "management.opentelemetry.logging.export.otlp.headers.Authorization";
+  private static final String LOGS_ENABLED = "management.logging.export.otlp.enabled";
+  private static final String DEPRECATED_LOGS_ENABLED = "management.otlp.logging.export.enabled";
   private static final String TRACES_PATH = "/v1/traces";
+  private static final String LOGBACK = "ch.qos.logback.classic.LoggerContext";
 
   private final Log log;
+  private final Predicate<ClassLoader> redactionInstallable;
 
   /** Creates the post-processor; Spring Boot instantiates it from {@code spring.factories}. */
   public KrizakaObservabilityEnvironmentPostProcessor() {
@@ -82,7 +91,22 @@ public class KrizakaObservabilityEnvironmentPostProcessor implements Environment
    * @param logFactory where the deprecation warning goes
    */
   public KrizakaObservabilityEnvironmentPostProcessor(DeferredLogFactory logFactory) {
+    this(logFactory, KrizakaObservabilityEnvironmentPostProcessor::redactionInstallable);
+  }
+
+  /** For tests: decides whether the log redaction can be installed. */
+  KrizakaObservabilityEnvironmentPostProcessor(
+      DeferredLogFactory logFactory, Predicate<ClassLoader> redactionInstallable) {
     this.log = logFactory.getLog(KrizakaObservabilityEnvironmentPostProcessor.class);
+    this.redactionInstallable = redactionInstallable;
+  }
+
+  /**
+   * Whether logs can leave this service redacted: Logback, the library the redacting appender
+   * attaches to, is present and the rule set hides every part of its canary.
+   */
+  static boolean redactionInstallable(ClassLoader classLoader) {
+    return ClassUtils.isPresent(LOGBACK, classLoader) && LogRedaction.selfTest();
   }
 
   /**
@@ -98,11 +122,12 @@ public class KrizakaObservabilityEnvironmentPostProcessor implements Environment
       return;
     }
     Map<String, Object> source = new HashMap<>(DEFAULTS);
-    otlp(environment, source);
+    otlp(environment, source, app.getClassLoader());
     environment.getPropertySources().addLast(new MapPropertySource(PROPERTY_SOURCE_NAME, source));
   }
 
-  private void otlp(ConfigurableEnvironment environment, Map<String, Object> source) {
+  private void otlp(
+      ConfigurableEnvironment environment, Map<String, Object> source, ClassLoader classLoader) {
     String endpoint = endpoint(environment);
     String token = first(environment, TOKEN_PROPERTY, TOKEN_VARIABLE);
     String deploymentEnvironment = first(environment, ENVIRONMENT_PROPERTY, ENVIRONMENT_VARIABLE);
@@ -118,6 +143,7 @@ public class KrizakaObservabilityEnvironmentPostProcessor implements Environment
       if (!environment.containsProperty(METRICS_URL)) {
         source.put(METRICS_ENABLED, OFF);
       }
+      logsOff(source);
       return;
     }
     source.put(ENDPOINT_PROPERTY, endpoint);
@@ -128,6 +154,29 @@ public class KrizakaObservabilityEnvironmentPostProcessor implements Environment
       source.put(TRACES_HEADER, "Bearer " + token);
       source.put(METRICS_HEADER, "Bearer " + token);
     }
+    logs(source, endpoint, token, classLoader);
+  }
+
+  /** Logs leave a service only redacted (Law 25): no redaction, no log export. */
+  private void logs(
+      Map<String, Object> source, String endpoint, String token, ClassLoader classLoader) {
+    if (!redactionInstallable.test(classLoader)) {
+      log.warn(
+          "OTLP log export stays off: the log redaction cannot be installed (it needs Logback and"
+              + " a passing rule set); traces and metrics are still exported");
+      logsOff(source);
+      return;
+    }
+    source.put(LOGS_ENABLED, "true");
+    source.put(LOGS_ENDPOINT, endpoint + "/v1/logs");
+    if (token != null) {
+      source.put(LOGS_HEADER, "Bearer " + token);
+    }
+  }
+
+  private static void logsOff(Map<String, Object> source) {
+    source.put(LOGS_ENABLED, OFF);
+    source.put(DEPRECATED_LOGS_ENABLED, OFF);
   }
 
   /** The base URL of the receiver, without a trailing slash; null when none is set. */

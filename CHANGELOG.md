@@ -5,6 +5,13 @@ Versions follow [Semantic Versioning](https://semver.org/) per repository; the B
 [release-please](https://github.com/googleapis/release-please) from the Conventional Commits merged on `main`; the
 hand-written history is under *Before release-please*.
 
+## [0.16.2](https://github.com/krizaka/krizaka-java/compare/v0.16.1...v0.16.2) (2026-11-13)
+
+
+### Dependencies
+
+* @krizaka/fonts 0.5.4, @krizaka/i18n 0.2.7, @krizaka/icons 0.10.0, @krizaka/query 0.3.0, @krizaka/tailwind 4.4.0, @krizaka/tokens 4.4.0, @krizaka/ui 4.4.0 ([#262](https://github.com/krizaka/krizaka-java/issues/262)) ([4d5b781](https://github.com/krizaka/krizaka-java/commit/4d5b7819e4c3209a3f67ff308ad6026932b3d25b))
+
 ## [0.16.1](https://github.com/krizaka/krizaka-java/compare/v0.16.0...v0.16.1) (2026-11-13)
 
 

@@ -1,21 +1,26 @@
 package com.krizaka.users.application.service;
 
 import com.krizaka.users.domain.exception.AdminActionRefusedException;
+import com.krizaka.users.domain.exception.InvalidRequestException;
 import com.krizaka.users.domain.exception.ServiceAccountProtectedException;
 import com.krizaka.users.domain.exception.UserNotFoundException;
 import com.krizaka.users.domain.model.AdminActor;
 import com.krizaka.users.domain.model.AdminAuditEntry;
 import com.krizaka.users.domain.model.AdminUserPage;
 import com.krizaka.users.domain.model.AdminUserView;
+import com.krizaka.users.domain.model.RateLimitInfo;
 import com.krizaka.users.domain.ports.inbound.AdminUserService;
 import com.krizaka.users.domain.ports.inbound.OrganizationService;
 import com.krizaka.users.domain.ports.outbound.AdminUserRepositoryPort;
+import com.krizaka.users.persistence.domain.model.RateLimitDto;
+import com.krizaka.users.persistence.domain.ports.RateLimitPersistenceProvider;
 import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,9 +33,12 @@ class AdminUserServiceImpl implements AdminUserService {
   private static final int MAX_AUDIT = 500;
 
   private final AdminUserRepositoryPort repository;
+  private final RateLimitPersistenceProvider rateLimits;
 
-  AdminUserServiceImpl(AdminUserRepositoryPort repository) {
+  AdminUserServiceImpl(
+      AdminUserRepositoryPort repository, RateLimitPersistenceProvider rateLimits) {
     this.repository = Objects.requireNonNull(repository, "AdminUserRepositoryPort");
+    this.rateLimits = Objects.requireNonNull(rateLimits, "RateLimitPersistenceProvider");
   }
 
   @Override
@@ -193,5 +201,47 @@ class AdminUserServiceImpl implements AdminUserService {
     if (actor.id().equals(id)) {
       throw new AdminActionRefusedException("SELF", "You cannot do this to your own account");
     }
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public Optional<RateLimitInfo> rateLimit(String tierKey) {
+    return rateLimits.findById(tierKey).map(AdminUserServiceImpl::toInfo);
+  }
+
+  @Override
+  public Optional<RateLimitInfo> setDailyRequests(
+      AdminActor actor, String tierKey, Integer dailyRequests) {
+    if (dailyRequests != null
+        && (dailyRequests < RateLimitInfo.MIN_DAILY_REQUESTS
+            || dailyRequests > RateLimitInfo.MAX_DAILY_REQUESTS)) {
+      throw new InvalidRequestException(
+          "dailyRequests must be between "
+              + RateLimitInfo.MIN_DAILY_REQUESTS
+              + " and "
+              + RateLimitInfo.MAX_DAILY_REQUESTS);
+    }
+    return rateLimits
+        .findById(tierKey)
+        .map(
+            before -> {
+              RateLimitDto after = rateLimits.updateDailyRequests(tierKey, dailyRequests);
+              repository.appendAudit(
+                  actor.id(),
+                  actor.label(),
+                  "identity.rate_limit_daily_requests_changed",
+                  tierKey,
+                  "from=" + quota(before.dailyRequests()) + " to=" + quota(dailyRequests));
+              return toInfo(after);
+            });
+  }
+
+  private static String quota(Integer dailyRequests) {
+    return dailyRequests == null ? "default" : dailyRequests.toString();
+  }
+
+  private static RateLimitInfo toInfo(RateLimitDto dto) {
+    return new RateLimitInfo(
+        dto.tierKey(), dto.requestsPerMinute(), dto.concurrentJobs(), dto.dailyRequests());
   }
 }

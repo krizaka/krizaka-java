@@ -28,4 +28,9 @@ class RateLimitDtoTest {
   void nullConcurrentJobs_throws() {
     assertThrows(NullPointerException.class, () -> new RateLimitDto("free", 60, null));
   }
+
+  @Test
+  void dailyRequestsIsAbsentByDefault() {
+    assertNull(new RateLimitDto("free", 60, 2).dailyRequests());
+  }
 }

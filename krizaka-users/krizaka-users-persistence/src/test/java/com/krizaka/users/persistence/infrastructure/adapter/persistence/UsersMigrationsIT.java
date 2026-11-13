@@ -1,6 +1,7 @@
 package com.krizaka.users.persistence.infrastructure.adapter.persistence;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.krizaka.test.container.AbstractContainerIntegrationTest;
 import com.krizaka.test.sql.InitDb;
@@ -54,8 +55,8 @@ class UsersMigrationsIT extends AbstractContainerIntegrationTest {
     }
 
     assertThat(flyway().migrate().migrationsExecuted)
-        .as("first run on an empty database: V1, then V2-V8 (idempotent, no-ops on V1)")
-        .isEqualTo(8);
+        .as("first run on an empty database: V1, then V2-V9 (idempotent, no-ops on V1)")
+        .isEqualTo(9);
     assertThat(flyway().migrate().migrationsExecuted).as("second run").isZero();
     flyway().validate();
 
@@ -79,6 +80,20 @@ class UsersMigrationsIT extends AbstractContainerIntegrationTest {
                   "SELECT count(*) FROM information_schema.tables WHERE table_name = 'organizations'"))
           .as("a table V4 also creates")
           .isEqualTo(1);
+      assertThat(count(statement, "SELECT count(*) FROM rate_limits WHERE daily_requests IS NULL"))
+          .as("V9: the seeded tiers keep the edge's default quota")
+          .isEqualTo(count(statement, "SELECT count(*) FROM rate_limits"));
+      statement.execute("UPDATE rate_limits SET daily_requests = 10000000 WHERE tier_key = 'free'");
+      for (String bad : new String[] {"0", "10000001"}) {
+        assertThatThrownBy(
+                () ->
+                    statement.execute(
+                        "UPDATE rate_limits SET daily_requests = "
+                            + bad
+                            + " WHERE tier_key = 'free'"))
+            .as("V9 CHECK refuses " + bad)
+            .isInstanceOf(java.sql.SQLException.class);
+      }
     }
   }
 

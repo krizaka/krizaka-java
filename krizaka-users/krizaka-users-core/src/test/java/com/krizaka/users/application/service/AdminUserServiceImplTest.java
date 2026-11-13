@@ -7,11 +7,13 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 import com.krizaka.users.domain.exception.AdminActionRefusedException;
+import com.krizaka.users.domain.exception.InvalidRequestException;
 import com.krizaka.users.domain.exception.ServiceAccountProtectedException;
 import com.krizaka.users.domain.exception.UserNotFoundException;
 import com.krizaka.users.domain.model.AdminActor;
 import com.krizaka.users.domain.model.AdminUserView;
 import com.krizaka.users.domain.ports.outbound.AdminUserRepositoryPort;
+import com.krizaka.users.persistence.domain.model.RateLimitDto;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -28,11 +30,12 @@ class AdminUserServiceImplTest {
   private static final AdminActor ME = new AdminActor("admin-1", "admin@example.test");
 
   @Mock private AdminUserRepositoryPort repository;
+  @Mock private com.krizaka.users.persistence.domain.ports.RateLimitPersistenceProvider rateLimits;
   private AdminUserServiceImpl service;
 
   @BeforeEach
   void setUp() {
-    service = new AdminUserServiceImpl(repository);
+    service = new AdminUserServiceImpl(repository, rateLimits);
   }
 
   private static AdminUserView user(String id, String email, boolean enabled, boolean admin) {
@@ -188,5 +191,69 @@ class AdminUserServiceImplTest {
   void anUnknownAccountIsNotFound() {
     when(repository.find("nope")).thenReturn(Optional.empty());
     assertThatThrownBy(() -> service.get("nope")).isInstanceOf(UserNotFoundException.class);
+  }
+
+  @Test
+  void settingTheQuotaStoresItAndWritesTheAuditLine() {
+    when(rateLimits.findById("service"))
+        .thenReturn(Optional.of(new RateLimitDto("service", 1000, 20)));
+    when(rateLimits.updateDailyRequests("service", 50_000))
+        .thenReturn(new RateLimitDto("service", 1000, 20, 50_000));
+
+    var updated = service.setDailyRequests(ME, "service", 50_000);
+
+    assertThat(updated).isPresent();
+    assertThat(updated.get().dailyRequests()).isEqualTo(50_000);
+    verify(repository)
+        .appendAudit(
+            "admin-1",
+            "admin@example.test",
+            "identity.rate_limit_daily_requests_changed",
+            "service",
+            "from=default to=50000");
+  }
+
+  @Test
+  void clearingTheQuotaAuditsTheChangeBackToTheEdgeDefault() {
+    when(rateLimits.findById("service"))
+        .thenReturn(Optional.of(new RateLimitDto("service", 1000, 20, 50_000)));
+    when(rateLimits.updateDailyRequests("service", null))
+        .thenReturn(new RateLimitDto("service", 1000, 20));
+
+    assertThat(service.setDailyRequests(ME, "service", null)).isPresent();
+    verify(repository)
+        .appendAudit(
+            "admin-1",
+            "admin@example.test",
+            "identity.rate_limit_daily_requests_changed",
+            "service",
+            "from=50000 to=default");
+  }
+
+  @Test
+  void aQuotaOutOfBoundsIsRefusedAndNothingIsWritten() {
+    assertThatThrownBy(() -> service.setDailyRequests(ME, "service", 0))
+        .isInstanceOf(InvalidRequestException.class);
+    assertThatThrownBy(() -> service.setDailyRequests(ME, "service", 10_000_001))
+        .isInstanceOf(InvalidRequestException.class);
+
+    verify(rateLimits, never()).updateDailyRequests(any(), any());
+    verify(repository, never()).appendAudit(any(), any(), any(), any(), any());
+  }
+
+  @Test
+  void anUnknownTierIsAbsentAndNothingIsAudited() {
+    when(rateLimits.findById("ghost")).thenReturn(Optional.empty());
+
+    assertThat(service.setDailyRequests(ME, "ghost", 10)).isEmpty();
+    verify(repository, never()).appendAudit(any(), any(), any(), any(), any());
+  }
+
+  @Test
+  void readingATierGivesItsRowWithItsQuota() {
+    when(rateLimits.findById("service"))
+        .thenReturn(Optional.of(new RateLimitDto("service", 1000, 20, 50_000)));
+
+    assertThat(service.rateLimit("service").orElseThrow().dailyRequests()).isEqualTo(50_000);
   }
 }

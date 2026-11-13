@@ -96,4 +96,35 @@ class RateLimitPersistenceProviderImplTest {
 
     verify(repository).findFirstByIsDefaultTrue();
   }
+
+  @Test
+  @DisplayName("updateDailyRequests changes only the quota of the stored row")
+  void updateDailyRequests() {
+    RateLimitEntity entity = new RateLimitEntity();
+    entity.setTierKey("service");
+    entity.setRequestsPerMinute(1000);
+    entity.setConcurrentJobs(20);
+    entity.setDefault(false);
+    when(repository.findById("service")).thenReturn(Optional.of(entity));
+    when(repository.save(entity)).thenReturn(entity);
+
+    RateLimitDto result = provider.updateDailyRequests("service", 50_000);
+
+    assertThat(result.dailyRequests()).isEqualTo(50_000);
+    assertThat(entity.getDailyRequests()).isEqualTo(50_000);
+    assertThat(entity.getRequestsPerMinute()).isEqualTo(1000);
+  }
+
+  @Test
+  @DisplayName("findById maps the quota column, null when unset")
+  void findByIdMapsDailyRequests() {
+    RateLimitEntity entity = new RateLimitEntity();
+    entity.setTierKey("service");
+    entity.setRequestsPerMinute(1000);
+    entity.setConcurrentJobs(20);
+    entity.setDailyRequests(7);
+    when(repository.findById("service")).thenReturn(Optional.of(entity));
+
+    assertThat(provider.findById("service").orElseThrow().dailyRequests()).isEqualTo(7);
+  }
 }

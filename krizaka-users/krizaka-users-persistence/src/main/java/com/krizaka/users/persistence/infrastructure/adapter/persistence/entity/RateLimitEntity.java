@@ -20,6 +20,9 @@ public class RateLimitEntity {
   @Column(name = "concurrent_jobs", nullable = false)
   private Integer concurrentJobs;
 
+  @Column(name = "daily_requests")
+  private Integer dailyRequests;
+
   @Column(name = "is_default", nullable = false)
   private boolean isDefault;
 
@@ -45,6 +48,14 @@ public class RateLimitEntity {
 
   public void setConcurrentJobs(Integer concurrentJobs) {
     this.concurrentJobs = concurrentJobs;
+  }
+
+  public Integer getDailyRequests() {
+    return dailyRequests;
+  }
+
+  public void setDailyRequests(Integer dailyRequests) {
+    this.dailyRequests = dailyRequests;
   }
 
   public boolean isDefault() {

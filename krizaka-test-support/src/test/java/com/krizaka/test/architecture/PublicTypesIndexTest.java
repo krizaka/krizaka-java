@@ -43,7 +43,7 @@ class PublicTypesIndexTest {
           .filter(p -> p.toString().contains("/src/main/java/"))
           .filter(p -> !p.getFileName().toString().equals("package-info.java"))
           // a deployable application ("<x>-service") is not a library a product depends on
-          .filter(p -> !root.relativize(p).toString().matches(".*krizaka-[\\w-]*-service/.*"))
+          .filter(p -> !isInsideService(root.relativize(p)))
           .filter(
               p ->
                   NOT_LIBRARY.stream()
@@ -86,5 +86,19 @@ class PublicTypesIndexTest {
     assertThat(Files.readAllLines(file))
         .as("run the module's tests with -Dkrizaka.regenerate=true and commit the file")
         .isEqualTo(generated);
+  }
+
+  private static boolean isInsideService(Path relative) {
+    Path parent = relative.getParent();
+    if (parent == null) {
+      return false;
+    }
+    for (Path segment : parent) {
+      String name = segment.toString();
+      if (name.startsWith("krizaka-") && name.endsWith("-service")) {
+        return true;
+      }
+    }
+    return false;
   }
 }

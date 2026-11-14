@@ -22,9 +22,9 @@ import java.util.TreeMap;
  *   <li>The public types are {@value #PUBLIC_TYPES}, one fully qualified name per line, generated
  *       from the sources of this repository (see {@code PublicTypesIndexTest}, which fails when the
  *       file is stale and rewrites it with {@code -Dkrizaka.regenerate=true}).
- *   <li>The facades are declared next to each facade, in the {@value #FACADES} resource of its
- *       module: {@code <wrapped API, class or package> = <fully qualified facade>[, <package of the
- *       module that wraps it>...]}. Every such resource on the classpath is read.
+ *   <li>The facades are declared next to each facade, in the {@value #FACADES_RESOURCE} resource of
+ *       its module: {@code <wrapped API, class or package> = <fully qualified facade>[, <package of
+ *       the module that wraps it>...]}. Every such resource on the classpath is read.
  * </ul>
  *
  * @param publicTypes the fully qualified public types, by simple name
@@ -36,7 +36,7 @@ public record LibraryCatalog(Map<String, List<String>> publicTypes, Map<String, 
   public static final String PUBLIC_TYPES = "META-INF/krizaka/public-types.txt";
 
   /** Classpath location of a module's facade declarations. */
-  public static final String FACADES = "META-INF/krizaka/facades.properties";
+  public static final String FACADES_RESOURCE = "META-INF/krizaka/facades.properties";
 
   /**
    * The catalog of the classpath.
@@ -53,7 +53,7 @@ public record LibraryCatalog(Map<String, List<String>> publicTypes, Map<String, 
           names.addAll(new String(in.readAllBytes(), StandardCharsets.UTF_8).lines().toList());
         }
       }
-      for (URL url : Collections.list(resources(loader, FACADES))) {
+      for (URL url : Collections.list(resources(loader, FACADES_RESOURCE))) {
         try (InputStream in = url.openStream()) {
           Properties declared = new Properties();
           declared.load(in);

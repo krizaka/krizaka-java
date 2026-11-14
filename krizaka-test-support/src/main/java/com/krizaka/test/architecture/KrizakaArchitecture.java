@@ -30,7 +30,8 @@ import java.util.regex.Pattern;
  * package-private {@code @HttpExchange} interfaces, at most {@value
  * #MAX_TOP_LEVEL_CLASSES_PER_PACKAGE} top-level classes per package, every package
  * {@code @NullMarked}, the environment read in a {@code config} package or a configuration class
- * only; and, on the module's test classes, no test server bound to every interface ({@link
+ * only, no local copy of a krizaka-java type and no bypass of its facades ({@link ReuseRules});
+ * and, on the module's test classes, no test server bound to every interface ({@link
  * CodeRules#testServersBindToLoopbackRule}, never frozen). A module with layers also calls {@link
  * ArchitectureRules#assertLayers}; a module with its own rules adds them beside this call, never in
  * place of it.
@@ -67,7 +68,9 @@ public final class KrizakaArchitecture {
     HTTP_EXCHANGE_PACKAGE_PRIVATE,
     MAX_TOP_LEVEL_CLASSES_PER_PACKAGE,
     EVERY_PACKAGE_NULL_MARKED,
-    NO_ENVIRONMENT_OUTSIDE_CONFIG
+    NO_ENVIRONMENT_OUTSIDE_CONFIG,
+    NO_LOCAL_COPY_OF_LIBRARY_TYPE,
+    NO_BYPASS_OF_FACADE
   }
 
   private KrizakaArchitecture() {}
@@ -185,6 +188,9 @@ public final class KrizakaArchitecture {
     strict.put(
         Rule.NO_ENVIRONMENT_OUTSIDE_CONFIG,
         ArchitectureRules.noEnvironmentOutsideConfigRule("..config.."));
+    strict.put(
+        Rule.NO_LOCAL_COPY_OF_LIBRARY_TYPE, ReuseRules.noLocalCopyOfLibraryTypeRule(modulePackage));
+    strict.put(Rule.NO_BYPASS_OF_FACADE, ReuseRules.noBypassOfFacadeRule(modulePackage));
     // a library of records and interfaces has no field to check: an empty subject set is a pass
     // here, the module that imported nothing at all is refused by requireProductionClasses
     Map<Rule, ArchRule> rules = new EnumMap<>(Rule.class);

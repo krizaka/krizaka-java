@@ -1,0 +1,1 @@
+com.krizaka.users.persistence.infrastructure.adapter.messaging.RelayOutboxStoreAdapter uses org.springframework.amqp.rabbit.core.RabbitTemplate directly: use the facade com.krizaka.messaging.outbox.OutboxStore (a class of a config package may build it)

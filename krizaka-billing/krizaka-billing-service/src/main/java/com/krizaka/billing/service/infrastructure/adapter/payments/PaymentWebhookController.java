@@ -83,19 +83,19 @@ class PaymentWebhookController {
   @ExceptionHandler(PaymentsException.class)
   ResponseEntity<ProblemDetail> refused(PaymentsException e) {
     HttpStatus status = HttpStatus.resolve(e.status());
-    HttpStatus answered = status == null ? HttpStatus.BAD_REQUEST : status;
-    ProblemDetail problem = ProblemDetail.forStatusAndDetail(answered, e.getMessage());
-    problem.setTitle("Payment notification refused");
-    return ResponseEntity.status(answered).body(problem);
+    return refusal(status == null ? HttpStatus.BAD_REQUEST : status, e.getMessage());
   }
 
   private static ResponseEntity<ProblemDetail> tooLarge() {
-    ProblemDetail problem =
-        ProblemDetail.forStatusAndDetail(
-            HttpStatus.CONTENT_TOO_LARGE,
-            "A payment notification is at most " + MAX_BODY_BYTES + " bytes");
+    return refusal(
+        HttpStatus.CONTENT_TOO_LARGE,
+        "A payment notification is at most " + MAX_BODY_BYTES + " bytes");
+  }
+
+  private static ResponseEntity<ProblemDetail> refusal(HttpStatus status, String detail) {
+    var problem = ProblemDetail.forStatusAndDetail(status, detail);
     problem.setTitle("Payment notification refused");
-    return ResponseEntity.status(HttpStatus.CONTENT_TOO_LARGE).body(problem);
+    return ResponseEntity.status(status).body(problem);
   }
 
   /**

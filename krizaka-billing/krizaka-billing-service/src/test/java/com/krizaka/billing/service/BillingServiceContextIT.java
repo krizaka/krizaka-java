@@ -18,7 +18,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import javax.crypto.spec.SecretKeySpec;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -193,9 +192,8 @@ class BillingServiceContextIT {
         null);
   }
 
+  /** [#3685] only a verified payment_paid settles a pack, once, for its own actor and pack. */
   @Test
-  @DisplayName(
-      "[#3685] only a verified payment_paid settles a pack, once, for its own actor and pack")
   void aVerifiedPaymentNotificationSettlesThePackItPaidFor() throws Exception {
     String suffix = UUID.randomUUID().toString().substring(0, 8);
     String pack = "pk-" + suffix;

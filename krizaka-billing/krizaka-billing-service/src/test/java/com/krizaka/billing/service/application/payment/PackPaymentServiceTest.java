@@ -2,9 +2,7 @@ package com.krizaka.billing.service.application.payment;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -99,7 +97,7 @@ class PackPaymentServiceTest {
     arrives(new PaymentEvent.PaymentPaid("evt_4", "pack:gone", "actor-1", null, "cs_4"));
     assertThat(service.receive("body", "sig")).isEqualTo(Outcome.IGNORED);
 
-    verify(subscriptions, never()).recordSettledPayment(any(), any(), any());
+    verifyNoInteractions(subscriptions);
   }
 
   @Test

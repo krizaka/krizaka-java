@@ -54,9 +54,7 @@ class BillingMigrationsIT extends AbstractContainerIntegrationTest {
     }
 
     assertThat(flyway().migrate().migrationsExecuted)
-        .as(
-            "first run on an empty database: the baseline, the commercial names, the pack payments"
-                + " and the applied payment events")
+        .as("first run on an empty database: every migration, V1 to V4")
         .isEqualTo(4);
     assertThat(flyway().migrate().migrationsExecuted).as("second run").isZero();
     flyway().validate();

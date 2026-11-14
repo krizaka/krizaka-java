@@ -5,9 +5,8 @@
 
    Usage: node scripts/check-hero.mjs --base http://localhost:3100 [--playwright <path>] [--shots <dir>] */
 
-import { mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { flagOf, inspectViews } from "./browser-views.mjs";
+import { runCheck } from "./browser-views.mjs";
 
 export const TOP_TOLERANCE = 40;
 export const PAGES = ["/", "/fr/"];
@@ -29,15 +28,13 @@ function measure() {
 }
 
 async function main() {
-  const args = process.argv.slice(2);
-  const shots = flagOf(args, "--shots", null);
-  if (shots) mkdirSync(shots, { recursive: true });
-  const problems = await inspectViews({
-    args,
+  await runCheck({
+    name: "check-hero",
+    success: "the facts are on one line and the h1 is level with the picker",
     pages: PAGES,
     widths: [1440, 360],
     themes: THEMES,
-    inspect: async (page, { path, width, theme }) => {
+    inspect: async (page, { path, width, theme, shots }) => {
       const m = await page.evaluate(measure);
       const issues = [];
       if (!m.hasTag) issues.push("no specimen tag");
@@ -49,11 +46,6 @@ async function main() {
       return issues;
     },
   });
-  if (problems.length) {
-    console.error(problems.map((p) => `check-hero: ${p}`).join("\n"));
-    process.exit(1);
-  }
-  console.log("check-hero: the facts are on one line and the h1 is level with the picker");
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) await main();

@@ -2,6 +2,7 @@
    `inspect(page, { path, width, theme })` returns the problems it found (strings); Playwright is resolved from --playwright
    or the package. Returns the problems, with the page, width and theme in front of each. */
 
+import { mkdirSync } from "node:fs";
 import { createRequire } from "node:module";
 
 export const flagOf = (args, name, fallback) => (args.includes(name) ? args[args.indexOf(name) + 1] : fallback);
@@ -26,4 +27,17 @@ export async function inspectViews({ args, pages, widths, themes, inspect }) {
   }
   await browser.close();
   return problems;
+}
+
+/** Runs a check from the command line: `--base`, `--playwright`, `--shots <dir>` (given to `inspect` as `shots`, created). */
+export async function runCheck({ name, success, pages, widths, themes, inspect }) {
+  const args = process.argv.slice(2);
+  const shots = flagOf(args, "--shots", null);
+  if (shots) mkdirSync(shots, { recursive: true });
+  const problems = await inspectViews({ args, pages, widths, themes, inspect: (page, view) => inspect(page, { ...view, shots }) });
+  if (problems.length) {
+    console.error(problems.map((p) => `${name}: ${p}`).join("\n"));
+    process.exit(1);
+  }
+  console.log(`${name}: ${success}`);
 }

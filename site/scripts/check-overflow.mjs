@@ -7,9 +7,8 @@
    Usage: node scripts/check-overflow.mjs --base http://localhost:3000 [--playwright <path>] [--shots <dir>]
    With --shots, a screenshot of the home is saved per width and theme (390 and 1440 are the ones a pull request shows). */
 
-import { mkdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { flagOf, inspectViews } from "./browser-views.mjs";
+import { runCheck } from "./browser-views.mjs";
 
 /** The widths the site is read at, from the narrowest phone to a wide desktop. */
 export const WIDTHS = [360, 390, 768, 1024, 1440];
@@ -42,26 +41,19 @@ function measure() {
 }
 
 async function main() {
-  const args = process.argv.slice(2);
-  const shots = flagOf(args, "--shots", null);
-  if (shots) mkdirSync(shots, { recursive: true });
-  const problems = await inspectViews({
-    args,
+  await runCheck({
+    name: "check-overflow",
+    success: `${PAGES.length} pages × ${WIDTHS.length} widths × ${THEMES.length} themes, no horizontal overflow`,
     pages: PAGES,
     widths: WIDTHS,
     themes: THEMES,
-    inspect: async (page, { path, width, theme }) => {
+    inspect: async (page, { path, width, theme, shots }) => {
       if (shots && (path === "/" || path === "/fr/") && (width === 390 || width === 1440)) {
         await page.screenshot({ path: `${shots}/home${path === "/" ? "" : "-fr"}-${width}-${theme}.png`, fullPage: true });
       }
       return page.evaluate(measure);
     },
   });
-  if (problems.length) {
-    console.error(problems.map((p) => `check-overflow: ${p}`).join("\n"));
-    process.exit(1);
-  }
-  console.log(`check-overflow: ${PAGES.length} pages × ${WIDTHS.length} widths × ${THEMES.length} themes, no horizontal overflow`);
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) await main();

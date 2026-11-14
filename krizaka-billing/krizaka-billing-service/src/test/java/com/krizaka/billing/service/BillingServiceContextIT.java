@@ -2,8 +2,6 @@ package com.krizaka.billing.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.krizaka.billing.service.application.service.PackPricingService;
-import com.krizaka.billing.service.domain.model.CatalogPack;
 import com.krizaka.payments.stripe.WebhookSignature;
 import com.krizaka.test.container.ServiceRoles;
 import com.krizaka.test.sql.InitDb;
@@ -19,7 +17,6 @@ import java.util.List;
 import java.util.UUID;
 import javax.crypto.spec.SecretKeySpec;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
@@ -78,8 +75,6 @@ class BillingServiceContextIT {
   }
 
   @LocalServerPort int port;
-
-  @Autowired PackPricingService packPricing;
 
   @DynamicPropertySource
   static void connection(DynamicPropertyRegistry registry) {
@@ -198,8 +193,15 @@ class BillingServiceContextIT {
     String suffix = UUID.randomUUID().toString().substring(0, 8);
     String pack = "pk-" + suffix;
     String otherPack = "pk-other-" + suffix;
-    packPricing.save(new CatalogPack(pack, 4900, 500, true, List.of()), "qa-admin-1");
-    packPricing.save(new CatalogPack(otherPack, 4900, 0, true, List.of()), "qa-admin-1");
+    String admin = token("qa-admin-1", List.of("ROLE_USER", "ROLE_ADMIN"));
+    for (String key : List.of(pack, otherPack)) {
+      String priced =
+          "{\"packKey\":\"%s\",\"priceCents\":4900,\"includedCredits\":500,\"isActive\":true,\"entitlements\":[]}";
+      assertThat(
+              call("PUT", "/api/v1/billing/packs/" + key, admin, priced.formatted(key))
+                  .statusCode())
+          .isEqualTo(200);
+    }
     String buyer = "qa-buyer-" + suffix;
     String buyerToken = token(buyer, List.of("ROLE_USER"));
     String session = "cs_test_" + suffix;

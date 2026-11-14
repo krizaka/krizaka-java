@@ -77,8 +77,8 @@ class PaymentWebhookController {
    * A refused notification, as Problem Details with the port's status: the processor retries what
    * is not {@code 2xx}, so a forged call is answered {@code 400} and nothing is applied.
    *
-   * @param e the refusal
-   * @return the structured body
+   * @param e what the payments port refused, with the status to answer
+   * @return the Problem Details answer
    */
   @ExceptionHandler(PaymentsException.class)
   ResponseEntity<ProblemDetail> refused(PaymentsException e) {

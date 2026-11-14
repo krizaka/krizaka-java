@@ -235,12 +235,14 @@
       "share": "L'adresse garde votre choix : partagez-la.",
       "more": "Le guide complet : POM parent, BOM et kit de test"
     },
-    "proofs": {
-      "bom": "BOM sur Maven Central",
-      "modules": "modules de bibliothèque publiés",
+    "specimen": {
+      "title": "Krizaka Java",
+      "modules": "modules",
       "java": "Java",
       "boot": "Spring Boot",
-      "license": "licence open source"
+      "license": "licence",
+      "repository": "notre dépôt Maven",
+      "source": "source"
     },
     "pillars": {
       "eyebrow": "Pourquoi",

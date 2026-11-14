@@ -136,8 +136,8 @@ How a Java module is written, order of work first. Each rule points to the test 
 
 ## Search engines & AI assistants (Krizaka family contract)
 
-The contract is defined once, in krizaka-com `AGENTS.md` §2.4, and checked here by `scripts/check-seo-family.mjs` (a copy of
-the same dependency-free file in every site's repository — keep the copies identical; its unit test sits beside it).
+The contract is defined once, in krizaka-com `AGENTS.md` §2.4, and checked here by `krizaka-seo-family` (the bin of `@krizaka/config`, never copied;
+its tests live there).
 
 This site (java.krizaka.com) is **indexed**: robots.txt allows the shared AI-crawler list (`site/app/robots.ts`), the sitemap is dated by the build, `llms.txt` and `llms-full.txt` are written by `scripts/postbuild.mjs` (with the family links), every page carries an Open Graph image (`/og.png`) and JSON-LD (WebSite + SoftwareSourceCode + TechArticle) whose publisher is the Krizaka Organization `https://www.krizaka.com/#organization`. CI serves `out/` and runs the guard (`.github/workflows/site.yml`). No SearchAction: the search is a dialog over a static index, with no search URL.
 

@@ -29,6 +29,12 @@ jobs:
       registry: none   # a tag run deploys nowhere (krizaka-internal#3345, #3554)
       threads: "2"
       sonar: true   # CI analysis with JaCoCo coverage; the merge queue branch is analysed too
+      # The CI scripts' own tests, with coverage: their lcov joins the JaCoCo report in the SonarCloud analysis (krizaka-internal#3553).
+      extra-coverage-command: node --test --experimental-test-coverage --test-reporter=spec --test-reporter-destination=stdout --test-reporter=lcov --test-reporter-destination=target/scripts.lcov scripts/*.test.mjs
+      sonar-coverage-paths: |
+        **/target/site/jacoco/jacoco.xml
+        **/target/classes
+        target/scripts.lcov
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 

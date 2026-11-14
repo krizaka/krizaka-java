@@ -16,3 +16,13 @@ test("plsql:CharVarchar is ignored on SQL files in the root pom (Maven scanner)"
   assert.match(pom, /<sonar\.issue\.ignore\.multicriteria\.postgresSql\.ruleKey>plsql:CharVarchar</);
   assert.match(pom, /<sonar\.issue\.ignore\.multicriteria\.postgresSql\.resourceKey>\*\*\/\*\.sql</);
 });
+
+// krizaka-internal#3553: the CI scripts are measured, not excluded; their lcov reaches the analysis through the shared Maven workflow.
+test("scripts/ is covered: no coverage exclusion, the lcov path is read and uploaded by ci.yml", () => {
+  const ci = readFileSync(new URL("../.github/workflows/ci.yml", import.meta.url), "utf8");
+  assert.doesNotMatch(properties, /^sonar\.coverage\.exclusions=/m);
+  assert.match(properties, /^sonar\.javascript\.lcov\.reportPaths=target\/scripts\.lcov$/m);
+  assert.match(ci, /extra-coverage-command: node --test --experimental-test-coverage .*--test-reporter-destination=target\/scripts\.lcov scripts\/\*\.test\.mjs/);
+  assert.match(ci, /sonar-coverage-paths: \|\n(?: +\S.*\n)* +target\/scripts\.lcov\n/);
+  assert.match(properties, /scripts\/\*\*\/\*\.test\.mjs/);
+});

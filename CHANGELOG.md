@@ -5,6 +5,13 @@ Versions follow [Semantic Versioning](https://semver.org/) per repository; the B
 [release-please](https://github.com/googleapis/release-please) from the Conventional Commits merged on `main`; the
 hand-written history is under *Before release-please*.
 
+## [0.17.2](https://github.com/krizaka/krizaka-java/compare/v0.17.1...v0.17.2) (2026-11-14)
+
+
+### Bug Fixes
+
+* **site:** the proof never shows 0 services, French says de Sovkora, the theme follows the system ([#273](https://github.com/krizaka/krizaka-java/issues/273)) ([9f9cda6](https://github.com/krizaka/krizaka-java/commit/9f9cda6754e4461ff21f2494840d716e79bc4507))
+
 ## [0.17.1](https://github.com/krizaka/krizaka-java/compare/v0.17.0...v0.17.1) (2026-11-14)
 
 

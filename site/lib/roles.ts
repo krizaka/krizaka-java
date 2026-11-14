@@ -12,8 +12,6 @@ export interface MapModule {
   packaging: string;
   /** The version the POM declares. */
   version: string;
-  /** The release on Maven Central, when there is one. */
-  central: string | null;
   description: string | null;
 }
 export interface MapDependency {

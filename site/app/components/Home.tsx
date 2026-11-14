@@ -16,14 +16,14 @@ import type { FamilyId } from "@/lib/families";
 import { counts, families } from "@/lib/home";
 import { proof, roundedDown } from "@/lib/proof";
 import { proofState } from "@/lib/proof-state";
-import { MAVEN_CENTRAL_URL, REPOSITORY_URL, mavenArtifactUrl } from "@/lib/site";
-import { mavenVersion } from "@/lib/versions";
+import { RELEASES_URL, REPOSITORY_URL } from "@/lib/site";
+import { repositoryVersion } from "@/lib/model";
 import StartProject from "./StartProject";
 
 /* The home of java.krizaka.com, on the landing template of @krizaka/ui: a split hero (the promise, and the « start a
    project » generator — pick the building blocks, copy the BOM import and the dependencies for Maven or Gradle), the facts
    read at build, why (three pillars), the families of building blocks (what each service no longer writes), the duck, the
-   proof (who runs on it, the tests), an honest comparison, the ways on. Every figure is data (Maven Central, the POMs, the
+   proof (who runs on it, the tests), an honest comparison, the ways on. Every figure is data (the POMs, the
    repositories' tests); every word is a message. */
 
 const ICONS: Record<FamilyId, typeof GlobeIcon> = { web: GlobeIcon, security: ShieldIcon, messaging: MessageIcon, observability: EyeIcon, appConfig: SettingsIcon, testing: CheckIcon };
@@ -35,8 +35,7 @@ export default function Home({ locale }: { locale: Locale }) {
   const dict = getDictionary(locale);
   const t = dict.home;
   const path = (p: string) => localizedPath(locale, p);
-  const bom = mavenVersion("krizaka-bom");
-  if (!bom) throw new Error("home: krizaka-bom is not on Maven Central — the home states only what is published");
+  const bom = repositoryVersion("krizaka-bom");
   const { platform, tests, services } = proof();
   const { modules } = counts();
   const blocks = families();
@@ -118,11 +117,7 @@ export default function Home({ locale }: { locale: Locale }) {
                   meta={f.starter ?? f.module}
                   mark={f.bird ? <Mascot bird={f.bird} size={40} animated={false} /> : undefined}
                   hook={{ label: t.families.hookLabel, text: words.hook }}
-                  facts={[
-                    f.central
-                      ? { label: format(t.families.published, { version: f.central }), tone: "ok", href: mavenArtifactUrl(f.module) }
-                      : { label: t.families.unpublished, tone: "wip" },
-                  ]}
+                  facts={[{ label: format(t.families.version, { version: f.version }), tone: "ok" }]}
                   more={{ href: path(f.guide), label: t.families.details }}
                   linkAs={Link}
                 />
@@ -199,7 +194,7 @@ export default function Home({ locale }: { locale: Locale }) {
             <LinkCard href={path("/map")} linkAs={Link} icon={<LinkIcon size={22} aria-hidden />} title={t.go.map.title} description={t.go.map.text} />
             <LinkCard href={path("/changelog")} linkAs={Link} icon={<ClockIcon size={22} aria-hidden />} title={t.go.changelog.title} description={t.go.changelog.text} />
             <LinkCard href={REPOSITORY_URL} icon={<BookmarkIcon size={22} aria-hidden />} title={t.go.source.title} description={t.go.source.text} />
-            <LinkCard href={MAVEN_CENTRAL_URL} icon={<PackIcon size={22} aria-hidden />} title={t.go.maven.title} description={t.go.maven.text} />
+            <LinkCard href={RELEASES_URL} icon={<PackIcon size={22} aria-hidden />} title={t.go.maven.title} description={t.go.maven.text} />
             <LinkCard href={UI_URL} icon={<GlobeIcon size={22} aria-hidden />} title={t.go.ui.title} description={t.go.ui.text} />
           </CardGrid>
         </Section>

@@ -252,7 +252,6 @@ export default function BuildingBlocksMap({ data, focus, compact = false }: { da
                         <span className={s.chipName}>{m.id}</span>
                         <span className={s.chipMeta}>
                           <b>{m.version}</b>
-                          {m.central && m.central !== m.version && <span>{format(text.detail.central, { version: m.central })}</span>}
                         </span>
                         {tag && <span className={s.relTag}>{tag}</span>}
                       </button>
@@ -289,7 +288,7 @@ export default function BuildingBlocksMap({ data, focus, compact = false }: { da
                   <th scope="row"><code>{m.id}</code></th>
                   <td>{roleText[m.role].title}</td>
                   <td><code>{m.repository}</code></td>
-                  <td>{m.version}{m.central && m.central !== m.version ? ` (${format(text.detail.central, { version: m.central })})` : ""}</td>
+                  <td>{m.version}</td>
                   <td>{dependencies.filter((d) => d.from === m.id).map((d) => (d.indirect ? `${d.to} (${d.kind})` : d.to)).join(", ") || "—"}</td>
                   <td>{dependencies.filter((d) => d.to === m.id).map((d) => d.from).join(", ") || "—"}</td>
                 </tr>
@@ -354,7 +353,6 @@ function Detail({
             <a href={m.repositoryUrl} target="_blank" rel="noreferrer">{m.repository}</a>
           </li>
           <li>{format(text.detail.version, { version: m.version })}</li>
-          {m.central && <li>{format(text.detail.central, { version: m.central })}</li>}
         </ul>
       </div>
       <div className={s.relations}>

@@ -2,7 +2,7 @@
   "site": {
     "name": "Krizaka Java",
     "tagline": "The Spring Boot building blocks of every Krizaka service.",
-    "description": "Krizaka Java — Spring Boot building blocks published on Maven Central under com.krizaka: one parent and BOM, four modules, four starters, and the users, billing and notifications services. Documentation generated from the code.",
+    "description": "Krizaka Java — Spring Boot building blocks under com.krizaka: one parent and BOM, four modules, four starters, and the users, billing and notifications services. Documentation generated from the code.",
     "project": "A Krizaka open-source project",
     "home": "Krizaka Java"
   },
@@ -22,14 +22,14 @@
     "menu": "Menu",
     "skip": "Skip to the content",
     "start": "Get started",
-    "versionAria": "Krizaka BOM version on Maven Central",
+    "versionAria": "Krizaka BOM version",
     "preferences": "Preferences",
     "home": "Krizaka Java"
   },
   "footer": {
     "aria": "Footer",
     "license": "Apache-2.0",
-    "maven": "Maven Central",
+    "releases": "Releases",
     "source": "Source code"
   },
   "notFound": {
@@ -39,7 +39,7 @@
   },
   "pendingRelease": {
     "title": "Users, notifications and billing",
-    "body": "BOM {bom} manages them at {pom}, which is not on Maven Central yet. Until a BOM names a published release, declare them with the version Central lists ({kit}); the BOM then pins the rest.",
+    "body": "The repository declares them at {pom}, ahead of the last release the BOM {bom} resolves ({kit}). Until a BOM names the new release, declare them with {kit}; the BOM then pins the rest.",
     "issue": "Follow the release"
   },
   "chrome": {
@@ -86,8 +86,7 @@
       "uses": "Depends on",
       "usedBy": "Used by",
       "none": "Nothing",
-      "close": "Clear the selection",
-      "central": "Maven Central {version}"
+      "close": "Clear the selection"
     },
     "count": "{count} modules",
     "empty": "No module here matches.",
@@ -145,8 +144,8 @@
     "eyebrow": "Changelog",
     "title": "What shipped",
     "lead": "Every release of Krizaka Java, newest first, module by module — read from the releases themselves, not written for the page.",
-    "runs": "These pages document Krizaka Java v{version}, the release of the BOM on Maven Central, on Krizaka UI {ui}.",
-    "runsNoUi": "These pages document Krizaka Java v{version}, the release of the BOM on Maven Central.",
+    "runs": "These pages document Krizaka Java v{version}, the version of the BOM, on Krizaka UI {ui}.",
+    "runsNoUi": "These pages document Krizaka Java v{version}, the version of the BOM.",
     "feed": "Subscribe (RSS)",
     "logLabel": "Releases",
     "empty": "The changes could not be read right now.",
@@ -175,11 +174,11 @@
   },
   "home": {
     "metaTitle": "Krizaka Java — the Spring Boot building blocks behind every Krizaka service",
-    "metaDescription": "Security, error format, messaging and observability written once, tested on a real PostgreSQL and RabbitMQ, and published on Maven Central under com.krizaka. Import one BOM; a service writes only its business.",
+    "metaDescription": "Security, error format, messaging and observability written once, tested on a real PostgreSQL and RabbitMQ, and built under com.krizaka. Import one BOM; a service writes only its business.",
     "hero": {
       "eyebrow": "Krizaka Java · open source",
       "title": "The Spring Boot building blocks behind every Krizaka service",
-      "lead": "Security, error format, messaging, observability — written once, tested on a real PostgreSQL and RabbitMQ, published on Maven Central. Import one BOM and a service writes only its business.",
+      "lead": "Security, error format, messaging, observability — written once, tested on a real PostgreSQL and RabbitMQ. Import one BOM and a service writes only its business.",
       "start": "Get started",
       "map": "See the building blocks map"
     },
@@ -221,10 +220,10 @@
         }
       },
       "states": {
-        "pending": "Not on Maven Central at the BOM's version yet",
+        "pending": "Not in the released BOM yet",
         "unpublished": "Not in the published BOM yet"
       },
-      "legend": "Dashed: not on Maven Central at the BOM's version yet.",
+      "legend": "Dashed: not in the released BOM yet.",
       "tabs": "Build tool",
       "maven": "Maven",
       "gradle": "Gradle",
@@ -267,8 +266,7 @@
       "lead": "Six families, each a library module with its starter. Open a guide for the details.",
       "hookLabel": "What it removes",
       "details": "Details",
-      "published": "Maven Central {version}",
-      "unpublished": "Not on Maven Central yet",
+      "version": "Version {version}",
       "web": {
         "title": "Web & Problem Details",
         "hook": "RFC 9457 errors with stable codes, request ids, cursor pagination — identical everywhere."
@@ -401,8 +399,8 @@
         "text": "Apache-2.0. Issues and pull requests welcome."
       },
       "maven": {
-        "title": "Maven Central",
-        "text": "The artifacts under com.krizaka, signed and published."
+        "title": "Releases",
+        "text": "Builds go to our own Maven repository for our products. A public release will be announced here."
       },
       "ui": {
         "title": "Krizaka UI",

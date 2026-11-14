@@ -1,6 +1,6 @@
 /* The « start a project » generator: pick building blocks, get the BOM import and the dependencies for Maven or Gradle.
    Pure (no I/O: tests/project.test.mjs runs it with Node's type stripping). What it may offer comes from the BOM published
-   on Maven Central (scripts/gen-registry-versions.mjs → lib/generated/maven-versions.json, `bom`): a block is « ready »
+   in the registry (scripts/gen-registry-versions.mjs → lib/generated/maven-versions.json, `bom`): a block is « ready »
    only when that BOM manages its artifact at a version Central has, so every snippet it prints resolves. */
 
 export type BlockId = "web" | "security" | "messaging" | "observability" | "appConfig" | "usersClient" | "billingClient" | "testing";

@@ -2,7 +2,7 @@
   "site": {
     "name": "Krizaka Java",
     "tagline": "Les briques Spring Boot de tous les services Krizaka.",
-    "description": "Krizaka Java — des briques Spring Boot publiées sur Maven Central sous com.krizaka : un parent et un BOM, quatre modules, quatre starters, et les services users, billing et notifications. Documentation générée depuis le code.",
+    "description": "Krizaka Java — des briques Spring Boot sous com.krizaka : un parent et un BOM, quatre modules, quatre starters, et les services users, billing et notifications. Documentation générée depuis le code.",
     "project": "Un projet open source de Krizaka",
     "home": "Krizaka Java"
   },
@@ -22,14 +22,14 @@
     "menu": "Menu",
     "skip": "Aller au contenu",
     "start": "Démarrer",
-    "versionAria": "Version du BOM Krizaka sur Maven Central",
+    "versionAria": "Version du BOM Krizaka",
     "preferences": "Préférences",
     "home": "Krizaka Java"
   },
   "footer": {
     "aria": "Pied de page",
     "license": "Apache-2.0",
-    "maven": "Maven Central",
+    "releases": "Versions",
     "source": "Code source"
   },
   "notFound": {
@@ -39,7 +39,7 @@
   },
   "pendingRelease": {
     "title": "Users, notifications et billing",
-    "body": "Le BOM {bom} les gère en {pom}, qui n'est pas encore sur Maven Central. Tant qu'un BOM ne nomme pas une version publiée, déclare-les avec la version que Central liste ({kit}) ; le BOM fixe alors le reste.",
+    "body": "Le dépôt les déclare en {pom}, en avance sur la dernière version que le BOM {bom} résout ({kit}). Tant qu'un BOM ne nomme pas la nouvelle version, déclare-les en {kit} ; le BOM fixe alors le reste.",
     "issue": "Suivre la release"
   },
   "chrome": {
@@ -86,8 +86,7 @@
       "uses": "Dépend de",
       "usedBy": "Utilisé par",
       "none": "Rien",
-      "close": "Effacer la sélection",
-      "central": "Maven Central {version}"
+      "close": "Effacer la sélection"
     },
     "count": "{count} modules",
     "empty": "Aucun module ne correspond ici.",
@@ -145,8 +144,8 @@
     "eyebrow": "Journal des changements",
     "title": "Ce qui a été livré",
     "lead": "Chaque version de Krizaka Java, la plus récente d’abord, module par module — lue dans les versions elles-mêmes, pas écrite pour la page.",
-    "runs": "Ces pages documentent Krizaka Java v{version}, la version du BOM sur Maven Central, sur Krizaka UI {ui}.",
-    "runsNoUi": "Ces pages documentent Krizaka Java v{version}, la version du BOM sur Maven Central.",
+    "runs": "Ces pages documentent Krizaka Java v{version}, la version du BOM, sur Krizaka UI {ui}.",
+    "runsNoUi": "Ces pages documentent Krizaka Java v{version}, la version du BOM.",
     "feed": "S'abonner (RSS)",
     "logLabel": "Versions",
     "empty": "Les changements n'ont pas pu être lus pour l'instant.",
@@ -175,11 +174,11 @@
   },
   "home": {
     "metaTitle": "Krizaka Java — les briques Spring Boot de chaque service Krizaka",
-    "metaDescription": "Sécurité, format d'erreur, messagerie et observabilité écrits une fois, testés sur un vrai PostgreSQL et un vrai RabbitMQ, et publiés sur Maven Central sous com.krizaka. Un seul BOM à importer ; un service n'écrit que son métier.",
+    "metaDescription": "Sécurité, format d'erreur, messagerie et observabilité écrits une fois, testés sur un vrai PostgreSQL et un vrai RabbitMQ, et construits sous com.krizaka. Un seul BOM à importer ; un service n'écrit que son métier.",
     "hero": {
       "eyebrow": "Krizaka Java · open source",
       "title": "Les briques Spring Boot de chaque service Krizaka",
-      "lead": "Sécurité, format d'erreur, messagerie, observabilité — écrits une fois, testés sur un vrai PostgreSQL et un vrai RabbitMQ, publiés sur Maven Central. Importez un BOM : un service n'écrit plus que son métier.",
+      "lead": "Sécurité, format d'erreur, messagerie, observabilité — écrits une fois, testés sur un vrai PostgreSQL et un vrai RabbitMQ. Importez un BOM : un service n'écrit plus que son métier.",
       "start": "Commencer",
       "map": "Voir la carte des briques"
     },
@@ -221,10 +220,10 @@
         }
       },
       "states": {
-        "pending": "Pas encore sur Maven Central à la version du BOM",
+        "pending": "Pas encore dans le BOM publié",
         "unpublished": "Pas encore dans le BOM publié"
       },
-      "legend": "En pointillé : pas encore sur Maven Central à la version du BOM.",
+      "legend": "En pointillé : pas encore dans le BOM publié.",
       "tabs": "Outil de build",
       "maven": "Maven",
       "gradle": "Gradle",
@@ -267,8 +266,7 @@
       "lead": "Six familles, chacune un module de bibliothèque avec son starter. Ouvrez un guide pour le détail.",
       "hookLabel": "Ce que ça retire",
       "details": "Détails",
-      "published": "Maven Central {version}",
-      "unpublished": "Pas encore sur Maven Central",
+      "version": "Version {version}",
       "web": {
         "title": "Web et Problem Details",
         "hook": "Erreurs RFC 9457 aux codes stables, identifiants de requête, pagination par curseur."
@@ -401,8 +399,8 @@
         "text": "Apache-2.0. Issues et pull requests bienvenues."
       },
       "maven": {
-        "title": "Maven Central",
-        "text": "Les artefacts sous com.krizaka, signés et publiés."
+        "title": "Versions",
+        "text": "Les builds vont dans notre dépôt Maven, pour nos produits. Une version publique sera annoncée ici."
       },
       "ui": {
         "title": "Krizaka UI",

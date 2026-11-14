@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 import { getDictionary, localizedPath, LOCALES, type Locale } from "./i18n";
 import { KRIZAKA_URL, REPOSITORY_URL, SITE_URL } from "./site";
 import { proof } from "./proof";
-import { mavenVersion } from "./versions";
+import { repositoryVersion } from "./model";
 
 /** The Krizaka Organization, defined by www.krizaka.com: every JSON-LD node of the family points back to it. */
 export const ORG_ID = `${KRIZAKA_URL}/#organization`;
@@ -81,7 +81,7 @@ export function homeMetadata(locale: Locale): Metadata {
 }
 
 /** The home's JSON-LD: the WebPage in its language, the WebSite and the source code it documents (Krizaka Java, at the
-    release Maven Central lists), all published by the Krizaka Organization. */
+    version the repository declares), all published by the Krizaka Organization. */
 export function homeJsonLd(locale: Locale) {
   const h = getDictionary(locale).home;
   return [
@@ -124,7 +124,7 @@ function siteJsonLd(locale: Locale) {
       description: t.site.description,
       codeRepository: REPOSITORY_URL,
       programmingLanguage: "Java",
-      ...(mavenVersion("krizaka-bom") ? { version: mavenVersion("krizaka-bom") } : {}),
+      version: repositoryVersion("krizaka-bom"),
       runtimePlatform: `Java ${proof().platform.java}, Spring Boot ${proof().platform.springBootMinor}`,
       license: "https://www.apache.org/licenses/LICENSE-2.0",
       isAccessibleForFree: true,

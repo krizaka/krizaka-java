@@ -7,7 +7,7 @@ import { getDictionary, type Locale } from "@/lib/i18n";
 import { displayFace, monoFace, textFace } from "../fonts";
 import { DocsProviders } from "./DocsProviders";
 import { I18nProvider } from "./I18nProvider";
-import { mavenVersion } from "@/lib/versions";
+import { repositoryVersion } from "@/lib/model";
 import SiteFooter from "./SiteFooter";
 import { ThemeSync } from "./SiteTheme";
 import TopBar from "./TopBar";
@@ -31,7 +31,7 @@ export default function SiteRoot({ locale, children }: { locale: Locale; childre
           <I18nProvider locale={locale} messages={t}>
             <DocsProviders>
               <SkipLink href="#nd-page">{t.bar.skip}</SkipLink>
-              <TopBar version={mavenVersion("krizaka-bom")} />
+              <TopBar version={repositoryVersion("krizaka-bom")} />
               {children}
               <SiteFooter locale={locale} />
             </DocsProviders>

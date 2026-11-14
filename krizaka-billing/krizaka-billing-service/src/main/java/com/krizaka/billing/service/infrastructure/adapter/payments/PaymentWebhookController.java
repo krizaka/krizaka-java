@@ -92,7 +92,7 @@ class PaymentWebhookController {
         "A payment notification is at most " + MAX_BODY_BYTES + " bytes");
   }
 
-  private static ResponseEntity<ProblemDetail> refusal(HttpStatus status, String detail) {
+  private static ResponseEntity<ProblemDetail> refusal(HttpStatus status, @Nullable String detail) {
     var problem = ProblemDetail.forStatusAndDetail(status, detail);
     problem.setTitle("Payment notification refused");
     return ResponseEntity.status(status).body(problem);

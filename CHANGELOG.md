@@ -5,6 +5,14 @@ Versions follow [Semantic Versioning](https://semver.org/) per repository; the B
 [release-please](https://github.com/googleapis/release-please) from the Conventional Commits merged on `main`; the
 hand-written history is under *Before release-please*.
 
+## [0.18.1](https://github.com/krizaka/krizaka-java/compare/v0.18.0...v0.18.1) (2026-11-14)
+
+
+### Documentation
+
+* **site:** java.krizaka.com no longer claims Maven Central, it says where the artefacts are ([#279](https://github.com/krizaka/krizaka-java/issues/279)) ([264c63b](https://github.com/krizaka/krizaka-java/commit/264c63b735f934824972953145f057d0d7262941))
+* **site:** the hero's facts are a specimen tag, and the hero is top-aligned with the picker ([#277](https://github.com/krizaka/krizaka-java/issues/277)) ([9ec2f2c](https://github.com/krizaka/krizaka-java/commit/9ec2f2c132623034db16832ab5fdcf38cfd343f3))
+
 ## [0.18.0](https://github.com/krizaka/krizaka-java/compare/v0.17.2...v0.18.0) (2026-11-14)
 
 

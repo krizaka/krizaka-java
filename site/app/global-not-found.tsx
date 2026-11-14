@@ -14,10 +14,10 @@ export default function GlobalNotFound() {
   return (
     <html lang="en" className={cn(textFace.variable, displayFace.variable, monoFace.variable, "dark")} suppressHydrationWarning>
       <head>
-        <ThemeScript defaultMode="dark" />
+        <ThemeScript defaultMode="system" />
       </head>
       <body>
-        <ThemeProvider defaultMode="dark">
+        <ThemeProvider defaultMode="system">
           <main className="kz-404">
             <section lang="en">
               <h1>{en.title}</h1>

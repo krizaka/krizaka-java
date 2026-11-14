@@ -299,13 +299,17 @@
     "proof": {
       "eyebrow": "La preuve",
       "title": "Nos propres services tournent dessus",
-      "lead": "Les services d'Sovkora ci-dessous dépendent de ces artefacts. La liste et les chiffres sont lus dans leurs POM et leurs tests à chaque build.",
+      "lead": "Les services de Sovkora ci-dessous dépendent de ces artefacts. La liste et les chiffres sont lus dans leurs POM et leurs tests à chaque build.",
+      "testsOnly": {
+        "title": "Éprouvé sur une vraie infrastructure",
+        "lead": "Les chiffres sont lus dans les tests des dépôts de Krizaka Java à chaque build."
+      },
       "tests": "tests dans les dépôts de Krizaka Java",
       "real": "démarrent un vrai PostgreSQL ou RabbitMQ (Testcontainers)",
-      "services": "services d'Sovkora construits dessus",
+      "services": "services de Sovkora construits dessus",
       "uses": "{count} artefacts Krizaka",
       "usesOne": "1 artefact Krizaka",
-      "listLabel": "Les services d'Sovkora et les artefacts Krizaka Java qu'ils utilisent",
+      "listLabel": "Les services de Sovkora et les artefacts Krizaka Java qu'ils utilisent",
       "domain": "Des services de domaine construits de la même façon : users, billing et notifications.",
       "domainLink": "Voir la carte"
     },

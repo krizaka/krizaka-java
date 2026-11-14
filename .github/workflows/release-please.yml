@@ -47,7 +47,7 @@ jobs:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
 
-      - name: Release the tag (Maven Central, the registry input of ci.yml)
+      - name: Release the tag (registry input of ci.yml, none today - krizaka-internal#3345)
         if: steps.release.outputs.release_created == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
@@ -55,7 +55,7 @@ jobs:
         run: gh workflow run ci.yml --repo "$GITHUB_REPOSITORY" --ref "$TAG"
 
   # The tag's own run publishes the whole reactor (the split repositories and their packages are deleted, krizaka-internal#2656);
-  # this job checks that every module of the release reached the registry: a release publishes everything by itself.
+  # this job checks that every module of the release reached the registry, when ci.yml asks for one (`registry: none`: nothing to reach).
   follow-ups:
     needs: release-please
     if: needs.release-please.outputs.release_created == 'true'
@@ -87,6 +87,7 @@ jobs:
           [ -n "$id" ] || { echo "::error::the deploy run of $TAG never started"; exit 1; }
           gh run watch "$id" --repo "$GITHUB_REPOSITORY" --exit-status --interval 30
       # The whole reactor, billing included (v0.8.0 left krizaka-billing-* unpublished behind the service kit's 422).
-      # The deployment waits for Publish on central.sonatype.com (autoPublish=false): this step is red until it is pressed.
-      - name: Every module of the release is on Maven Central
+      # With `registry: none` (krizaka-internal#3345) the script says « not published: no registry » and is green: Central not being
+      # reached is the decision, not a failure. With `registry: central` the deployment waits for Publish (autoPublish=false).
+      - name: Every module of the release is on its registry (none today)
         run: node scripts/check-published.mjs "$TAG"

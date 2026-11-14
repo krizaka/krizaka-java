@@ -7,6 +7,9 @@
 // registry for each artifact's versions. Any module missing the version: exit 1 and the list.
 //
 //   node scripts/check-published.mjs <vX.Y.Z> [--group com.krizaka]
+//   node scripts/check-published.mjs --registry     prints the registry ci.yml asks for (none | central)
+// With `registry: none` (krizaka-internal#3345, #3554) nothing is deployed anywhere: the script reports « not published: no
+// registry » and exits 0; it is never red only because a registry was not reached.
 // Central's deployments wait for Publish (autoPublish=false): until it is pressed, the release is not released.
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -46,6 +49,16 @@ export function publishable(root, read = (p) => readFileSync(p, "utf8"), exists 
   return out;
 }
 
+/** The registry ci.yml asks the org pipeline for: `none` (the default, krizaka-internal#3554) or `central`. */
+export function registryOf(ciText) {
+  const line = ciText.split("\n").map((l) => l.trim()).find((l) => l.startsWith("registry:"));
+  const value = line?.slice("registry:".length).split("#")[0].replaceAll(/["']/g, "").trim();
+  return value || "none";
+}
+
+/** What a release without a registry reports: not red, not published. */
+export const noRegistryMessage = (tag) => `${tag}: not published: no registry (krizaka-internal#3345)`;
+
 /** The artifacts whose versions do not include `version`: [{ artifactId, why }]. */
 export async function missing(artifacts, version, versionsOf) {
   const gaps = [];
@@ -75,8 +88,11 @@ function central(group, base = "https://repo1.maven.org/maven2") {
 async function main(argv) {
   const flag = (n, d) => { const i = argv.indexOf(`--${n}`); return i >= 0 ? argv[i + 1] : d; };
   const version = argv.find((a) => /^v?\d+\.\d+\.\d+$/.test(a))?.replace(/^v/, "");
-  if (!version) { console.error("usage: check-published.mjs <vX.Y.Z> [--group com.krizaka]"); return 2; }
+  if (!version && !argv.includes("--registry")) { console.error("usage: check-published.mjs <vX.Y.Z> [--group com.krizaka] | --registry"); return 2; }
   const root = join(dirname(fileURLToPath(import.meta.url)), "..");
+  const registry = registryOf(readFileSync(join(root, ".github/workflows/ci.yml"), "utf8"));
+  if (argv.includes("--registry")) { console.log(registry); return 0; }
+  if (registry === "none") { console.log(noRegistryMessage(`v${version}`)); return 0; }
   const artifacts = publishable(root);
   const gaps = await missing(artifacts, version, central(flag("group", "com.krizaka")));
   if (gaps.length === 0) { console.log(`v${version}: ${artifacts.length} modules are on Maven Central`); return 0; }

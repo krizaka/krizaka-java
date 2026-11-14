@@ -10,12 +10,11 @@
 
 **One build for every Krizaka JVM artifact.**
 
-The parent POM, the BOM and the test kit behind every `com.krizaka` artifact on Maven Central: complete Central metadata, Java 21
-conventions checked on every build, and a signed release in one command.
+The parent POM, the BOM and the test kit behind every `com.krizaka` artifact: complete Central metadata, Java 21
+conventions checked on every build, and a signed release in one command (published nowhere public for now, see below).
 
 [![CI](https://github.com/krizaka/krizaka-java/actions/workflows/ci.yml/badge.svg)](https://github.com/krizaka/krizaka-java/actions/workflows/ci.yml)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/krizaka/krizaka-java/badge)](https://scorecard.dev/viewer/?uri=github.com/krizaka/krizaka-java)
-[![Maven Central](https://img.shields.io/maven-central/v/com.krizaka/krizaka-bom?color=196df5&label=maven%20central)](https://central.sonatype.com/namespace/com.krizaka)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=krizaka_krizaka-java&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=krizaka_krizaka-java) [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=krizaka_krizaka-java&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=krizaka_krizaka-java) [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=krizaka_krizaka-java&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=krizaka_krizaka-java) [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=krizaka_krizaka-java&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=krizaka_krizaka-java) [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=krizaka_krizaka-java&metric=coverage)](https://sonarcloud.io/summary/new_code?id=krizaka_krizaka-java)
 
@@ -87,16 +86,16 @@ choose. The artifacts are built and tested against Spring Boot `4.0.x` (property
 | `./mvnw verify -Prelease -Dgpg.skip` | everything Central requires except the signature: sources and javadoc jars (javadoc is linted), and the binary compatibility of every jar with its latest release (japicmp) |
 | `./mvnw deploy -Prelease,registry-central` | signs every file and uploads the deployment to the Central Portal |
 
-## Where the blocks are published — Maven Central only
+## Where the blocks are published — nowhere public today
 
-**Maven Central is the one registry of `com.krizaka`** (founder, 2026-11-06): nothing to configure, no token to read.
-A `v*` tag (release-please) signs every file and uploads the whole reactor to the Central Portal from CI (the `registry:
-central` input of the organisation's `maven.yml`, secrets `MAVEN_CENTRAL_*` and `MAVEN_GPG_*`); the deployment waits for
-**Publish** on central.sonatype.com (`autoPublish=false`: a Central release can never be deleted), then
-`scripts/check-published.mjs` proves every module is on `repo1.maven.org`.
+**A release is published nowhere until the Spaces repository exists** (founder, 2026-11-14; krizaka-internal#3345): our builds
+stop depending on Maven Central. A `v*` tag (release-please) builds and verifies the whole reactor from CI and deploys
+nothing: `ci.yml` passes `registry: none` to the organisation's `maven.yml` and passes no `MAVEN_CENTRAL_*` or `MAVEN_GPG_*`
+secret (`scripts/ci-deploy-inputs.test.mjs` fails otherwise). The scheduled published check and the release job then report
+« not published: no registry (krizaka-internal#3345) » and stay green. Maven Central only comes back by passing
+`registry: central` explicitly, for the monthly public release (krizaka-internal#3343); the Central steps below apply then.
 
-Versions 0.3 to 0.11 were published to GitHub Packages only (ADR-019, now abandoned for Maven); they stay readable there
-for now and are never republished. A consumer pins a version that is on Central.
+Versions 0.3 to 0.11 were published to GitHub Packages only (ADR-019, now abandoned for Maven) and are never republished. A consumer pins a version that exists on a registry it can read.
 
 **Guard** — `scripts/check-bom-released.mjs` (CI job `bom-released`) fails when `krizaka-bom` manages a building block
 version that has no `v<version>` tag in its repository; `krizaka-users`, `krizaka-notifications` and `krizaka-billing`
@@ -112,7 +111,7 @@ set** — one property per repository (`krizaka-service-kit.version`, …) names
   `v<version>`, creates the GitHub Release and dispatches CI on the tag (a tag pushed by `GITHUB_TOKEN` starts no
   workflow by itself), which runs the organisation pipeline
   [`krizaka/.github/.github/workflows/maven.yml`](https://github.com/krizaka/.github/blob/main/.github/workflows/maven.yml):
-  verify, sign, upload. After a release, release-please proposes the next `-SNAPSHOT`.
+  verify, and with `registry: central` only, sign and upload. After a release, release-please proposes the next `-SNAPSHOT`.
 - **Order** — Central validates a POM against its parent *on Central*: release `krizaka-java` first and publish it;
   then move `krizaka-parent` (and `krizaka-java.version`) in the repositories built on it to that release, and
   release them (`krizaka-service-kit`, then the domain services). Before tagging `krizaka-java`, set each BOM

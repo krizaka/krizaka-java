@@ -2,13 +2,16 @@ package com.krizaka.billing.service.infrastructure.adapter.rest;
 
 import com.krizaka.billing.service.application.service.PackSubscriptionService;
 import com.krizaka.billing.service.application.service.PackSubscriptionService.PackSubscriptionView;
+import com.krizaka.billing.service.domain.exception.PaymentRequiredException;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -58,15 +61,31 @@ class PackSubscriptionController {
   /**
    * Adds a pack to the signed-in user.
    *
+   * <p>A priced pack needs the processor's settled payment, named by {@code paymentReference}
+   * (verified server-side against what the processor confirmed, never trusted as a flag); an admin
+   * grants it without one; a free pack needs neither.
+   *
    * @param packKey the pack to add
+   * @param paymentReference the settled payment, absent for a free pack or an admin
    * @param user the authenticated actor
-   * @return {@code 201} with the subscription now in force
+   * @param authentication the caller's authorities
+   * @return {@code 201} with the subscription now in force, {@code 402} when a priced pack has no
+   *     settled payment
    */
   @PostMapping("/me/{packKey}")
   ResponseEntity<PackSubscriptionView> subscribe(
-      @PathVariable String packKey, @AuthenticationPrincipal Jwt user) {
-    return ResponseEntity.status(HttpStatus.CREATED)
-        .body(packSubscriptionService.subscribe(user.getSubject(), packKey));
+      @PathVariable String packKey,
+      @RequestParam(required = false) String paymentReference,
+      @AuthenticationPrincipal Jwt user,
+      Authentication authentication) {
+    boolean admin =
+        authentication.getAuthorities().stream()
+            .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
+    PackSubscriptionView view =
+        admin
+            ? packSubscriptionService.subscribeAsAdmin(user.getSubject(), packKey)
+            : packSubscriptionService.subscribe(user.getSubject(), packKey, paymentReference);
+    return ResponseEntity.status(HttpStatus.CREATED).body(view);
   }
 
   /**
@@ -117,6 +136,20 @@ class PackSubscriptionController {
   @ExceptionHandler(NoSuchElementException.class)
   ResponseEntity<Map<String, String>> handleUnknownPack(NoSuchElementException e) {
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", e.getMessage()));
+  }
+
+  /**
+   * Turns a missing payment into a {@code 402} Problem Details body.
+   *
+   * @param e the refusal
+   * @return the structured body
+   */
+  @ExceptionHandler(PaymentRequiredException.class)
+  ResponseEntity<ProblemDetail> handlePaymentRequired(PaymentRequiredException e) {
+    ProblemDetail problem =
+        ProblemDetail.forStatusAndDetail(HttpStatus.PAYMENT_REQUIRED, e.getMessage());
+    problem.setTitle("Payment required");
+    return ResponseEntity.status(HttpStatus.PAYMENT_REQUIRED).body(problem);
   }
 
   /**

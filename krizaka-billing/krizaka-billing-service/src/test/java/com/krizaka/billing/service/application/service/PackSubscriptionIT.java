@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.krizaka.billing.domain.model.EntitlementSnapshot;
 import com.krizaka.billing.service.BillingSchema;
 import com.krizaka.billing.service.application.service.PackSubscriptionService.PackSubscriptionView;
+import com.krizaka.billing.service.domain.exception.PaymentRequiredException;
 import com.krizaka.billing.service.domain.model.CatalogPack;
 import com.krizaka.billing.service.domain.model.Entitlement;
 import com.krizaka.billing.service.domain.model.SubscriptionStatus;
@@ -123,7 +124,7 @@ class PackSubscriptionIT {
         before.entitlements().containsKey("studio.realestate-reels"),
         "the entry plan grants no Studio it did not pay for");
 
-    packSubscriptions.subscribe(actorId, packKey);
+    packSubscriptions.subscribeAsAdmin(actorId, packKey);
 
     EntitlementSnapshot after = entitlements.forActor(actorId);
     assertEquals("true", after.entitlements().get("studio.realestate-reels"));
@@ -176,7 +177,7 @@ class PackSubscriptionIT {
             new Entitlement("concurrency.jobs", "int", "12"),
             new Entitlement("capability.chat", "boolean", "false")));
 
-    packSubscriptions.subscribe(actorId, packKey);
+    packSubscriptions.subscribeAsAdmin(actorId, packKey);
     EntitlementSnapshot snapshot = entitlements.forActor(actorId);
 
     assertEquals("12", snapshot.entitlements().get("concurrency.jobs"), "the larger limit wins");
@@ -191,7 +192,7 @@ class PackSubscriptionIT {
   void includedCreditsAreCredited() {
     seedPack(5_000, List.of());
 
-    packSubscriptions.subscribe(actorId, packKey);
+    packSubscriptions.subscribeAsAdmin(actorId, packKey);
 
     Long purchased =
         jdbcTemplate.queryForObject(
@@ -211,8 +212,8 @@ class PackSubscriptionIT {
   void subscribeIsIdempotent() {
     seedPack(5_000, List.of());
 
-    PackSubscriptionView first = packSubscriptions.subscribe(actorId, packKey);
-    PackSubscriptionView second = packSubscriptions.subscribe(actorId, packKey);
+    PackSubscriptionView first = packSubscriptions.subscribeAsAdmin(actorId, packKey);
+    PackSubscriptionView second = packSubscriptions.subscribeAsAdmin(actorId, packKey);
 
     assertEquals(first.id(), second.id(), "the live row is returned, not a second one");
     Long purchased =
@@ -231,8 +232,8 @@ class PackSubscriptionIT {
             secondKey, 0, 0, true, List.of(new Entitlement("studio.second", "boolean", "true"))),
         ADMIN);
 
-    packSubscriptions.subscribe(actorId, packKey);
-    packSubscriptions.subscribe(actorId, secondKey);
+    packSubscriptions.subscribeAsAdmin(actorId, packKey);
+    packSubscriptions.subscribeAsAdmin(actorId, secondKey);
 
     assertEquals(2, packSubscriptions.forActor(actorId).size());
     EntitlementSnapshot snapshot = entitlements.forActor(actorId);
@@ -244,7 +245,7 @@ class PackSubscriptionIT {
   @DisplayName("giving a pack up withdraws its entitlements but not its credits")
   void cancelRevokesAccessAndKeepsCredits() {
     seedPack(5_000, List.of(new Entitlement("studio.realestate-reels", "boolean", "true")));
-    packSubscriptions.subscribe(actorId, packKey);
+    packSubscriptions.subscribeAsAdmin(actorId, packKey);
 
     assertTrue(packSubscriptions.cancel(actorId, packKey).isPresent());
 
@@ -260,10 +261,10 @@ class PackSubscriptionIT {
   @DisplayName("cancelling frees the key, so the same pack can be bought again")
   void cancelFreesThePartialUniqueIndex() {
     seedPack(0, List.of());
-    packSubscriptions.subscribe(actorId, packKey);
+    packSubscriptions.subscribeAsAdmin(actorId, packKey);
     packSubscriptions.cancel(actorId, packKey);
 
-    PackSubscriptionView again = packSubscriptions.subscribe(actorId, packKey);
+    PackSubscriptionView again = packSubscriptions.subscribeAsAdmin(actorId, packKey);
 
     assertEquals(SubscriptionStatus.ACTIVE, again.status());
     assertEquals(1, packSubscriptions.forActor(actorId).size(), "only the live one counts");
@@ -273,7 +274,7 @@ class PackSubscriptionIT {
   @DisplayName("a withdrawn pack cannot be bought, but its existing holders keep it")
   void withdrawnPacksAreNotSoldButAreNotRevoked() {
     seedPack(0, List.of(new Entitlement("studio.realestate-reels", "boolean", "true")));
-    packSubscriptions.subscribe(actorId, packKey);
+    packSubscriptions.subscribeAsAdmin(actorId, packKey);
     packPricing.withdraw(packKey, ADMIN);
 
     assertEquals(
@@ -283,14 +284,15 @@ class PackSubscriptionIT {
 
     String latecomer = UUID.randomUUID().toString();
     assertThrows(
-        IllegalStateException.class, () -> packSubscriptions.subscribe(latecomer, packKey));
+        IllegalStateException.class, () -> packSubscriptions.subscribeAsAdmin(latecomer, packKey));
   }
 
   @Test
   @DisplayName("subscribing to a pack that does not exist is a miss, not a 500")
   void unknownPacksAreRefused() {
     assertThrows(
-        NoSuchElementException.class, () -> packSubscriptions.subscribe(actorId, "no-such-pack"));
+        NoSuchElementException.class,
+        () -> packSubscriptions.subscribeAsAdmin(actorId, "no-such-pack"));
   }
 
   @Test
@@ -298,7 +300,7 @@ class PackSubscriptionIT {
   void changesAreAnnounced() {
     seedPack(0, List.of());
 
-    packSubscriptions.subscribe(actorId, packKey);
+    packSubscriptions.subscribeAsAdmin(actorId, packKey);
     packSubscriptions.cancel(actorId, packKey);
 
     Long events =
@@ -308,6 +310,124 @@ class PackSubscriptionIT {
             Long.class,
             actorId);
     assertEquals(2L, events);
+  }
+
+  private long activeRows() {
+    return jdbcTemplate.queryForObject(
+        "SELECT count(*) FROM billing_pack_subscription WHERE actor_id = ? AND pack_key = ?",
+        Long.class,
+        actorId,
+        packKey);
+  }
+
+  private long credits() {
+    return jdbcTemplate.queryForObject(
+        "SELECT count(*) FROM credit_ledger_entry WHERE actor_id = ?", Long.class, actorId);
+  }
+
+  @Test
+  @DisplayName("[#269] a priced pack without a settled payment is refused: no row, no credits")
+  void pricedPackNeedsASettledPayment() {
+    seedPack(5_000, List.of());
+
+    assertThrows(
+        PaymentRequiredException.class, () -> packSubscriptions.subscribe(actorId, packKey, null));
+    assertThrows(
+        PaymentRequiredException.class, () -> packSubscriptions.subscribe(actorId, packKey, " "));
+    assertThrows(
+        PaymentRequiredException.class,
+        () -> packSubscriptions.subscribe(actorId, packKey, "pi_never_settled"));
+
+    assertEquals(0L, activeRows());
+    assertEquals(0L, credits());
+  }
+
+  @Test
+  @DisplayName("[#269] a settled payment unlocks the pack once, for its own actor and pack only")
+  void aSettledPaymentIsSingleUseAndBound() {
+    seedPack(5_000, List.of());
+    String ref = "pi_" + UUID.randomUUID();
+    packSubscriptions.recordSettledPayment(ref, actorId, packKey);
+
+    String other = UUID.randomUUID().toString();
+    assertThrows(
+        PaymentRequiredException.class, () -> packSubscriptions.subscribe(other, packKey, ref));
+
+    PackSubscriptionView bought = packSubscriptions.subscribe(actorId, packKey, ref);
+    assertEquals(SubscriptionStatus.ACTIVE, bought.status());
+    assertEquals(1L, credits());
+
+    // replay of the same purchase: the live row, no second grant
+    assertEquals(bought.id(), packSubscriptions.subscribe(actorId, packKey, ref).id());
+    assertEquals(1L, credits());
+
+    // the payment cannot buy the pack again after cancelling
+    packSubscriptions.cancel(actorId, packKey);
+    assertThrows(
+        PaymentRequiredException.class, () -> packSubscriptions.subscribe(actorId, packKey, ref));
+  }
+
+  @Test
+  @DisplayName("[#269] a payment recorded for another pack does not unlock this one")
+  void aPaymentIsBoundToItsPack() {
+    seedPack(0, List.of());
+    String otherPack = packKey + "-other";
+    packPricing.save(new CatalogPack(otherPack, 4900, 0, true, List.of()), ADMIN);
+    String ref = "pi_" + UUID.randomUUID();
+    packSubscriptions.recordSettledPayment(ref, actorId, otherPack);
+
+    assertThrows(
+        PaymentRequiredException.class, () -> packSubscriptions.subscribe(actorId, packKey, ref));
+    assertEquals(0L, activeRows());
+  }
+
+  @Test
+  @DisplayName("[#269] one settled payment racing on two requests buys exactly one pack")
+  void aPaymentRacesToOneSubscription() throws Exception {
+    seedPack(5_000, List.of());
+    String ref = "pi_" + UUID.randomUUID();
+    packSubscriptions.recordSettledPayment(ref, actorId, packKey);
+
+    var pool = java.util.concurrent.Executors.newFixedThreadPool(2);
+    try {
+      var go = new java.util.concurrent.CountDownLatch(1);
+      var a =
+          pool.submit(
+              () -> {
+                go.await();
+                return packSubscriptions.subscribe(actorId, packKey, ref);
+              });
+      var b =
+          pool.submit(
+              () -> {
+                go.await();
+                return packSubscriptions.subscribe(actorId, packKey, ref);
+              });
+      go.countDown();
+      assertEquals(a.get().id(), b.get().id());
+    } finally {
+      pool.shutdownNow();
+    }
+    assertEquals(1L, activeRows());
+    assertEquals(1L, credits());
+  }
+
+  @Test
+  @DisplayName("[#269] a free pack needs no payment")
+  void aFreePackNeedsNoPayment() {
+    packPricing.save(new CatalogPack(packKey, 0, 100, true, List.of()), ADMIN);
+
+    assertEquals(
+        SubscriptionStatus.ACTIVE, packSubscriptions.subscribe(actorId, packKey, null).status());
+  }
+
+  @Test
+  @DisplayName("[#269] the admin path grants a priced pack with no payment")
+  void theAdminPathNeedsNoPayment() {
+    seedPack(0, List.of());
+
+    assertEquals(
+        SubscriptionStatus.ACTIVE, packSubscriptions.subscribeAsAdmin(actorId, packKey).status());
   }
 
   /** Minimal transactional wiring: real {@code @Transactional} proxies, no web/security/AMQP. */

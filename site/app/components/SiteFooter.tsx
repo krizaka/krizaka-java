@@ -1,22 +1,22 @@
 import { getDictionary, type Locale } from "@/lib/i18n";
-import { MAVEN_CENTRAL_URL, REPOSITORY_URL } from "@/lib/site";
+import { RELEASES_URL, REPOSITORY_URL } from "@/lib/site";
 import { uiVersion } from "@/lib/platform";
-import { mavenVersion } from "@/lib/versions";
+import { repositoryVersion } from "@/lib/model";
 import { FamilyFooterView } from "./FamilyFooterView";
 
 /* The footer (NAV-SYS) is @krizaka/ui's SiteFooter: this site's own column (where the artifacts and the code are), the
-   Krizaka family in columns, the signature, the release the pages were built from (the BOM on Maven Central). */
+   Krizaka family in columns, the signature, the release the pages were built from (the BOM of the repository). */
 export default function SiteFooter({ locale }: { locale: Locale }) {
   const t = getDictionary(locale).footer;
   return (
     <FamilyFooterView
       locale={locale}
       aria={t.aria}
-      version={mavenVersion("krizaka-bom") ?? undefined}
+      version={repositoryVersion("krizaka-bom")}
       ui={uiVersion()}
       license={t.license}
       links={[
-        { label: t.maven, href: MAVEN_CENTRAL_URL },
+        { label: t.releases, href: RELEASES_URL },
         { label: t.source, href: REPOSITORY_URL },
       ]}
     />

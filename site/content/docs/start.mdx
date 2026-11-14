@@ -5,8 +5,12 @@ description: The Spring Boot building blocks of every Krizaka service — one bu
 
 The cross-cutting code every Spring Boot service writes — security, error format, messaging, observability — written
 once in the [Krizaka Service Kit](https://github.com/krizaka/krizaka-java/tree/main/krizaka-service-kit), with its invariants tested on a
-real PostgreSQL and RabbitMQ. Everything is published on Maven Central under `com.krizaka` (Apache-2.0) and requires
+real PostgreSQL and RabbitMQ. Everything is built under `com.krizaka` (Apache-2.0) and requires
 **Java 21** and **Spring Boot 4.0**.
+
+## Where the artifacts are
+
+Builds go to our own Maven repository, which is private: it serves our products. Nothing new is published to a public registry for now, and a public release will be announced on the [releases page](https://github.com/krizaka/krizaka-java/releases). The generator below prints the versions of the last release.
 
 ## Start with the BOM and the starters
 

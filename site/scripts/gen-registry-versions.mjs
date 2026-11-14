@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* The versions the site states, read from Maven Central at build time — one source, never typed in a page.
+/* The versions the site states, read from the registry at build time — one source, never typed in a page.
 
    Every artifact under com/krizaka on repo1 (its directory listing), then each maven-metadata.xml's <release> — the
    authoritative file, not the search index (which lags). Then the published BOM's own POM: what it manages, at which
@@ -61,7 +61,7 @@ export function createGet({ fetchImpl = fetch, sleep = realSleep, log = (line) =
 }
 const get = createGet();
 
-/** Every artifact with its latest release and every version Central lists. */
+/** Every artifact with its latest release and every versiin the registry lists. */
 async function mavenMetadata(get) {
   const listing = await get(BASE);
   const artifacts = [...listing.matchAll(/href="([a-z0-9-]+)\/"/g)].map((m) => m[1]);
@@ -92,12 +92,12 @@ try {
   mkdirSync(dirname(out), { recursive: true });
   writeFileSync(out, JSON.stringify({ maven, bom, fetchedAt: new Date().toISOString() }, null, 2) + "\n");
   const ready = Object.values(bom.manages).filter((m) => m.onCentral).length;
-  console.log(`registry-versions: ${Object.keys(maven).length} Maven artifacts (krizaka-bom ${maven["krizaka-bom"]}, manages ${Object.keys(bom.manages).length}, ${ready} on Central at that version)`);
+  console.log(`registry-versions: ${Object.keys(maven).length} Maven artifacts (krizaka-bom ${maven["krizaka-bom"]}, manages ${Object.keys(bom.manages).length}, ${ready} in the registry at that version)`);
 } catch (error) {
   if (!existsSync(out)) {
-    throw new Error(`registry-versions: Maven Central unreachable (${error.message}) and no previous file — cannot state a version`);
+    throw new Error(`registry-versions: the registry unreachable (${error.message}) and no previous file — cannot state a version`);
   }
-  console.warn(`registry-versions: Maven Central unreachable (${error.message}) — keeping ${JSON.parse(readFileSync(out, "utf8")).fetchedAt}`);
+  console.warn(`registry-versions: the registry unreachable (${error.message}) — keeping ${JSON.parse(readFileSync(out, "utf8")).fetchedAt}`);
 }
 }
 

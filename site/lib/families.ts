@@ -1,5 +1,5 @@
 /* The home's families of building blocks — structure only (no I/O, so a test can read it): which artifacts, which guide, which
-   bird. The words are messages (home.families.<id>). lib/home.ts checks them against the POMs' model and Maven Central. */
+   bird. The words are messages (home.families.<id>). lib/home.ts checks them against the POMs' model. */
 
 export const FAMILY_IDS = ["web", "security", "messaging", "observability", "appConfig", "testing"] as const;
 export type FamilyId = (typeof FAMILY_IDS)[number];

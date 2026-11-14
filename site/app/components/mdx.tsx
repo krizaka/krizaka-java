@@ -5,6 +5,7 @@ import { format, getDictionary, type Locale } from "@/lib/i18n";
 import { buildingBlocksMap, checkFocus } from "@/lib/model";
 import { checkArtifact } from "@/lib/configuration";
 import { mavenVersion } from "@/lib/versions";
+import { repositoryVersion } from "@/lib/model";
 import BuildingBlocksMap from "./BuildingBlocksMap";
 import { ConfigurationReference } from "./ConfigurationReference";
 import { FeatureMatrix } from "./FeatureMatrix";
@@ -12,7 +13,7 @@ import { EventSchema } from "./EventSchema";
 import StartProject from "./StartProject";
 
 /** The components a page may use: `<BuildingBlocksMap focus="…" />` (generated from the POMs), `<PendingRelease />` (the
-    note that says, from the data, when the services are not on Maven Central at the version the BOM manages) and
+    note that says, from the data, when the services are ahead of the version the BOM manages) and
     `<ComingSoon issue="…" />` (a contract the services do not publish yet) and `<StartProject />` (the generator), `<ConfigurationReference artifact="…" />` (generated from the configuration
     metadata) and `<FeatureMatrix />` (shipped / partial / planned, checked against the code). */
 export function getMdxComponents(locale: Locale): MDXComponents {
@@ -29,10 +30,10 @@ export function getMdxComponents(locale: Locale): MDXComponents {
     ),
     PendingRelease: () => {
       const map = buildingBlocksMap();
-      const bom = mavenVersion("krizaka-bom");
+      const bom = repositoryVersion("krizaka-bom");
       const client = map.modules.find((m) => m.id === "krizaka-users-client");
       const kit = mavenVersion("krizaka-users-client");
-      // Said only while it is true: the POM declares a release Central does not have yet.
+      // Said only while it is true: the POM declares a release newer than the last one the BOM resolves.
       if (!bom || !client || !kit || client.version === kit) return null;
       return (
         <aside className="kz-note" role="note">

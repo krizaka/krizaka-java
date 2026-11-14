@@ -1,4 +1,4 @@
-/* The versions read from Maven Central at build (scripts/gen-registry-versions.mjs → lib/generated/maven-versions.json). */
+/* The versions read from the registry at build (scripts/gen-registry-versions.mjs → lib/generated/maven-versions.json). */
 
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
@@ -22,15 +22,15 @@ function generated(): Generated {
   return cache;
 }
 
-/** Every `com.krizaka` artifact on Maven Central with its latest release. */
+/** Every `com.krizaka` artifact on the registry with its latest release. */
 export const mavenVersions = (): Record<string, string> => generated().maven;
 
-/** The BOM published on Central: what it manages, at which version, and whether Central has that version. */
+/** The BOM published in the registry: what it manages, at which version, and whether Central has that version. */
 export function publishedBom(): PublishedBom {
   const bom = generated().bom;
   if (!bom) throw new Error("lib/generated/maven-versions.json has no `bom` — run `npm run gen` (the generator offers only what the published BOM manages)");
   return bom;
 }
 
-/** The release of one artifact on Central; `null` when it was never published. */
+/** The release of one artifact in the registry; `null` when it was never published. */
 export const mavenVersion = (artifactId: string): string | null => mavenVersions()[artifactId] ?? null;

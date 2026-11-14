@@ -5,8 +5,12 @@ description: Les briques Spring Boot de tous les services Krizaka — un build, 
 
 Le code transversal que tout service Spring Boot réécrit — sécurité, format d'erreur, messagerie, observabilité — écrit
 une seule fois dans le [Krizaka Service Kit](https://github.com/krizaka/krizaka-java/tree/main/krizaka-service-kit), dont les invariants sont
-testés sur un vrai PostgreSQL et un vrai RabbitMQ. Tout est publié sur Maven Central sous `com.krizaka` (Apache-2.0) et
+testés sur un vrai PostgreSQL et un vrai RabbitMQ. Tout est construit sous `com.krizaka` (Apache-2.0) et
 demande **Java 21** et **Spring Boot 4.0**.
+
+## Où sont les artefacts
+
+Les builds vont dans notre dépôt Maven, qui est privé : il sert nos produits. Rien de nouveau n'est publié dans un registre public pour l'instant, et une version publique sera annoncée sur la [page des versions](https://github.com/krizaka/krizaka-java/releases). Le générateur ci-dessous affiche les versions de la dernière release.
 
 ## Commencer par le BOM et les starters
 

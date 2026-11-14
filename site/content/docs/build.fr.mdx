@@ -4,11 +4,11 @@ description: krizaka-parent, krizaka-bom et krizaka-test-support — un seul bui
 ---
 
 [Krizaka Java](https://github.com/krizaka/krizaka-java) porte le POM parent, le BOM et le kit de test derrière chaque
-artefact `com.krizaka` de Maven Central.
+artefact `com.krizaka`.
 
 | Artefact | Rôle |
 | :-- | :-- |
-| `com.krizaka:krizaka-parent` | Métadonnées Central, Java 21, google-java-format vérifié à `validate`, tests unitaires (Surefire) et d'intégration (Failsafe, `*IT`), JaCoCo, une chaîne d'outils imposée, le profil `release`. |
+| `com.krizaka:krizaka-parent` | Métadonnées de release, Java 21, google-java-format vérifié à `validate`, tests unitaires (Surefire) et d'intégration (Failsafe, `*IT`), JaCoCo, une chaîne d'outils imposée, le profil `release`. |
 | `com.krizaka:krizaka-bom` | Chaque artefact `com.krizaka` à la version avec laquelle son dépôt a été testé — l'ensemble compatible. Il ne fixe aucune version que Spring Boot gère (JSpecify, les annotations de nullité, en est la seule entrée). |
 | `com.krizaka:krizaka-test-support` | Règles de gouvernance (`CodeRules`, `SourceRules`, `ConfigBindingRules`), `AbstractContainerIntegrationTest` (un PostgreSQL + RabbitMQ partagé par exécution) et rôles Testcontainers. |
 
@@ -46,7 +46,7 @@ artefacts sont construits et testés avec Spring Boot `4.0.x`.
 | :-- | :-- |
 | `./mvnw verify` | vérification du format, compilation avec `-Xlint:all`, tests unitaires et d'intégration, couverture |
 | `./mvnw spotless:apply` | formate les sources |
-| `./mvnw verify -Prelease -Dgpg.skip` | tout ce que Central exige sauf la signature, plus la compatibilité binaire (japicmp) |
+| `./mvnw verify -Prelease -Dgpg.skip` | tout ce qu'une release publique exige sauf la signature, plus la compatibilité binaire (japicmp) |
 
 ## Règles de code
 
@@ -63,6 +63,5 @@ Un module qui déclare ses propres processeurs d'annotations (MapStruct, Lombok)
 ## Releases
 
 Chaque dépôt a sa propre version SemVer ; les titres de pull request sont des Conventional Commits et release-please garde
-une pull request de release ouverte. Central valide un POM par rapport à son parent **sur Central** : `krizaka-java` est donc
-publié en premier, puis le kit plateforme, puis les services de domaine. Une release est confirmée à la main sur le Central
-Portal avant d'être publiée.
+une pull request de release ouverte. Un POM est validé par rapport à son parent : `krizaka-java` est donc
+publié en premier, puis le kit plateforme, puis les services de domaine. Les builds vont dans notre dépôt Maven ; une release publique est confirmée à la main et annoncée.

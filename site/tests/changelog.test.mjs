@@ -58,7 +58,7 @@ test("both languages have the page, the feed and the sitemap entry", () => {
 test("the footer's version (the BOM) links /changelog#<version>; the page owns that anchor", () => {
   assert.match(read("app/components/FamilyFooterView.tsx"), /`\$\{localizedPath\(locale, "\/changelog"\)\}#\$\{version\}`/);
   assert.match(read("app/components/SiteFooter.tsx"), /ui=\{uiVersion\(\)\}/);
-  assert.match(read("app/components/ChangelogView.tsx"), /version=\{mavenVersion\("krizaka-bom"\)/);
+  assert.match(read("app/components/ChangelogView.tsx"), /version=\{repositoryVersion\("krizaka-bom"\)/);
   assert.match(read("app/components/ChangelogBody.tsx"), /<span id=\{version\}>/);
 });
 

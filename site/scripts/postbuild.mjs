@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /* After `next build`: llms.txt and llms-full.txt (the documentation as plain text for assistants), written next to the pages
-   in out/. Both are rendered from content/docs (English), with the versions Maven Central lists. */
+   in out/. Both are rendered from content/docs (English), with the versions the registry lists. */
 import { mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -32,7 +32,7 @@ const known = new Set(readdirSync(dir).filter((f) => /^[a-z-]+\.mdx$/.test(f)).m
 const missing = [...known].filter((s) => !order.includes(s));
 if (missing.length) throw new Error(`postbuild: content/docs/meta.json does not list ${missing.join(", ")}`);
 
-const head = `# Krizaka Java\n\n> The Spring Boot building blocks of every Krizaka service — published on Maven Central under com.krizaka (Apache-2.0), Java 21, Spring Boot 4. A Krizaka open-source project (https://www.krizaka.com). French pages are under ${SITE}/fr/.\n`;
+const head = `# Krizaka Java\n\n> The Spring Boot building blocks of every Krizaka service — built under com.krizaka (Apache-2.0); builds go to our own Maven repository for our products and a public release will be announced, Java 21, Spring Boot 4. A Krizaka open-source project (https://www.krizaka.com). French pages are under ${SITE}/fr/.\n`;
 /* The way back to the family: the company, the sibling open-source project, the products, the source. */
 const family = `## The Krizaka family\n\n- [Krizaka](https://www.krizaka.com): the company, open-source software studio in Montréal\n- [Krizaka UI](https://ui.krizaka.com): the design system (React and React Native)\n- [Sovkora](https://dev.sovkora.com): sovereign, on-premise AI orchestration\n- [Verikora](https://dev.verikora.com): rental verification, it reads leases and screens applications\n- [Folioviv](https://dev.folioviv.com): bookkeeping and tax-return preparation for small businesses\n- [Source](https://github.com/krizaka/krizaka-java): this repository, Apache-2.0\n\nSitemap: ${SITE}/sitemap.xml\n`;
 mkdirSync(out, { recursive: true });

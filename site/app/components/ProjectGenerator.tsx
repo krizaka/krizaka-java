@@ -2,8 +2,8 @@
 
 /* « Start a project »: the building blocks as chips, the BOM import and the dependencies they make, for Maven or Gradle,
    ready to copy. The choice lives in the address (`?blocks=web,testing`), so a link shares it. A block the published BOM
-   does not offer at a version Maven Central has is shown, dimmed, with the reason — never printed. Every word is a message;
-   the versions and what is offered come from the server (StartProject, read from Central at build). */
+   does not offer at the released version is shown, dimmed, with the reason — never printed. Every word is a message;
+   the versions and what is offered come from the server (StartProject, read at build). */
 
 import { Chip } from "@krizaka/ui/chip";
 import { CodeBlock, CodeTabs } from "@krizaka/ui/code-block";

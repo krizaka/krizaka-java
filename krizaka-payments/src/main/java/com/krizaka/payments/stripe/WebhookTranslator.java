@@ -72,7 +72,7 @@ public final class WebhookTranslator {
     String mode = text(o, "mode");
     String kind = text(metadata, "kind");
     if ("payment".equals(mode) && "paid".equals(text(o, "payment_status")) && kind != null) {
-      return new PaymentEvent.PaymentPaid(id, kind, accountId, customerId);
+      return new PaymentEvent.PaymentPaid(id, kind, accountId, customerId, text(o, "id"));
     }
     if ("subscription".equals(mode)) {
       return new PaymentEvent.SubscriptionStarted(

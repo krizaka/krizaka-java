@@ -23,9 +23,36 @@ public sealed interface PaymentEvent {
    */
   String type();
 
-  /** A one-off plan was paid. */
-  record PaymentPaid(String id, String kind, String accountId, @Nullable String customerId)
+  /**
+   * A one-off plan was paid.
+   *
+   * @param id the event's unique id
+   * @param kind the plan, named by the product
+   * @param accountId the product's account that paid
+   * @param customerId the processor's customer, {@code null} when the processor names none
+   * @param reference the processor's reference of this payment (Stripe: the Checkout Session id,
+   *     which the success URL hands back to the buyer's browser), {@code null} when unknown
+   */
+  record PaymentPaid(
+      String id,
+      String kind,
+      String accountId,
+      @Nullable String customerId,
+      @Nullable String reference)
       implements PaymentEvent {
+
+    /**
+     * A paid plan with no payment reference (the shape before the reference was carried).
+     *
+     * @param id the event's unique id
+     * @param kind the plan, named by the product
+     * @param accountId the product's account that paid
+     * @param customerId the processor's customer, {@code null} when the processor names none
+     */
+    public PaymentPaid(String id, String kind, String accountId, @Nullable String customerId) {
+      this(id, kind, accountId, customerId, null);
+    }
+
     @Override
     public String type() {
       return "payment_paid";

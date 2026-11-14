@@ -2,6 +2,9 @@ package com.krizaka.billing.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.krizaka.billing.service.application.service.PackPricingService;
+import com.krizaka.billing.service.domain.model.CatalogPack;
+import com.krizaka.payments.stripe.WebhookSignature;
 import com.krizaka.test.container.ServiceRoles;
 import com.krizaka.test.sql.InitDb;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
@@ -13,8 +16,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 import javax.crypto.spec.SecretKeySpec;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
@@ -48,6 +54,8 @@ import org.testcontainers.utility.MountableFile;
 class BillingServiceContextIT {
 
   private static final String SECRET = "sovkora-local-dev-identity-jwt-secret-256bit!";
+  private static final String WEBHOOK_SECRET = "whsec_signing-material-for-billing-tests";
+  private static final String WEBHOOK = "/api/v1/billing/payments/webhook";
   private static final HttpClient HTTP = HttpClient.newHttpClient();
 
   @SuppressWarnings("resource")
@@ -72,6 +80,8 @@ class BillingServiceContextIT {
 
   @LocalServerPort int port;
 
+  @Autowired PackPricingService packPricing;
+
   @DynamicPropertySource
   static void connection(DynamicPropertyRegistry registry) {
     registry.add(
@@ -82,6 +92,7 @@ class BillingServiceContextIT {
     registry.add("krizaka.billing-service.datasource.username", () -> "krizaka_billing");
     registry.add("krizaka.billing-service.datasource.password", () -> "krizaka_billing_pass");
     registry.add("krizaka.security.jwt.secret", () -> SECRET);
+    registry.add("krizaka.billing-service.payments.webhook-secret", () -> WEBHOOK_SECRET);
   }
 
   private static String token(String subject, List<String> roles) {
@@ -101,9 +112,17 @@ class BillingServiceContextIT {
 
   private HttpResponse<String> call(String method, String path, String token, String body)
       throws Exception {
+    return call(method, path, token, body, null);
+  }
+
+  private HttpResponse<String> call(
+      String method, String path, String token, String body, String signature) throws Exception {
     var builder =
         HttpRequest.newBuilder(URI.create("http://localhost:" + port + path))
             .header("Content-Type", "application/json");
+    if (signature != null) {
+      builder.header("Stripe-Signature", signature);
+    }
     if (token != null) {
       builder.header("Authorization", "Bearer " + token);
     }
@@ -146,5 +165,79 @@ class BillingServiceContextIT {
     var wallet = call("GET", "/api/v1/billing/wallets/me", user, null);
     assertThat(wallet.statusCode()).isEqualTo(200);
     assertThat(wallet.body()).contains("1000");
+  }
+
+  /** A paid one-off Checkout of {@code kind} by {@code account}, as the processor sends it. */
+  private static String paidCheckout(
+      String eventId, String sessionId, String account, String kind) {
+    return ("{\"id\":\"%s\",\"type\":\"checkout.session.completed\",\"data\":{\"object\":"
+            + "{\"id\":\"%s\",\"mode\":\"payment\",\"payment_status\":\"paid\","
+            + "\"customer\":\"cus_1\",\"metadata\":{\"account_id\":\"%s\",\"kind\":\"%s\"}}}}")
+        .formatted(eventId, sessionId, account, kind);
+  }
+
+  private static String signed(String body, String secret) {
+    return WebhookSignature.sign(body, secret, Instant.now().getEpochSecond());
+  }
+
+  private HttpResponse<String> notify(String body, String signature) throws Exception {
+    return call("POST", WEBHOOK, null, body, signature);
+  }
+
+  private HttpResponse<String> buy(String token, String packKey, String reference)
+      throws Exception {
+    return call(
+        "POST",
+        "/api/v1/billing/pack-subscriptions/me/" + packKey + "?paymentReference=" + reference,
+        token,
+        null);
+  }
+
+  @Test
+  @DisplayName(
+      "[#3685] only a verified payment_paid settles a pack, once, for its own actor and pack")
+  void aVerifiedPaymentNotificationSettlesThePackItPaidFor() throws Exception {
+    String suffix = UUID.randomUUID().toString().substring(0, 8);
+    String pack = "pk-" + suffix;
+    String otherPack = "pk-other-" + suffix;
+    packPricing.save(new CatalogPack(pack, 4900, 500, true, List.of()), "qa-admin-1");
+    packPricing.save(new CatalogPack(otherPack, 4900, 0, true, List.of()), "qa-admin-1");
+    String buyer = "qa-buyer-" + suffix;
+    String buyerToken = token(buyer, List.of("ROLE_USER"));
+    String session = "cs_test_" + suffix;
+    String body = paidCheckout("evt_" + suffix, session, buyer, "pack:" + pack);
+
+    // unsigned and forged notifications are refused, and settle nothing
+    var unsigned = notify(body, null);
+    assertThat(unsigned.statusCode()).isEqualTo(400);
+    assertThat(unsigned.body()).contains("Payment notification refused");
+    assertThat(notify(body, signed(body, "whsec_someone-else")).statusCode()).isEqualTo(400);
+    String tampered = body.replace(buyer, "qa-thief-" + suffix);
+    assertThat(notify(tampered, signed(body, WEBHOOK_SECRET)).statusCode()).isEqualTo(400);
+    assertThat(buy(buyerToken, pack, session).statusCode()).isEqualTo(402);
+
+    // the verified notification is applied once, without a session token; a replay is a no-op
+    var applied = notify(body, signed(body, WEBHOOK_SECRET));
+    assertThat(applied.statusCode()).isEqualTo(200);
+    assertThat(applied.body()).contains("\"applied\"");
+    var replayed = notify(body, signed(body, WEBHOOK_SECRET));
+    assertThat(replayed.statusCode()).isEqualTo(200);
+    assertThat(replayed.body()).contains("\"duplicate\"");
+
+    // a notification for a pack billing does not sell settles nothing
+    String unknown =
+        paidCheckout("evt_u_" + suffix, "cs_u_" + suffix, buyer, "pack:nope-" + suffix);
+    assertThat(notify(unknown, signed(unknown, WEBHOOK_SECRET)).body()).contains("\"ignored\"");
+
+    // the payment is bound to its actor and its pack
+    String other = token("qa-other-" + suffix, List.of("ROLE_USER"));
+    assertThat(buy(other, pack, session).statusCode()).isEqualTo(402);
+    assertThat(buy(buyerToken, otherPack, session).statusCode()).isEqualTo(402);
+
+    // the buyer's checkout success hands the reference over: the pack is active with its credits
+    var bought = buy(buyerToken, pack, session);
+    assertThat(bought.statusCode()).isEqualTo(201);
+    assertThat(bought.body()).contains("\"ACTIVE\"");
+    assertThat(call("GET", "/api/v1/billing/wallets/me", buyerToken, null).body()).contains("500");
   }
 }

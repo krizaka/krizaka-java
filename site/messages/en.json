@@ -300,6 +300,10 @@
       "eyebrow": "Proof",
       "title": "Our own services run on it",
       "lead": "The Sovkora services below depend on these artifacts. The list and the figures are read from their POMs and tests at every build.",
+      "testsOnly": {
+        "title": "Proven on real infrastructure",
+        "lead": "The figures are read from the Krizaka Java repositories' tests at every build."
+      },
       "tests": "tests across the Krizaka Java repositories",
       "real": "of them start a real PostgreSQL or RabbitMQ (Testcontainers)",
       "services": "Sovkora services built on it",

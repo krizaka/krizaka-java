@@ -14,6 +14,7 @@ import { format, getDictionary, localizedPath, type Locale } from "@/lib/i18n";
 import type { FamilyId } from "@/lib/families";
 import { counts, families } from "@/lib/home";
 import { proof, roundedDown } from "@/lib/proof";
+import { proofState } from "@/lib/proof-state";
 import { MAVEN_CENTRAL_URL, REPOSITORY_URL, mavenArtifactUrl } from "@/lib/site";
 import { mavenVersion } from "@/lib/versions";
 import StartProject from "./StartProject";
@@ -37,6 +38,8 @@ export default function Home({ locale }: { locale: Locale }) {
   const { platform, tests, services } = proof();
   const { modules } = counts();
   const blocks = families();
+  const state = proofState(services);
+  const proofWords = state.showServices ? t.proof : { ...t.proof, ...t.proof.testsOnly };
 
   return (
     <main id="nd-page" className="jh-home">
@@ -120,7 +123,7 @@ export default function Home({ locale }: { locale: Locale }) {
           </div>
         </Section>
 
-        <Section id="proof" eyebrow={t.proof.eyebrow} title={t.proof.title} lead={t.proof.lead} reveal divider>
+        <Section id="proof" eyebrow={t.proof.eyebrow} title={proofWords.title} lead={proofWords.lead} reveal divider>
           <div className="jh-proof">
             <dl className="jh-figures">
               <div>
@@ -135,21 +138,25 @@ export default function Home({ locale }: { locale: Locale }) {
                   <NumberTicker value={roundedDown(tests.realInfrastructure, 10)} locale={locale} />+
                 </dd>
               </div>
-              <div>
-                <dt>{t.proof.services}</dt>
-                <dd>
-                  <NumberTicker value={services.length} locale={locale} />
-                </dd>
-              </div>
+              {state.showServices && (
+                <div>
+                  <dt>{t.proof.services}</dt>
+                  <dd>
+                    <NumberTicker value={services.length} locale={locale} />
+                  </dd>
+                </div>
+              )}
             </dl>
-            <ul className="jh-services" aria-label={t.proof.listLabel}>
-              {services.map((s) => (
-                <li key={s.id}>
-                  <code>{s.id}</code>
-                  <span>{s.artifacts.length === 1 ? t.proof.usesOne : format(t.proof.uses, { count: s.artifacts.length })}</span>
-                </li>
-              ))}
-            </ul>
+            {state.showServices && (
+              <ul className="jh-services" aria-label={t.proof.listLabel}>
+                {services.map((s) => (
+                  <li key={s.id}>
+                    <code>{s.id}</code>
+                    <span>{s.artifacts.length === 1 ? t.proof.usesOne : format(t.proof.uses, { count: s.artifacts.length })}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
           <p className="jh-more">
             {t.proof.domain} <Link href={path("/map")}>{t.proof.domainLink} →</Link>

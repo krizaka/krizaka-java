@@ -8,7 +8,8 @@ const release = readFileSync(new URL("../.github/workflows/release-please.yml", 
 
 test("a release deploys nowhere: ci.yml passes registry none, never central, and no Central or signing secret", () => {
   assert.match(ci, /\n {6}registry: none\b/);
-  assert.doesNotMatch(ci, /^ +registry:\s*["']?[^\n#]*central/m);
+  const registryLines = ci.split("\n").filter((line) => line.trimStart().startsWith("registry:"));
+  for (const line of registryLines) assert.equal(line.split("#")[0].includes("central"), false, line);
   for (const secret of ["MAVEN_CENTRAL_USERNAME", "MAVEN_CENTRAL_PASSWORD", "MAVEN_GPG_KEY", "MAVEN_GPG_PASSPHRASE"]) {
     assert.doesNotMatch(ci, new RegExp(secret), secret);
   }

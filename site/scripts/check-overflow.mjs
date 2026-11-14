@@ -8,8 +8,8 @@
    With --shots, a screenshot of the home is saved per width and theme (390 and 1440 are the ones a pull request shows). */
 
 import { mkdirSync } from "node:fs";
-import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
+import { flagOf, inspectViews } from "./browser-views.mjs";
 
 /** The widths the site is read at, from the narrowest phone to a wide desktop. */
 export const WIDTHS = [360, 390, 768, 1024, 1440];
@@ -43,31 +43,20 @@ function measure() {
 
 async function main() {
   const args = process.argv.slice(2);
-  const flag = (name, fallback) => (args.includes(name) ? args[args.indexOf(name) + 1] : fallback);
-  const base = flag("--base", "http://localhost:3000").replace(/\/$/, "");
-  const shots = flag("--shots", null);
-  const { chromium } = createRequire(import.meta.url)(flag("--playwright", "playwright"));
+  const shots = flagOf(args, "--shots", null);
   if (shots) mkdirSync(shots, { recursive: true });
-  const browser = await chromium.launch();
-  const problems = [];
-  for (const theme of THEMES) {
-    for (const width of WIDTHS) {
-      const context = await browser.newContext({ viewport: { width, height: 900 }, reducedMotion: "reduce", colorScheme: theme });
-      await context.addInitScript((t) => localStorage.setItem("kz-theme", t), theme);
-      const page = await context.newPage();
-      for (const path of PAGES) {
-        await page.goto(`${base}${path}`, { waitUntil: "networkidle" });
-        await page.evaluate(() => document.fonts.ready);
-        const issues = await page.evaluate(measure);
-        for (const issue of issues) problems.push(`${path} @${width} ${theme}: ${issue}`);
-        if (shots && (path === "/" || path === "/fr/") && (width === 390 || width === 1440)) {
-          await page.screenshot({ path: `${shots}/home${path === "/" ? "" : "-fr"}-${width}-${theme}.png`, fullPage: true });
-        }
+  const problems = await inspectViews({
+    args,
+    pages: PAGES,
+    widths: WIDTHS,
+    themes: THEMES,
+    inspect: async (page, { path, width, theme }) => {
+      if (shots && (path === "/" || path === "/fr/") && (width === 390 || width === 1440)) {
+        await page.screenshot({ path: `${shots}/home${path === "/" ? "" : "-fr"}-${width}-${theme}.png`, fullPage: true });
       }
-      await context.close();
-    }
-  }
-  await browser.close();
+      return page.evaluate(measure);
+    },
+  });
   if (problems.length) {
     console.error(problems.map((p) => `check-overflow: ${p}`).join("\n"));
     process.exit(1);

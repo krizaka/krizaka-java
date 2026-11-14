@@ -5,6 +5,13 @@ Versions follow [Semantic Versioning](https://semver.org/) per repository; the B
 [release-please](https://github.com/googleapis/release-please) from the Conventional Commits merged on `main`; the
 hand-written history is under *Before release-please*.
 
+## [0.18.0](https://github.com/krizaka/krizaka-java/compare/v0.17.2...v0.18.0) (2026-11-14)
+
+
+### Features
+
+* **architecture:** every product module uses krizaka-java: no local copy, no bypass of a facade ([#272](https://github.com/krizaka/krizaka-java/issues/272)) ([e628018](https://github.com/krizaka/krizaka-java/commit/e6280182d9b9c5b89d8b7ea32fc87e6bd38de3f8))
+
 ## [0.17.2](https://github.com/krizaka/krizaka-java/compare/v0.17.1...v0.17.2) (2026-11-14)
 
 

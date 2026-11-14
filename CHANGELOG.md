@@ -5,6 +5,13 @@ Versions follow [Semantic Versioning](https://semver.org/) per repository; the B
 [release-please](https://github.com/googleapis/release-please) from the Conventional Commits merged on `main`; the
 hand-written history is under *Before release-please*.
 
+## [0.17.1](https://github.com/krizaka/krizaka-java/compare/v0.17.0...v0.17.1) (2026-11-14)
+
+
+### Bug Fixes
+
+* **release:** a release no longer deploys to Maven Central ([#268](https://github.com/krizaka/krizaka-java/issues/268)) ([4d07b8d](https://github.com/krizaka/krizaka-java/commit/4d07b8dc6f21d7cf113ff9f1933c644f8ecd1400))
+
 ## [0.17.0](https://github.com/krizaka/krizaka-java/compare/v0.16.2...v0.17.0) (2026-11-13)
 
 

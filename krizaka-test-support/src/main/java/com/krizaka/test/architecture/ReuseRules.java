@@ -8,6 +8,7 @@ import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
+import com.tngtech.archunit.lang.syntax.elements.GivenClassesConjunction;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -41,9 +42,7 @@ public final class ReuseRules {
    */
   public static ArchRule noLocalCopyOfLibraryTypeRule(
       String modulePackage, LibraryCatalog catalog) {
-    return classes()
-        .that()
-        .resideInAPackage(modulePackage + "..")
+    return inModule(modulePackage)
         .and()
         .areTopLevelClasses()
         .should(notCopyALibraryType(catalog))
@@ -73,9 +72,7 @@ public final class ReuseRules {
    * @return the rule
    */
   public static ArchRule noBypassOfFacadeRule(String modulePackage, LibraryCatalog catalog) {
-    return classes()
-        .that()
-        .resideInAPackage(modulePackage + "..")
+    return inModule(modulePackage)
         .and()
         .resideOutsideOfPackage("..config..")
         .should(notBypassAFacade(catalog))
@@ -84,6 +81,10 @@ public final class ReuseRules {
             "the facade holds the configuration, the observability and the failure contract of"
                 + " the call; going round it loses them")
         .allowEmptyShould(true);
+  }
+
+  private static GivenClassesConjunction inModule(String modulePackage) {
+    return classes().that().resideInAPackage(modulePackage + "..");
   }
 
   private static ArchCondition<JavaClass> notCopyALibraryType(LibraryCatalog catalog) {

@@ -8,6 +8,7 @@ import { LandingPage } from "@krizaka/ui/landing-page";
 import { LinkCard } from "@krizaka/ui/link-card";
 import { Mascot } from "@krizaka/ui/mascots";
 import { MascotQuote } from "@krizaka/ui/mascot-quote";
+import { SpecimenTag } from "@krizaka/ui/specimen-tag";
 import { NumberTicker } from "@krizaka/ui/number-ticker";
 import { Section } from "@krizaka/ui/page";
 import { format, getDictionary, localizedPath, type Locale } from "@/lib/i18n";
@@ -27,6 +28,7 @@ import StartProject from "./StartProject";
 
 const ICONS: Record<FamilyId, typeof GlobeIcon> = { web: GlobeIcon, security: ShieldIcon, messaging: MessageIcon, observability: EyeIcon, appConfig: SettingsIcon, testing: CheckIcon };
 const COMPARE_ROWS = ["errors", "security", "messaging", "observability", "freedom"] as const;
+const LICENSE = "Apache-2.0";
 const UI_URL = "https://ui.krizaka.com";
 
 export default function Home({ locale }: { locale: Locale }) {
@@ -57,17 +59,28 @@ export default function Home({ locale }: { locale: Locale }) {
             <Button asChild variant="secondary" size="lg">
               <Link href={path("/map")}>{t.hero.map}</Link>
             </Button>
+            <SpecimenTag
+              className="jh-specimen"
+              mount="pin"
+              titleAs="p"
+              code={bom}
+              title={t.specimen.title}
+              fields={[
+                { label: t.specimen.modules, value: modules },
+                { label: t.specimen.java, value: platform.java },
+                { label: t.specimen.boot, value: platform.springBootMinor },
+                { label: t.specimen.license, value: LICENSE },
+              ]}
+              footer={
+                <>
+                  <Link href={path("/start")}>{t.specimen.repository}</Link> · <a href={REPOSITORY_URL}>{t.specimen.source}</a>
+                </>
+              }
+            />
           </>
         }
         visualLabel={t.project.label}
         visual={<StartProject locale={locale} />}
-        proofs={[
-          { value: <span className="jh-mono">{bom}</span>, label: t.proofs.bom },
-          { value: <NumberTicker value={modules} locale={locale} />, label: t.proofs.modules },
-          { value: platform.java, label: t.proofs.java },
-          { value: platform.springBootMinor, label: t.proofs.boot },
-          { value: "Apache-2.0", label: t.proofs.license },
-        ]}
         featuresHeading={{ eyebrow: t.pillars.eyebrow, title: t.pillars.title, lead: t.pillars.lead }}
         features={[
           { id: "bom", size: "lg", icon: <PackIcon size={22} />, title: t.pillars.bom.title, text: t.pillars.bom.text },

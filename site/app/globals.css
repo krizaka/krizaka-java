@@ -205,3 +205,8 @@ html:has(.jh-home) .kz-site-bar, html:has(.jh-home) .kz-site-bar[data-compact] {
 .jh-services li { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 14px; min-width: 0; padding: 12px 16px; border: 1px solid var(--kz-border-default); border-radius: 2px; background: var(--kz-surface-1); }
 .jh-services code { font-family: var(--kz-font-mono); font-size: 13px; color: var(--kz-text-primary); overflow-wrap: anywhere; }
 .jh-services span { font-size: 13px; color: var(--kz-text-secondary); }
+
+/* The hero: the words start at the top, level with the picker; the specimen tag sits under the actions, one line a fact. */
+.jh-home .kz-tpl-split { align-items: start; }
+.jh-home .jh-specimen { flex: 1 0 100%; max-width: 26rem; margin-top: 12px; }
+.jh-home .jh-specimen dd, .jh-home .jh-specimen dt { white-space: nowrap; }

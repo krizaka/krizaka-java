@@ -56,3 +56,4 @@ jobs:
           python3 -m http.server 3100 --directory out >/dev/null 2>&1 &
           sleep 2
           node scripts/check-overflow.mjs --base http://localhost:3100
+          node scripts/check-hero.mjs --base http://localhost:3100

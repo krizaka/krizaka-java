@@ -51,7 +51,9 @@ export function publishable(root, read = (p) => readFileSync(p, "utf8"), exists 
 
 /** The registry ci.yml asks the org pipeline for: `none` (the default, krizaka-internal#3554) or `central`. */
 export function registryOf(ciText) {
-  return /^\s*registry:\s*["']?([a-z,\s]*?)["']?\s*(#.*)?$/m.exec(ciText)?.[1].trim() || "none";
+  const line = ciText.split("\n").map((l) => l.trim()).find((l) => l.startsWith("registry:"));
+  const value = line?.slice("registry:".length).split("#")[0].replaceAll(/["']/g, "").trim();
+  return value || "none";
 }
 
 /** What a release without a registry reports: not red, not published. */

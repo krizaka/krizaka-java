@@ -54,9 +54,8 @@ class BillingMigrationsIT extends AbstractContainerIntegrationTest {
     }
 
     assertThat(flyway().migrate().migrationsExecuted)
-        .as(
-            "first run on an empty database: the baseline, the commercial names and the pack payments")
-        .isEqualTo(3);
+        .as("first run on an empty database: every migration, V1 to V4")
+        .isEqualTo(4);
     assertThat(flyway().migrate().migrationsExecuted).as("second run").isZero();
     flyway().validate();
 
@@ -70,7 +69,7 @@ class BillingMigrationsIT extends AbstractContainerIntegrationTest {
                   "SELECT count(*) FROM information_schema.tables WHERE table_schema = 'public'"
                       + " AND table_name <> 'flyway_schema_history'"))
           .as("the context's tables")
-          .isEqualTo(20);
+          .isEqualTo(21);
       assertThat(count(statement, "SELECT count(*) FROM billing_plan WHERE plan_key = 'free'"))
           .as("the reference catalogue")
           .isEqualTo(1);

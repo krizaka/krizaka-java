@@ -35,6 +35,12 @@
             <groupId>com.krizaka</groupId>
             <artifactId>krizaka-billing-api</artifactId>
         </dependency>
+        <!-- The payments port: billing verifies and applies the processor's webhook through it, never
+             through the processor's SDK directly (krizaka-internal#3685). -->
+        <dependency>
+            <groupId>com.krizaka</groupId>
+            <artifactId>krizaka-payments</artifactId>
+        </dependency>
 
         <!-- Spring Boot Starter Web -->
         <dependency>

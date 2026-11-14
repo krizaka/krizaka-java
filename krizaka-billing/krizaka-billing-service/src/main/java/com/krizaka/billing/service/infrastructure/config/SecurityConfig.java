@@ -3,6 +3,7 @@ package com.krizaka.billing.service.infrastructure.config;
 import com.krizaka.security.web.SecurityBaseline;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -27,6 +28,8 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity
 public class SecurityConfig {
 
+  private static final String PAYMENT_WEBHOOK = "/api/v1/billing/payments/webhook";
+
   /**
    * The filter chain: the Krizaka security baseline, then a valid session JWT for everything else.
    *
@@ -44,7 +47,10 @@ public class SecurityConfig {
   @Bean
   public SecurityFilterChain securityFilterChain(
       HttpSecurity http, JwtAuthenticationConverter roles) throws Exception {
-    return SecurityBaseline.apply(http, auth -> {})
+    // The payments processor's webhook carries no session token: its signature over the raw body is
+    // its gate, checked before anything is believed (PackPaymentService, krizaka-internal#3685).
+    return SecurityBaseline.apply(
+            http, auth -> auth.requestMatchers(HttpMethod.POST, PAYMENT_WEBHOOK).permitAll())
         .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(roles)))
         .build();
   }

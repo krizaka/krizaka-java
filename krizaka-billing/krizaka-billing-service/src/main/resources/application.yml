@@ -106,6 +106,11 @@ krizaka:
       # How often ACTIVE holds are checked against expires_at. The TTL itself is a DB row
       # (billing.hold.ttl-seconds) — this is only the poll interval, which is bootstrap wiring.
       interval: ${BILLING_SWEEPER_INTERVAL:60000}
+    payments:
+      # The signing secret of the processor's webhook endpoint that points at billing
+      # (POST /api/v1/billing/payments/webhook). Unset, every notification is refused (503) and no
+      # pack payment can settle: priced packs stay admin-only (krizaka-internal#3685).
+      webhook-secret: ${PAYMENTS_WEBHOOK_SECRET:}
   messaging:
     exchanges:
       # The bus this service runs on belongs to the platform that hosts it: set EVENTS_EXCHANGE and

@@ -167,6 +167,22 @@ class StripePaymentsTest {
   }
 
   @Test
+  void aPaidCheckoutCarriesItsSessionIdAsThePaymentReference() {
+    String body =
+        "{\"id\":\"evt_2\",\"type\":\"checkout.session.completed\",\"data\":{\"object\":"
+            + "{\"id\":\"cs_test_1\",\"mode\":\"payment\",\"payment_status\":\"paid\","
+            + "\"customer\":\"cus_1\",\"metadata\":{\"account_id\":\"a1\",\"kind\":\"audit\"}}}}";
+
+    assertThat(WebhookTranslator.translate(body))
+        .isEqualTo(new PaymentEvent.PaymentPaid("evt_2", "audit", "a1", "cus_1", "cs_test_1"));
+  }
+
+  @Test
+  void aPaymentEventBuiltWithoutAReferenceHasNone() {
+    assertThat(new PaymentEvent.PaymentPaid("evt_3", "audit", "a1", null).reference()).isNull();
+  }
+
+  @Test
   void theConfigurationNeverPrintsItsSecrets() {
     assertThat(new StripeConfig("sk_live_x", "whsec_y", PLANS, null).toString())
         .doesNotContain("sk_live_x")

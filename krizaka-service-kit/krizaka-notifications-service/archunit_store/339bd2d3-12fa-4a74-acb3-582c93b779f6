@@ -1,0 +1,2 @@
+com.krizaka.notifications.service.domain.model.PasswordResetRequestedEvent copies a krizaka-java type: use com.krizaka.users.domain.model.PasswordResetRequestedEvent (or implement it to adapt)
+com.krizaka.notifications.service.domain.model.UserRegisteredEvent copies a krizaka-java type: use com.krizaka.users.domain.model.UserRegisteredEvent (or implement it to adapt)

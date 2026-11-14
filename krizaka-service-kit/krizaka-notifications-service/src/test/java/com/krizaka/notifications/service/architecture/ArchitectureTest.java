@@ -12,7 +12,9 @@ class ArchitectureTest extends StandardArchitectureTest {
         "NO_RAW_HTTP_CLIENT_IN_ADAPTERS",
         "krizaka-internal#3266",
         "EVERY_PACKAGE_NULL_MARKED",
-        "krizaka-internal#3268");
+        "krizaka-internal#3268",
+        "NO_LOCAL_COPY_OF_LIBRARY_TYPE",
+        "krizaka-internal#3591");
   }
 
   @Override

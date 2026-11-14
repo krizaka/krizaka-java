@@ -102,6 +102,7 @@ The org code rules (addendum 2026-10-15) are checked by tools, not by review.
   Error Prone is only its host; only packages marked `@NullMarked` are checked (`OnlyNullMarked`), so marking a package is
   the ratchet and `AuditRules.everyPackageNullMarkedRule()` (frozen) lists the packages still to mark. A module that
   declares its own `annotationProcessorPaths` (MapStruct, Lombok…) must repeat Error Prone and NullAway there.
+- **Reuse (`ReuseRules`, krizaka-internal#3581)**: `NO_LOCAL_COPY_OF_LIBRARY_TYPE` refuses a class named like a public krizaka-java type unless it extends or implements it (the message names the type to use); `NO_BYPASS_OF_FACADE` refuses a direct use, outside `config`, of an API a facade wraps. The name list is **generated** (`krizaka-test-support/src/main/resources/META-INF/krizaka/public-types.txt`; `PublicTypesIndexTest` fails when stale, `-Dkrizaka.regenerate=true` rewrites it); a facade is declared next to its code in `src/main/resources/META-INF/krizaka/facades.properties` (`<wrapped API> = <facade>[, <module package>...]`). Never a hand list in the rule.
 - **Debt only shrinks — `FrozenRules`** (ArchUnit `FreezingArchRule`): a rule a module cannot satisfy yet is checked with
   `FrozenRules.check(ArchitectureRules.xxxRule(...), CLASSES)`. The violations that exist are recorded in the module's
   `archunit_store/` (committed); a **new** violation fails, a fixed one leaves the store (commit it). A rule with no store

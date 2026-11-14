@@ -1,4 +1,4 @@
-// ci.yml: a v* tag publishes the whole reactor to Maven Central, the one registry of com.krizaka (founder, 2026-11-06).
+// ci.yml: a v* tag deploys nowhere (krizaka-internal#3345, #3554): `registry: none`, no Central secret. Maven Central only comes back explicitly (the monthly public release, #3343).
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -6,10 +6,11 @@ import { readFileSync } from "node:fs";
 const ci = readFileSync(new URL("../.github/workflows/ci.yml", import.meta.url), "utf8");
 const release = readFileSync(new URL("../.github/workflows/release-please.yml", import.meta.url), "utf8");
 
-test("the org pipeline publishes to Maven Central only, signed", () => {
-  assert.match(ci, /\n {6}registry: central\b/);
+test("a release deploys nowhere: ci.yml passes registry none, never central, and no Central or signing secret", () => {
+  assert.match(ci, /\n {6}registry: none\b/);
+  assert.doesNotMatch(ci, /^ +registry:\s*["']?[^\n#]*central/m);
   for (const secret of ["MAVEN_CENTRAL_USERNAME", "MAVEN_CENTRAL_PASSWORD", "MAVEN_GPG_KEY", "MAVEN_GPG_PASSPHRASE"]) {
-    assert.match(ci, new RegExp(`${secret}: \\$\\{\\{ secrets\\.${secret} \\}\\}`), secret);
+    assert.doesNotMatch(ci, new RegExp(secret), secret);
   }
 });
 
@@ -18,9 +19,9 @@ test("nothing is left of the GitHub Packages republish (no deploy plan, no packa
   assert.doesNotMatch(release, /packages: read|MAVEN_PUBLISH_TOKEN/);
 });
 
-test("the release waits for the tag's deploy, then checks every module on Maven Central", () => {
+test("the release waits for the tag's run, then reports the registry state instead of going red when there is none", () => {
   assert.doesNotMatch(release, /release-follow-ups/);
   assert.match(release, /gh run watch "\$id"[^\n]*--exit-status/);
   assert.ok(release.indexOf("gh run watch") < release.indexOf('node scripts/check-published.mjs "$TAG"'));
-  assert.match(release, /Every module of the release is on Maven Central/);
+  assert.match(release, /Every module of the release is on its registry/);
 });

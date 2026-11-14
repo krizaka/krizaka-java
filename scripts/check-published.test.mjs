@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { missing, publishable, versionsFromMetadata } from "./check-published.mjs";
+import { missing, noRegistryMessage, publishable, registryOf, versionsFromMetadata } from "./check-published.mjs";
 
 const poms = {
   "r/pom.xml": `<project><parent><artifactId>krizaka-parent</artifactId></parent><artifactId>root</artifactId><properties><maven.deploy.skip>true</maven.deploy.skip></properties><modules><module>a</module><module>kit</module></modules></project>`,
@@ -42,4 +42,18 @@ test("no script, workflow or POM of this repository names the GitHub Packages Ma
   for (const file of [".github/workflows/ci.yml", ".github/workflows/release-please.yml", ".github/workflows/published-check.yml", "krizaka-parent/pom.xml", "scripts/check-published.mjs"]) {
     assert.doesNotMatch(readFileSync(new URL(`../${file}`, import.meta.url), "utf8"), /maven\.pkg\.github\.com|registry: github|packages: read/, file);
   }
+});
+
+test("the registry of a release is the one ci.yml asks for; none (or nothing) means no registry (krizaka-internal#3345)", () => {
+  assert.equal(registryOf("jobs:\n  maven:\n    with:\n      registry: none   # nowhere\n      threads: \"2\"\n"), "none");
+  assert.equal(registryOf("jobs:\n  maven:\n    with:\n      registry: central\n"), "central");
+  assert.equal(registryOf("jobs:\n  maven:\n    with:\n      threads: \"2\"\n"), "none");
+  assert.match(noRegistryMessage("v0.18.0"), /not published: no registry \(krizaka-internal#3345\)/);
+});
+
+test("the scheduled check reads the registry from main before checking out the tag, and says so instead of failing", async () => {
+  const { readFileSync } = await import("node:fs");
+  const yml = readFileSync(new URL("../.github/workflows/published-check.yml", import.meta.url), "utf8");
+  assert.ok(yml.indexOf("--registry") < yml.indexOf("git checkout"));
+  assert.match(yml, /not published: no registry/);
 });

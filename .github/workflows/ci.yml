@@ -1,6 +1,7 @@
-# Verifies the parent POM and the BOM on every change (with the release profile, unsigned), and on a
-# v* tag signs and uploads the whole reactor to Maven Central, the one registry of com.krizaka since 2026-11-06
-# (GitHub Packages is abandoned for Maven; registry input of the pipeline, ADR-019). The pipeline is the organisation's:
+# Verifies the parent POM and the BOM on every change (with the release profile, unsigned). A v* tag builds and verifies
+# and deploys nowhere: `registry: none` until the Spaces repository exists (krizaka-internal#3345, founder 2026-11-14:
+# nothing is published to Maven Central). Central only comes back by passing `registry: central` explicitly (the monthly
+# public release, krizaka-internal#3343), and a test refuses it in a normal release. The pipeline is the organisation's:
 # krizaka/.github/.github/workflows/maven.yml.
 name: CI
 
@@ -25,15 +26,11 @@ jobs:
     permissions:
       contents: read
     with:
-      registry: central   # Maven Central only (founder, 2026-11-06); the deployment waits for Publish (autoPublish=false)
+      registry: none   # a tag run deploys nowhere (krizaka-internal#3345, #3554)
       threads: "2"
       sonar: true   # CI analysis with JaCoCo coverage; the merge queue branch is analysed too
     secrets:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
-      MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
-      MAVEN_GPG_KEY: ${{ secrets.MAVEN_GPG_KEY }}
-      MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
 
   bom-released:
     # krizaka-internal#1878: the BOM manages only released versions of the building blocks (a `v<version>` tag each).

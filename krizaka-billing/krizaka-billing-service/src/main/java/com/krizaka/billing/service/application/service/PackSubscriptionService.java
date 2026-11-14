@@ -1,5 +1,6 @@
 package com.krizaka.billing.service.application.service;
 
+import com.krizaka.billing.service.domain.exception.PaymentRequiredException;
 import com.krizaka.billing.service.domain.model.CatalogPack;
 import com.krizaka.billing.service.domain.model.PackSubscriptionChangedEvent;
 import com.krizaka.billing.service.domain.model.SubscriptionStatus;
@@ -9,6 +10,7 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DuplicateKeyException;
@@ -27,10 +29,11 @@ import org.springframework.transaction.annotation.Transactional;
  * pack_key)}. Sharing one table would mean giving up the plan's index, which is the only thing
  * stopping an actor from holding two plans at once.
  *
- * <p><b>No payment is captured here</b>, exactly as {@link SubscriptionService#changePlan} captures
- * none: the PSP and Lago are deferred (design §14, local phase). Subscribing records the
- * entitlement grant and credits the bundled credits; wiring it behind a real checkout replaces the
- * caller, not this service.
+ * <p><b>No payment is captured here</b> — the processor's hosted checkout captures it. A priced
+ * pack is subscribed only against a payment the processor confirmed ({@link #recordSettledPayment},
+ * called from the verified webhook), bound to the actor and the pack and usable once; the gate
+ * lives here, in the transaction that writes the subscription, so no route can skip it (#269). A
+ * free pack needs none, and {@link #subscribeAsAdmin} is the operator's grant.
  *
  * <p>Every mutation announces itself through the outbox in the same transaction as the write. The
  * entitlement gate caches snapshots, so without the event a purchase takes up to a TTL to unlock
@@ -104,6 +107,58 @@ public class PackSubscriptionService {
   }
 
   /**
+   * Records a payment the processor confirmed, so it can buy the pack it paid for. Idempotent per
+   * payment reference: a redelivered webhook changes nothing.
+   *
+   * @param paymentReference the processor's payment id
+   * @param actorId the opaque billable subject who paid
+   * @param packKey the pack paid for
+   */
+  @Transactional
+  public void recordSettledPayment(String paymentReference, String actorId, String packKey) {
+    requireText(paymentReference, "paymentReference");
+    requireText(actorId, ACTOR_ID);
+    requireText(packKey, PACK_KEY);
+    jdbcTemplate.update(
+        "INSERT INTO billing_pack_payment (payment_ref, actor_id, pack_key) VALUES (?, ?, ?)"
+            + " ON CONFLICT (payment_ref) DO NOTHING",
+        paymentReference,
+        actorId,
+        packKey);
+  }
+
+  /**
+   * Adds a pack to an actor against a settled payment (a free pack needs none).
+   *
+   * @param actorId the opaque billable subject
+   * @param packKey the pack to add
+   * @param paymentReference the settled payment, {@code null} for a free pack
+   * @return the subscription now in force
+   * @throws NoSuchElementException when no such pack exists
+   * @throws IllegalStateException when the pack is withdrawn from sale
+   * @throws PaymentRequiredException when the pack is priced and the payment is missing, unsettled,
+   *     bound to another actor or pack, or already used
+   */
+  @Transactional
+  public PackSubscriptionView subscribe(
+      String actorId, String packKey, @Nullable String paymentReference) {
+    return subscribeInternal(actorId, packKey, false, paymentReference);
+  }
+
+  /**
+   * The operator's grant of a pack with no payment: only a caller that already checked the admin
+   * role may use it.
+   *
+   * @param actorId the opaque billable subject
+   * @param packKey the pack to add
+   * @return the subscription now in force
+   */
+  @Transactional
+  public PackSubscriptionView subscribeAsAdmin(String actorId, String packKey) {
+    return subscribeInternal(actorId, packKey, true, null);
+  }
+
+  /**
    * Adds a pack to an actor.
    *
    * <p>Idempotent by the database rather than by a read-before-write (ERR-109): a second subscribe
@@ -113,15 +168,9 @@ public class PackSubscriptionService {
    * <p>A withdrawn pack is refused. Withdrawing is how an admin takes an offer off the shelf, and a
    * catalogue that still sells what it stopped offering makes that action meaningless — existing
    * holders keep theirs, which is a different question and is handled by not revoking on withdraw.
-   *
-   * @param actorId the opaque billable subject
-   * @param packKey the pack to add
-   * @return the subscription now in force
-   * @throws NoSuchElementException when no such pack exists
-   * @throws IllegalStateException when the pack is withdrawn from sale
    */
-  @Transactional
-  public PackSubscriptionView subscribe(String actorId, String packKey) {
+  private PackSubscriptionView subscribeInternal(
+      String actorId, String packKey, boolean admin, @Nullable String paymentReference) {
     requireText(actorId, ACTOR_ID);
     requireText(packKey, PACK_KEY);
 
@@ -139,6 +188,13 @@ public class PackSubscriptionService {
     }
 
     UUID id = UUID.randomUUID();
+    if (!admin && pack.priceCents() > 0) {
+      if (!claimSettledPayment(actorId, packKey, paymentReference, id)) {
+        // A concurrent request on the same payment may have just bought this pack: its row is
+        // the answer. Otherwise the payment is missing, foreign or spent.
+        return findLive(actorId, packKey).orElseThrow(() -> new PaymentRequiredException(packKey));
+      }
+    }
     Instant subscribedAt = Instant.now();
     try {
       jdbcTemplate.update(
@@ -212,6 +268,27 @@ public class PackSubscriptionService {
     announce("evt.pack.canceled", canceled);
     log.info("Actor {} gave up pack {}", actorId, packKey);
     return Optional.of(canceled);
+  }
+
+  /**
+   * Claims the payment for this subscription in one conditional update: it matches only an unused
+   * payment of this actor for this pack, so two requests on one payment cannot both pass. The claim
+   * commits or rolls back with the subscription.
+   */
+  private boolean claimSettledPayment(
+      String actorId, String packKey, @Nullable String paymentReference, UUID subscriptionId) {
+    if (paymentReference == null || paymentReference.isBlank()) {
+      return false;
+    }
+    return jdbcTemplate.update(
+            "UPDATE billing_pack_payment SET consumed_subscription_id = ?"
+                + " WHERE payment_ref = ? AND actor_id = ? AND pack_key = ?"
+                + " AND consumed_subscription_id IS NULL",
+            subscriptionId,
+            paymentReference,
+            actorId,
+            packKey)
+        == 1;
   }
 
   private Optional<PackSubscriptionView> findLive(String actorId, String packKey) {

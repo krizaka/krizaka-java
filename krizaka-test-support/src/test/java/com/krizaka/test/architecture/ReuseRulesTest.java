@@ -1,5 +1,6 @@
 package com.krizaka.test.architecture;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -64,8 +65,7 @@ class ReuseRulesTest {
   void theClasspathCatalogIsGeneratedAndNotEmpty() {
     LibraryCatalog fromClasspath = LibraryCatalog.fromClasspath();
 
-    org.assertj.core.api.Assertions.assertThat(fromClasspath.publicTypes()).isNotEmpty();
-    org.assertj.core.api.Assertions.assertThat(fromClasspath.publicTypes())
-        .containsKey("OutboxStore");
+    assertThat(fromClasspath.publicTypes()).isNotEmpty();
+    assertThat(fromClasspath.publicTypes()).containsKey("OutboxStore");
   }
 }

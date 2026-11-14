@@ -3,7 +3,6 @@ package com.krizaka.test.architecture;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 
 import com.tngtech.archunit.core.domain.JavaClass;
-import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ArchRule;
 import com.tngtech.archunit.lang.ConditionEvents;
@@ -33,13 +32,7 @@ public final class ReuseRules {
     return noLocalCopyOfLibraryTypeRule(modulePackage, LibraryCatalog.fromClasspath());
   }
 
-  /**
-   * {@link #noLocalCopyOfLibraryTypeRule(String)} on an explicit catalog.
-   *
-   * @param modulePackage the module's root package
-   * @param catalog what krizaka-java provides
-   * @return the rule
-   */
+  /** {@link #noLocalCopyOfLibraryTypeRule(String)} on an explicit catalog. */
   public static ArchRule noLocalCopyOfLibraryTypeRule(
       String modulePackage, LibraryCatalog catalog) {
     return inModule(modulePackage)
@@ -64,13 +57,7 @@ public final class ReuseRules {
     return noBypassOfFacadeRule(modulePackage, LibraryCatalog.fromClasspath());
   }
 
-  /**
-   * {@link #noBypassOfFacadeRule(String)} on an explicit catalog.
-   *
-   * @param modulePackage the module's root package
-   * @param catalog what krizaka-java provides
-   * @return the rule
-   */
+  /** {@link #noBypassOfFacadeRule(String)} on an explicit catalog. */
   public static ArchRule noBypassOfFacadeRule(String modulePackage, LibraryCatalog catalog) {
     return inModule(modulePackage)
         .and()
@@ -163,16 +150,5 @@ public final class ReuseRules {
         .anyMatch(
             pkg ->
                 type.getPackageName().equals(pkg) || type.getPackageName().startsWith(pkg + "."));
-  }
-
-  /**
-   * Asserts both rules.
-   *
-   * @param classes the imported production classes
-   * @param modulePackage the module's root package
-   */
-  public static void assertReuse(JavaClasses classes, String modulePackage) {
-    noLocalCopyOfLibraryTypeRule(modulePackage).check(classes);
-    noBypassOfFacadeRule(modulePackage).check(classes);
   }
 }

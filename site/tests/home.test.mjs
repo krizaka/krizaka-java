@@ -48,9 +48,11 @@ test("the birds keep their promise: a family wears one only where the bird's pro
   assert.deepEqual(Object.fromEntries(FAMILY_IDS.filter((i) => FAMILIES[i].bird).map((i) => [i, FAMILIES[i].bird])), { security: "falcon", messaging: "pigeon" });
 });
 
-test("the duck's promise is the brand's, word for word", () => {
-  assert.equal(en.home.quote.text, "The duck builds, line by line, in the open.");
-  assert.equal(fr.home.quote.text, "Le canard construit, ligne après ligne, en open source.");
+test("no mascot quote is on the home: the duck is not lent to a card", () => {
+  assert.equal("quote" in en.home, false);
+  assert.equal("quote" in fr.home, false);
+  assert.doesNotMatch(read("app/components/Home.tsx"), /MascotQuote|mascot-quote/);
+  assert.doesNotMatch(read("app/globals.css"), /\.jh-duck/);
 });
 
 test("the proof is generated: the platform from the parent POM, the tests counted, the Sovkora services listed", () => {

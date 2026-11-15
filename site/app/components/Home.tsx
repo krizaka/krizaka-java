@@ -7,7 +7,6 @@ import { ComparisonTable } from "@krizaka/ui/comparison-table";
 import { LandingPage } from "@krizaka/ui/landing-page";
 import { LinkCard } from "@krizaka/ui/link-card";
 import { Mascot } from "@krizaka/ui/mascots";
-import { MascotQuote } from "@krizaka/ui/mascot-quote";
 import { SpecimenTag } from "@krizaka/ui/specimen-tag";
 import { NumberTicker } from "@krizaka/ui/number-ticker";
 import { Section } from "@krizaka/ui/page";
@@ -22,7 +21,7 @@ import StartProject from "./StartProject";
 
 /* The home of java.krizaka.com, on the landing template of @krizaka/ui: a split hero (the promise, and the « start a
    project » generator — pick the building blocks, copy the BOM import and the dependencies for Maven or Gradle), the facts
-   read at build, why (three pillars), the families of building blocks (what each service no longer writes), the duck, the
+   read at build, why (three pillars), the families of building blocks (what each service no longer writes), the
    proof (who runs on it, the tests), an honest comparison, the ways on. Every figure is data (the POMs, the
    repositories' tests); every word is a message. */
 
@@ -124,11 +123,6 @@ export default function Home({ locale }: { locale: Locale }) {
               );
             })}
           </CardGrid>
-          <div className="jh-duck">
-            <MascotQuote bird="duck" mood="welcome" variant="callout" label={t.quote.label} data-reveal="">
-              {t.quote.text}
-            </MascotQuote>
-          </div>
         </Section>
 
         <Section id="proof" eyebrow={t.proof.eyebrow} title={proofWords.title} lead={proofWords.lead} reveal divider>

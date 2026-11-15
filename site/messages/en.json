@@ -292,10 +292,6 @@
         "hook": "Governance rules and one shared PostgreSQL and RabbitMQ per test run."
       }
     },
-    "quote": {
-      "label": "The duck",
-      "text": "The duck builds, line by line, in the open."
-    },
     "proof": {
       "eyebrow": "Proof",
       "title": "Our own services run on it",

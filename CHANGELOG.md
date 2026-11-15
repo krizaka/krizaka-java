@@ -5,6 +5,13 @@ Versions follow [Semantic Versioning](https://semver.org/) per repository; the B
 [release-please](https://github.com/googleapis/release-please) from the Conventional Commits merged on `main`; the
 hand-written history is under *Before release-please*.
 
+## [0.19.0](https://github.com/krizaka/krizaka-java/compare/v0.18.2...v0.19.0) (2026-11-14)
+
+
+### Features
+
+* **billing:** a verified payment_paid settles the pack it paid for, once, for its actor and pack ([#285](https://github.com/krizaka/krizaka-java/issues/285)) ([08b129b](https://github.com/krizaka/krizaka-java/commit/08b129b7f53d5363d9e3f7bb0c348ee4953afdf4))
+
 ## [0.18.2](https://github.com/krizaka/krizaka-java/compare/v0.18.1...v0.18.2) (2026-11-14)
 
 

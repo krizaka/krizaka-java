@@ -151,13 +151,14 @@ public final class Idempotency {
           response == null ? null : json.readValue(response, responseType), true);
     }
     T result;
+    boolean succeeded = false;
     try {
       result = action.get();
-    } catch (RuntimeException | Error failure) {
-      if (!store.transactional()) {
+      succeeded = true;
+    } finally {
+      if (!succeeded && !store.transactional()) {
         store.abandon(request.scope(), request.subject(), request.key());
       }
-      throw failure;
     }
     store.complete(
         request.scope(), request.subject(), request.key(), json.writeValueAsString(result));

@@ -84,7 +84,7 @@ public class SecurityConfig {
     Jwt decoded;
     try {
       decoded = identityJwtDecoder.decode(token);
-    } catch (JwtException ex) {
+    } catch (JwtException ignored) {
       throw new BadCredentialsException("Invalid or inactive session token");
     }
 
@@ -99,7 +99,7 @@ public class SecurityConfig {
 
     try {
       return identityService.getUser(decoded.getSubject());
-    } catch (RuntimeException ex) {
+    } catch (RuntimeException ignored) {
       throw new BadCredentialsException("Invalid or inactive session token");
     }
   }

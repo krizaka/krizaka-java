@@ -158,12 +158,15 @@ public final class StripePayments implements PaymentsPort {
       return action.run();
     } catch (StripeException e) {
       int status = e.getStatusCode() == null ? 502 : e.getStatusCode();
-      String message =
-          (e.getStripeError() != null && e.getStripeError().getMessage() != null)
-              ? e.getStripeError().getMessage()
-              : "Stripe answered " + status;
-      throw new PaymentsException(status, message, e);
+      throw new PaymentsException(status, messageOf(e, status), e);
     }
+  }
+
+  private static String messageOf(StripeException e, int status) {
+    if (e.getStripeError() != null && e.getStripeError().getMessage() != null) {
+      return e.getStripeError().getMessage();
+    }
+    return "Stripe answered " + status;
   }
 
   /** One SDK call. */

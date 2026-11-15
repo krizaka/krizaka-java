@@ -27,13 +27,17 @@ public record NotificationProperties(
     if (fromAddress == null || fromAddress.isBlank()) {
       throw new IllegalArgumentException("krizaka.notifications.from-address is required");
     }
-    templateLocation =
-        (templateLocation == null || templateLocation.isBlank())
-            ? "classpath:templates/"
-            : (templateLocation.endsWith("/") ? templateLocation : templateLocation + "/");
+    templateLocation = withTrailingSlash(templateLocation);
     Objects.requireNonNull(links, "krizaka.notifications.links is required");
     twilio = twilio == null ? new Twilio(null, null, null, null) : twilio;
     webhook = webhook == null ? new Webhook(List.of(), null) : webhook;
+  }
+
+  private static String withTrailingSlash(String location) {
+    if (location == null || location.isBlank()) {
+      return "classpath:templates/";
+    }
+    return location.endsWith("/") ? location : location + "/";
   }
 
   /**

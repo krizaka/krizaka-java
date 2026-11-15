@@ -37,7 +37,7 @@ public record NotificationProperties(
     if (location == null || location.isBlank()) {
       return "classpath:templates/";
     }
-    return location.endsWith("/") ? location : location + "/";
+    return location.endsWith("/") ? location : (location + "/");
   }
 
   /**

@@ -53,7 +53,6 @@ public final class ClientVersionFilter extends OncePerRequestFilter {
   private final List<String> include;
   private final List<String> exclude;
   private final String problemBase;
-  private final Clock clock;
 
   /**
    * Creates the filter.
@@ -77,7 +76,7 @@ public final class ClientVersionFilter extends OncePerRequestFilter {
     this.include = List.copyOf(include);
     this.exclude = List.copyOf(exclude);
     this.problemBase = Objects.requireNonNull(problemBase, "problemBase");
-    this.clock = Objects.requireNonNull(clock, "clock");
+    Objects.requireNonNull(clock, "clock");
   }
 
   @Override

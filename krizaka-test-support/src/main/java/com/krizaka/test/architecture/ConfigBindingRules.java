@@ -20,6 +20,7 @@ import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * [CFG-001] Every type Spring builds for you has a constructor Spring can choose.
@@ -290,33 +291,9 @@ public final class ConfigBindingRules {
     List<String> violations = new ArrayList<>();
     List<String> judged = new ArrayList<>();
     for (JavaClass type : classes) {
-      if (!isOwnCode(type, ownPackages)
-          || type.isInterface()
-          || type.isEnum()
-          || !isSpringBean(type)) {
-        continue;
-      }
-      judged.add(type.getSimpleName());
-      // Every DECLARED constructor, private included — see the class rule's javadoc. Filtering
-      // private ones out is what let a two-constructor bean pass while the container refused it.
-      List<JavaConstructor> candidates = List.copyOf(type.getConstructors());
-      if (candidates.size() < 2) {
-        continue;
-      }
-      boolean chosen =
-          candidates.stream()
-              .anyMatch(
-                  constructor ->
-                      constructor.getAnnotations().stream()
-                          .anyMatch(a -> AUTOWIRED.equals(a.getRawType().getName())));
-      boolean noArg = candidates.stream().anyMatch(c -> c.getRawParameterTypes().isEmpty());
-      if (!chosen && !noArg) {
-        violations.add(
-            type.getSimpleName()
-                + " is a Spring bean with "
-                + candidates.size()
-                + " constructors the container cannot choose from"
-                + " (none is @Autowired and none is no-arg)");
+      if (isJudgedBean(type, ownPackages)) {
+        judged.add(type.getSimpleName());
+        unchoosableConstructors(type).ifPresent(violations::add);
       }
     }
     Subjects.require("CFG-001", "Spring beans on this module's classpath", judged);
@@ -326,6 +303,41 @@ public final class ConfigBindingRules {
               + " and no test that builds it by hand will ever say so:\n  "
               + String.join("\n  ", violations));
     }
+  }
+
+  private static boolean isJudgedBean(JavaClass type, String[] ownPackages) {
+    return isOwnCode(type, ownPackages)
+        && !type.isInterface()
+        && !type.isEnum()
+        && isSpringBean(type);
+  }
+
+  /**
+   * The violation of a bean whose container cannot choose a constructor. Every DECLARED
+   * constructor, private included — see the class rule's javadoc. Filtering private ones out is
+   * what let a two-constructor bean pass while the container refused it.
+   */
+  private static Optional<String> unchoosableConstructors(JavaClass type) {
+    List<JavaConstructor> candidates = List.copyOf(type.getConstructors());
+    if (candidates.size() < 2) {
+      return Optional.empty();
+    }
+    boolean chosen =
+        candidates.stream()
+            .anyMatch(
+                constructor ->
+                    constructor.getAnnotations().stream()
+                        .anyMatch(a -> AUTOWIRED.equals(a.getRawType().getName())));
+    boolean noArg = candidates.stream().anyMatch(c -> c.getRawParameterTypes().isEmpty());
+    if (chosen || noArg) {
+      return Optional.empty();
+    }
+    return Optional.of(
+        type.getSimpleName()
+            + " is a Spring bean with "
+            + candidates.size()
+            + " constructors the container cannot choose from"
+            + " (none is @Autowired and none is no-arg)");
   }
 
   /** Whether the container instantiates this type. */

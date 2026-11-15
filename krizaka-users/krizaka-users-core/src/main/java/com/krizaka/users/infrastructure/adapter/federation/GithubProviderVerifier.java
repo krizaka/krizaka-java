@@ -150,7 +150,7 @@ class GithubProviderVerifier extends AbstractProviderVerifier {
       return anyVerified;
     } catch (RestClientException e) {
       logger.debug(
-          "GitHub e-mail addresses unreadable ({}); using the noreply address", e.getMessage());
+          "GitHub e-mail addresses unreadable ({}); using the noreply address", e.getMessage(), e);
       return null;
     }
   }

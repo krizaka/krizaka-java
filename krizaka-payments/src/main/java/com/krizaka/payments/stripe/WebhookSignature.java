@@ -86,7 +86,7 @@ public final class WebhookSignature {
   private static byte[] fromHex(String hex) {
     try {
       return HexFormat.of().parseHex(hex);
-    } catch (IllegalArgumentException e) {
+    } catch (IllegalArgumentException ignored) {
       return new byte[0];
     }
   }

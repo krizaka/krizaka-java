@@ -189,8 +189,6 @@ html:has(.jh-home) .kz-site-bar, html:has(.jh-home) .kz-site-bar[data-compact] {
 .jh-gen-foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 14px; margin: 0; font-size: 13px; color: var(--kz-text-secondary); }
 .jh-gen-foot a { color: var(--kz-accent-text); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
 
-/* The duck: the section's one bird, under the cards. */
-.jh-duck { display: grid; justify-items: center; margin-top: clamp(28px, 5vw, 56px); }
 .jh-more { margin: 18px 0 0; font-size: 15px; color: var(--kz-text-secondary); }
 .jh-more a { color: var(--kz-accent-text); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
 

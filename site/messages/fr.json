@@ -292,10 +292,6 @@
         "hook": "Règles de gouvernance et un PostgreSQL et un RabbitMQ partagés par exécution."
       }
     },
-    "quote": {
-      "label": "Le canard",
-      "text": "Le canard construit, ligne après ligne, en open source."
-    },
     "proof": {
       "eyebrow": "La preuve",
       "title": "Nos propres services tournent dessus",

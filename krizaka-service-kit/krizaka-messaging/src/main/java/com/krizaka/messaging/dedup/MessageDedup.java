@@ -74,11 +74,14 @@ public interface MessageDedup {
     if (!claim(consumer, messageId)) {
       return false;
     }
+    boolean handled = false;
     try {
       handler.run();
-    } catch (RuntimeException | Error failed) {
-      release(consumer, messageId);
-      throw failed;
+      handled = true;
+    } finally {
+      if (!handled) {
+        release(consumer, messageId);
+      }
     }
     return true;
   }

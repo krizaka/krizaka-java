@@ -35,6 +35,6 @@ class PaymentWebhookController {
 
   @GetMapping("/api/v1/settled")
   Set<String> settled() {
-    return settled;
+    return Set.copyOf(settled);
   }
 }

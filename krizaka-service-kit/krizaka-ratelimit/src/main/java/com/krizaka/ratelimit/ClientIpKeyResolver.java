@@ -71,7 +71,7 @@ public final class ClientIpKeyResolver implements RateLimitKeyResolver {
 
   private boolean isTrusted(String address) {
     byte[] bytes = bytes(address);
-    return bytes != null && trusted.stream().anyMatch(network -> network.contains(bytes));
+    return bytes.length > 0 && trusted.stream().anyMatch(network -> network.contains(bytes));
   }
 
   private static String literal(String raw) {
@@ -85,15 +85,15 @@ public final class ClientIpKeyResolver implements RateLimitKeyResolver {
     return value;
   }
 
-  /** The bytes of a literal address, or {@code null}: no name is ever resolved. */
+  /** The bytes of a literal address, or an empty array: no name is ever resolved. */
   private static byte[] bytes(String address) {
     if (literal(address) == null) {
-      return null;
+      return new byte[0];
     }
     try {
       return InetAddress.getByName(address).getAddress();
-    } catch (UnknownHostException notAnAddress) {
-      return null;
+    } catch (UnknownHostException ignored) {
+      return new byte[0];
     }
   }
 
@@ -103,7 +103,7 @@ public final class ClientIpKeyResolver implements RateLimitKeyResolver {
       int slash = spec.indexOf('/');
       String host = slash < 0 ? spec : spec.substring(0, slash);
       byte[] address = bytes(host);
-      if (address == null) {
+      if (address.length == 0) {
         throw new IllegalArgumentException(
             "a trusted proxy is an address or a CIDR range: " + spec);
       }

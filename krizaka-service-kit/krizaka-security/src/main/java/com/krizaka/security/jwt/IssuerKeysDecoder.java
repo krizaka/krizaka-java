@@ -26,7 +26,7 @@ final class IssuerKeysDecoder {
             .build();
     OAuth2TokenValidator<Jwt> audience =
         properties.audience() == null
-            ? jwt -> OAuth2TokenValidatorResult.success()
+            ? (jwt -> OAuth2TokenValidatorResult.success())
             : requireAudience(properties.audience());
     decoder.setJwtValidator(
         new DelegatingOAuth2TokenValidator<>(

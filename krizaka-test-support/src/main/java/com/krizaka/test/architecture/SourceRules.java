@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 public final class SourceRules {
 
   private static final Pattern VIRTUAL_THREADS_ENABLED =
-      Pattern.compile("threads:\\s*\\n\\s*virtual:\\s*\\n\\s*enabled:\\s*true");
+      Pattern.compile("threads:[ \\t]*\\R\\s*virtual:[ \\t]*\\R\\s*enabled:[ \\t]*true");
 
   private SourceRules() {}
 

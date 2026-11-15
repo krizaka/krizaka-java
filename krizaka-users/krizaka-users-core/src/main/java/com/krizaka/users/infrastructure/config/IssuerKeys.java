@@ -13,6 +13,7 @@ import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.KeyUse;
+import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
@@ -121,12 +122,12 @@ public final class IssuerKeys {
   }
 
   /** Parses an SPKI PEM P-256 public key (caller keys, retired keys). */
-  static ECPublicKey publicKey(String pem) throws Exception {
+  static ECPublicKey publicKey(String pem) throws GeneralSecurityException {
     return (ECPublicKey)
         KeyFactory.getInstance("EC").generatePublic(new X509EncodedKeySpec(der(pem)));
   }
 
-  private static ECPrivateKey privateKey(String pem) throws Exception {
+  private static ECPrivateKey privateKey(String pem) throws GeneralSecurityException {
     return (ECPrivateKey)
         KeyFactory.getInstance("EC").generatePrivate(new PKCS8EncodedKeySpec(der(pem)));
   }

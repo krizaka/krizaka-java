@@ -5,6 +5,13 @@ Versions follow [Semantic Versioning](https://semver.org/) per repository; the B
 [release-please](https://github.com/googleapis/release-please) from the Conventional Commits merged on `main`; the
 hand-written history is under *Before release-please*.
 
+## [0.19.1](https://github.com/krizaka/krizaka-java/compare/v0.19.0...v0.19.1) (2026-11-17)
+
+
+### Bug Fixes
+
+* **ci:** Playwright 1.64.1 for the Ubuntu 26.04 runners ([#299](https://github.com/krizaka/krizaka-java/issues/299)) ([68e0b6a](https://github.com/krizaka/krizaka-java/commit/68e0b6a72ea2622beadecb7f80eeea84396227e2))
+
 ## [0.19.0](https://github.com/krizaka/krizaka-java/compare/v0.18.2...v0.19.0) (2026-11-14)
 
 

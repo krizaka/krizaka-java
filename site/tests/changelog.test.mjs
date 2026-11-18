@@ -55,9 +55,8 @@ test("both languages have the page, the feed and the sitemap entry", () => {
   for (const lang of ["en", "fr"]) assert.ok(messages(lang).changelog.title && messages(lang).changelog.kinds.breaking, lang);
 });
 
-test("the footer's version (the BOM) links /changelog#<version>; the page owns that anchor", () => {
-  assert.match(read("app/components/FamilyFooterView.tsx"), /`\$\{localizedPath\(locale, "\/changelog"\)\}#\$\{version\}`/);
-  assert.match(read("app/components/SiteFooter.tsx"), /ui=\{uiVersion\(\)\}/);
+test("the footer's version (the BOM) is FamilyFooter's; the changelog page owns the anchor", () => {
+  assert.match(read("app/components/SiteRoot.tsx"), /version=\{repositoryVersion\("krizaka-bom"\)\}/);
   assert.match(read("app/components/ChangelogView.tsx"), /version=\{repositoryVersion\("krizaka-bom"\)/);
   assert.match(read("app/components/ChangelogBody.tsx"), /<span id=\{version\}>/);
 });

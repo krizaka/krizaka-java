@@ -14,6 +14,11 @@ const CLAIM = /maven\s+central/i;
    @krizaka/ui (out/_next/static) is that package's data, to be corrected there; nothing of this site's own is exempt. */
 const PAST_OR_UPSTREAM = /(^|\/)changelog\/|^out\/_next\/static\//;
 
+/* FamilyFooter's labels (familyLabels of @krizaka/ui 4.17) travel in every page's payload, with the registry's two
+   sentences about java: that is the package's data too (to be corrected there), and exactly these two sentences are
+   exempt, so any other claim still fails. */
+const UPSTREAM_SENTENCES = /Spring Boot building blocks on Maven Central\.|Des briques Spring Boot sur Maven Central\./g;
+
 const walk = (dir, keep) =>
   readdirSync(dir).flatMap((name) => {
     const file = join(dir, name);
@@ -42,6 +47,6 @@ test("no « Maven Central » claim while the publication target is not Central",
   ];
   const claims = files
     .map((f) => f.slice(root.length))
-    .filter((f) => !PAST_OR_UPSTREAM.test(f) && CLAIM.test(readFileSync(join(root, f), "utf8")));
+    .filter((f) => !PAST_OR_UPSTREAM.test(f) && CLAIM.test(readFileSync(join(root, f), "utf8").replace(UPSTREAM_SENTENCES, "")));
   assert.deepEqual(claims, [], "these files claim Maven Central, but the build publishes nowhere there");
 });

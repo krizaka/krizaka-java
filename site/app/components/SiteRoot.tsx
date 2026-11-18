@@ -1,6 +1,9 @@
 import type { ReactNode } from "react";
 import { MotionObserver } from "@krizaka/ui/motion";
 import { ThemeProvider, ThemeScript } from "@krizaka/ui/theme";
+import { FamilyFooter } from "@krizaka/ui/site-footer";
+import { familyLabels } from "@krizaka/ui/sites";
+import { footerFor, org } from "@krizaka/org";
 import { SkipLink } from "@krizaka/ui/skip-link";
 import { cn } from "@krizaka/ui/cn";
 import { getDictionary, type Locale } from "@/lib/i18n";
@@ -8,7 +11,6 @@ import { displayFace, monoFace, textFace } from "../fonts";
 import { DocsProviders } from "./DocsProviders";
 import { I18nProvider } from "./I18nProvider";
 import { repositoryVersion } from "@/lib/model";
-import SiteFooter from "./SiteFooter";
 import { ThemeSync } from "./SiteTheme";
 import TopBar from "./TopBar";
 import "@krizaka/ui/blocks.css";
@@ -16,7 +18,7 @@ import "../globals.css";
 
 /* The root of one language (the two root layouts, app/(en) and app/fr, are this): the document, the Krizaka faces, the
    theme (follows the system by default, persisted as `kz-theme`, no flash), the bar, the page (the home, or the documentation in
-   Fumadocs' layout — DocsShell, by the (docs) route group), the footer, and the motion system of @krizaka/ui. */
+   Fumadocs' layout — DocsShell, by the (docs) route group), the footer (FamilyFooter of @krizaka/ui, its content from footerFor("java") of @krizaka/org), and the motion system of @krizaka/ui. */
 export default function SiteRoot({ locale, children }: { locale: Locale; children: ReactNode }) {
   const t = getDictionary(locale);
   return (
@@ -33,7 +35,16 @@ export default function SiteRoot({ locale, children }: { locale: Locale; childre
               <SkipLink href="#nd-page">{t.bar.skip}</SkipLink>
               <TopBar version={repositoryVersion("krizaka-bom")} />
               {children}
-              <SiteFooter locale={locale} />
+              <FamilyFooter
+                footer={footerFor("java")}
+                current="java"
+                labels={familyLabels[locale]}
+                kind="developer"
+                company={org.company}
+                contact={org.contact.page}
+                version={repositoryVersion("krizaka-bom")}
+                aria-label={t.footer.aria}
+              />
             </DocsProviders>
           </I18nProvider>
           <MotionObserver />

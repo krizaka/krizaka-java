@@ -13,7 +13,7 @@ test("the bar has no family switcher and no hand-made links to other sites; the 
   assert.match(bar, /<NavBar\.Language /, "the family's language switch (@krizaka/ui 3.26), not a hand-made button");
   assert.match(bar, /<NavBar\.MobilePreferences /);
   assert.doesNotMatch(bar, /KRIZAKA_URL|UI_URL|OPEN_SOURCE_URL|GITHUB_ORG_URL/);
-  assert.match(read("app/components/FamilyFooterView.tsx"), /current="java"/);
+  assert.match(read("app/components/SiteRoot.tsx"), /current="java"/);
 });
 
 test("the family data knows this site and both languages", () => {

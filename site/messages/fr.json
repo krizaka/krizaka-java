@@ -27,10 +27,7 @@
     "home": "Krizaka Java"
   },
   "footer": {
-    "aria": "Pied de page",
-    "license": "Apache-2.0",
-    "releases": "Versions",
-    "source": "Code source"
+    "aria": "Pied de page"
   },
   "notFound": {
     "title": "Page introuvable",

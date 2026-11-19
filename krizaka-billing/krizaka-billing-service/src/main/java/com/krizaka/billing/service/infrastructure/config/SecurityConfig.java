@@ -3,6 +3,8 @@ package com.krizaka.billing.service.infrastructure.config;
 import com.krizaka.security.web.SecurityBaseline;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -53,5 +55,59 @@ public class SecurityConfig {
             http, auth -> auth.requestMatchers(HttpMethod.POST, PAYMENT_WEBHOOK).permitAll())
         .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(roles)))
         .build();
+  }
+
+  /**
+   * Refuses, at startup, a session secret that is missing, short, a retired public default, or the
+   * local-only value outside the {@code local} profile (krizaka-restricted#351). Messages name the
+   * variable, never the value.
+   */
+  @Configuration(proxyBeanMethods = false)
+  public static class SessionSecretGuard {
+
+    /** The value of the {@code local} profile: public, so refused in any other profile. */
+    public static final String LOCAL_ONLY_SECRET =
+        "local-only-never-deploy-identity-jwt-secret-256bit";
+
+    private static final String RETIRED_PUBLIC_DEFAULT =
+        "sovkora-local-dev-identity-jwt-secret-256bit!";
+
+    private static final int MINIMUM_LENGTH = 32;
+
+    /**
+     * Checks the session secret.
+     *
+     * @param environment where {@code krizaka.security.jwt.secret} is read
+     * @return a marker proving the check ran
+     */
+    @Bean
+    public SessionSecretCheck sessionSecretCheck(Environment environment) {
+      String secret = environment.getProperty("krizaka.security.jwt.secret");
+      boolean local = environment.acceptsProfiles(Profiles.of("local"));
+      if (secret == null || secret.isBlank()) {
+        throw new IllegalStateException(
+            "krizaka.security.jwt.secret is missing: set IDENTITY_JWT_SECRET");
+      }
+      if (secret.length() < MINIMUM_LENGTH) {
+        throw new IllegalStateException(
+            "krizaka.security.jwt.secret (IDENTITY_JWT_SECRET) must be at least 32 characters");
+      }
+      if (RETIRED_PUBLIC_DEFAULT.equals(secret)) {
+        throw new IllegalStateException(
+            "krizaka.security.jwt.secret (IDENTITY_JWT_SECRET) is a known public default: set a"
+                + " real one");
+      }
+      if (!local && LOCAL_ONLY_SECRET.equals(secret)) {
+        throw new IllegalStateException(
+            "krizaka.security.jwt.secret (IDENTITY_JWT_SECRET) is the local-only value: set a"
+                + " real secret outside the local profile");
+      }
+      return new SessionSecretCheck();
+    }
+
+    /** Marker: the session secret passed {@link #sessionSecretCheck}. */
+    public static final class SessionSecretCheck {
+      SessionSecretCheck() {}
+    }
   }
 }

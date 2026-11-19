@@ -1,0 +1,5 @@
+# The `local` profile only: a public value, refused by the service in any other profile.
+krizaka:
+  security:
+    jwt:
+      secret: ${IDENTITY_JWT_SECRET:local-only-never-deploy-identity-jwt-secret-256bit}

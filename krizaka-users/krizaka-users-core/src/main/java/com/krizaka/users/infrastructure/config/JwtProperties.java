@@ -3,6 +3,7 @@ package com.krizaka.users.infrastructure.config;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
+import java.util.Set;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.ConstructorBinding;
 import org.springframework.boot.context.properties.bind.DefaultValue;
@@ -34,16 +35,33 @@ public record JwtProperties(
     Instant hs256Cutoff,
     Map<String, String> callers) {
 
+  /**
+   * The value of the `local` profile: public, so {@link #requireRealSecretUnlessLocal} refuses it
+   * elsewhere.
+   */
+  public static final String LOCAL_ONLY_SECRET =
+      "local-only-never-deploy-identity-jwt-secret-256bit";
+
+  /** Values that were once committed as defaults: public, never acceptable. */
+  private static final Set<String> RETIRED_PUBLIC_DEFAULTS =
+      Set.of("sovkora-local-dev-identity-jwt-secret-256bit!");
+
   @ConstructorBinding
   public JwtProperties {
     secret = secret == null || secret.isBlank() ? null : secret;
     if (secret != null && secret.length() < 32) {
       throw new IllegalArgumentException(
-          "krizaka.users.jwt.secret must be at least 32 characters (256-bit HS256)");
+          "krizaka.users.jwt.secret (IDENTITY_JWT_SECRET) must be at least 32 characters"
+              + " (256-bit HS256)");
+    }
+    if (secret != null && RETIRED_PUBLIC_DEFAULTS.contains(secret)) {
+      throw new IllegalArgumentException(
+          "krizaka.users.jwt.secret (IDENTITY_JWT_SECRET) is a known public default: set a real one");
     }
     if (secret == null && (signing == null || !signing.configured())) {
       throw new IllegalArgumentException(
-          "krizaka.users.jwt needs an ES256 signing key or, legacy, a secret");
+          "krizaka.users.jwt needs an ES256 signing key or, legacy, a secret:"
+              + " set IDENTITY_JWT_SECRET (or AUTH_JWT_SIGNING_KEY)");
     }
     callers = callers == null ? Map.of() : Map.copyOf(callers);
     if (issuer == null || issuer.isBlank()) {
@@ -62,6 +80,21 @@ public record JwtProperties(
   /** ES256 sessions, HS256 secret still accepted (no cutover date, no caller keys). */
   public JwtProperties(String secret, String issuer, Duration ttl, Signing signing) {
     this(secret, issuer, ttl, signing, null, null);
+  }
+
+  /**
+   * Refuses, at startup, the public local-only secret outside the {@code local} profile.
+   *
+   * @param local whether the {@code local} profile is active
+   * @throws IllegalStateException when the local-only secret is used elsewhere; the message names
+   *     the variable, never the value
+   */
+  public void requireRealSecretUnlessLocal(boolean local) {
+    if (!local && LOCAL_ONLY_SECRET.equals(secret)) {
+      throw new IllegalStateException(
+          "krizaka.users.jwt.secret (IDENTITY_JWT_SECRET) is the local-only value: set a real"
+              + " secret outside the local profile");
+    }
   }
 
   /**

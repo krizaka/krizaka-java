@@ -151,7 +151,7 @@ A consumer keeps its own copy of the event and checks it against the schema with
 
 | Property | Environment | Default |
 |:---|:---|:---|
-| `krizaka.users.jwt.secret` | `IDENTITY_JWT_SECRET` | — (≥ 32 characters, required) |
+| `krizaka.users.jwt.secret` | `IDENTITY_JWT_SECRET` | — (≥ 32 characters, required unless an ES256 key is set; a public default is refused; the `local` profile has a local-only value) |
 | `krizaka.users.jwt.issuer` | `IDENTITY_JWT_ISSUER` | `krizaka-users` |
 | `krizaka.users.jwt.ttl` | `IDENTITY_JWT_TTL` | `PT12H` |
 | `krizaka.users.crypto.key` / `.salt` | `CRYPTO_KEY` / `CRYPTO_SALT` | — (provider-key encryption) |

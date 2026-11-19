@@ -9,6 +9,8 @@ import javax.crypto.spec.SecretKeySpec;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.Profiles;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
@@ -25,6 +27,17 @@ public class JwtConfig {
 
   static SecretKeySpec hmacKey(JwtProperties properties) {
     return new SecretKeySpec(properties.secret().getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+  }
+
+  @Bean
+  public JwtSecretCheck jwtSecretCheck(JwtProperties properties, Environment environment) {
+    properties.requireRealSecretUnlessLocal(environment.acceptsProfiles(Profiles.of("local")));
+    return new JwtSecretCheck();
+  }
+
+  /** Marker: the session secret passed {@code requireRealSecretUnlessLocal}. */
+  public static final class JwtSecretCheck {
+    JwtSecretCheck() {}
   }
 
   @Bean

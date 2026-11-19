@@ -83,7 +83,8 @@ krizaka:
     # from `hs256-cutoff` on (ISO-8601 instant, e.g. 2026-12-01T00:00:00Z). Unset the secret once
     # every caller has its own key.
     jwt:
-      secret: ${IDENTITY_JWT_SECRET:sovkora-local-dev-identity-jwt-secret-256bit!}
+      # No default: a deployment that forgets IDENTITY_JWT_SECRET fails at startup (the `local` profile has its own).
+      secret: ${IDENTITY_JWT_SECRET:}
       hs256-cutoff: ${AUTH_JWT_HS256_CUTOFF:}
       # The calling services' PUBLIC keys (SPKI PEM, P-256) by the name they put in `sub`:
       # KRIZAKA_USERS_JWT_CALLERS_<NAME>=<public PEM>. Public material only.

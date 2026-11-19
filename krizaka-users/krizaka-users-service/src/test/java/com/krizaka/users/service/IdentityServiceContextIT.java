@@ -39,6 +39,7 @@ import org.springframework.test.context.DynamicPropertySource;
       "krizaka.users.crypto.key=test-crypto-key-0123456789abcdef!",
       "krizaka.users.crypto.salt=0123456789abcdef",
       "management.tracing.enabled=false",
+      "krizaka.users.jwt.secret=it-identity-jwt-secret-256bit-0123456789",
       "krizaka.users.vault.key=BwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwc=",
       "spring.security.oauth2.client.registration.github.client-id=gh-test-id",
       "spring.security.oauth2.client.registration.github.client-secret=gh-clear-value-0123"

@@ -2,84 +2,65 @@ package com.krizaka.billing.service.infrastructure.config;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.krizaka.billing.service.infrastructure.config.SecurityConfig.SessionSecretGuard;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 
-/**
- * The service must not start with a session secret an attacker can know (krizaka-restricted#351):
- * the context fails when it is missing, empty, short, a retired public default, or the local-only
- * value outside the {@code local} profile; the message names the variable, never the value.
- */
+/** Billing must not start with a session secret anyone can know (krizaka-restricted#351). */
 class SessionSecretStartupTest {
 
-  private static final String RETIRED_DEFAULT = "sovkora-local-dev-identity-jwt-secret-256bit!";
-  private static final String PROPERTY = "krizaka.security.jwt.secret=";
+  private static final String RETIRED = "sovkora-local-dev-identity-jwt-secret-256bit!";
+  private static final String KEY = "krizaka.security.jwt.secret=";
+  private static final String LOCAL = "spring.profiles.active=local";
 
-  private final ApplicationContextRunner runner =
-      new ApplicationContextRunner().withUserConfiguration(SecurityConfig.SessionSecretGuard.class);
-
-  private static String rootMessage(Throwable failure) {
-    Throwable cause = failure;
-    while (cause.getCause() != null) {
-      cause = cause.getCause();
-    }
-    return cause.getMessage();
-  }
-
-  @Test
-  @DisplayName("No secret, an empty one or a short one: the context does not start")
-  void missingEmptyOrShortSecretFailsStartup() {
-    for (String property : new String[] {"unrelated=1", PROPERTY, PROPERTY + "too-short"}) {
-      runner
-          .withPropertyValues(property)
-          .run(
-              context -> {
-                assertThat(context).hasFailed();
-                assertThat(rootMessage(context.getStartupFailure()))
-                    .contains("IDENTITY_JWT_SECRET")
-                    .doesNotContain("too-short");
-              });
-    }
-  }
-
-  @Test
-  @DisplayName("The retired public default fails the start without printing it, even locally")
-  void retiredDefaultFailsStartup() {
-    runner
-        .withPropertyValues(PROPERTY + RETIRED_DEFAULT, "spring.profiles.active=local")
+  /** The start failure's innermost message, or null when the context started. */
+  private static String startFailure(String... properties) {
+    String[] message = new String[1];
+    new ApplicationContextRunner()
+        .withUserConfiguration(SessionSecretGuard.class)
+        .withPropertyValues(properties)
         .run(
             context -> {
-              assertThat(context).hasFailed();
-              assertThat(rootMessage(context.getStartupFailure()))
-                  .contains("IDENTITY_JWT_SECRET")
-                  .doesNotContain(RETIRED_DEFAULT);
+              Throwable cause = context.getStartupFailure();
+              while (cause != null && cause.getCause() != null) {
+                cause = cause.getCause();
+              }
+              message[0] = cause == null ? null : cause.getMessage();
             });
+    return message[0];
   }
 
   @Test
-  @DisplayName("The local-only secret starts under the local profile only")
-  void localOnlySecretStartsOnlyUnderLocal() {
-    String local = PROPERTY + SecurityConfig.SessionSecretGuard.LOCAL_ONLY_SECRET;
-    runner
-        .withPropertyValues(local)
-        .run(
-            context -> {
-              assertThat(context).hasFailed();
-              assertThat(rootMessage(context.getStartupFailure()))
-                  .contains("IDENTITY_JWT_SECRET")
-                  .doesNotContain(SecurityConfig.SessionSecretGuard.LOCAL_ONLY_SECRET);
-            });
-    runner
-        .withPropertyValues(local, "spring.profiles.active=local")
-        .run(context -> assertThat(context).hasNotFailed());
+  @DisplayName("A missing, empty or short secret stops the start, naming the variable only")
+  void missingEmptyOrShort() {
+    assertThat(startFailure("unrelated=1")).contains("IDENTITY_JWT_SECRET");
+    assertThat(startFailure(KEY)).contains("IDENTITY_JWT_SECRET");
+    assertThat(startFailure(KEY + "too-short"))
+        .contains("IDENTITY_JWT_SECRET")
+        .doesNotContain("too-short");
   }
 
   @Test
-  @DisplayName("A real secret starts the context")
-  void realSecretStarts() {
-    runner
-        .withPropertyValues(PROPERTY + "a-real-deployment-secret-0123456789-abcdef")
-        .run(context -> assertThat(context).hasNotFailed());
+  @DisplayName("The retired public default is refused everywhere and never printed")
+  void retiredDefault() {
+    assertThat(startFailure(KEY + RETIRED, LOCAL))
+        .contains("IDENTITY_JWT_SECRET")
+        .doesNotContain(RETIRED);
+  }
+
+  @Test
+  @DisplayName("The local-only secret is accepted under the local profile only")
+  void localOnly() {
+    String value = SessionSecretGuard.LOCAL_ONLY_SECRET;
+
+    assertThat(startFailure(KEY + value)).contains("IDENTITY_JWT_SECRET").doesNotContain(value);
+    assertThat(startFailure(KEY + value, LOCAL)).isNull();
+  }
+
+  @Test
+  @DisplayName("A real secret starts")
+  void realSecret() {
+    assertThat(startFailure(KEY + "a-real-deployment-secret-0123456789-abcdef")).isNull();
   }
 }

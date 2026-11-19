@@ -1,10 +1,10 @@
 package com.krizaka.billing.service.infrastructure.config;
 
 import com.krizaka.security.web.SecurityBaseline;
+import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
-import org.springframework.core.env.Profiles;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -83,7 +83,7 @@ public class SecurityConfig {
     @Bean
     public SessionSecretCheck sessionSecretCheck(Environment environment) {
       String secret = environment.getProperty("krizaka.security.jwt.secret");
-      boolean local = environment.acceptsProfiles(Profiles.of("local"));
+      boolean local = List.of(environment.getActiveProfiles()).contains("local");
       if (secret == null || secret.isBlank()) {
         throw new IllegalStateException(
             "krizaka.security.jwt.secret is missing: set IDENTITY_JWT_SECRET");

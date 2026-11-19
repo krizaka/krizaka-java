@@ -5,6 +5,13 @@ Versions follow [Semantic Versioning](https://semver.org/) per repository; the B
 [release-please](https://github.com/googleapis/release-please) from the Conventional Commits merged on `main`; the
 hand-written history is under *Before release-please*.
 
+## [0.19.3](https://github.com/krizaka/krizaka-java/compare/v0.19.2...v0.19.3) (2026-11-19)
+
+
+### Bug Fixes
+
+* **security:** workflow tokens are read-only by default ([#317](https://github.com/krizaka/krizaka-java/issues/317)) ([93ad382](https://github.com/krizaka/krizaka-java/commit/93ad3827533d4dd1c493d80844cef0e55cf29b22))
+
 ## [0.19.2](https://github.com/krizaka/krizaka-java/compare/v0.19.1...v0.19.2) (2026-11-19)
 
 

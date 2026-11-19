@@ -5,6 +5,14 @@ Versions follow [Semantic Versioning](https://semver.org/) per repository; the B
 [release-please](https://github.com/googleapis/release-please) from the Conventional Commits merged on `main`; the
 hand-written history is under *Before release-please*.
 
+## [0.19.2](https://github.com/krizaka/krizaka-java/compare/v0.19.1...v0.19.2) (2026-11-19)
+
+
+### Bug Fixes
+
+* **security:** the billing service refuses to start without a real session JWT secret outside the local profile ([#314](https://github.com/krizaka/krizaka-java/issues/314)) ([4b9fff9](https://github.com/krizaka/krizaka-java/commit/4b9fff94b0f2afb1a7a461af0147998e5286f65a))
+* **security:** the users service refuses to start without a real session JWT secret outside the local profile ([#312](https://github.com/krizaka/krizaka-java/issues/312)) ([a074ec5](https://github.com/krizaka/krizaka-java/commit/a074ec5b14993cbc2cf02b873f2b3791299e1f1d))
+
 ## [0.19.1](https://github.com/krizaka/krizaka-java/compare/v0.19.0...v0.19.1) (2026-11-17)
 
 

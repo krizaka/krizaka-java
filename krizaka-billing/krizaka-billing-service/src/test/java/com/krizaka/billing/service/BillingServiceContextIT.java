@@ -49,7 +49,7 @@ import org.testcontainers.utility.MountableFile;
     })
 class BillingServiceContextIT {
 
-  private static final String SECRET = "sovkora-local-dev-identity-jwt-secret-256bit!";
+  private static final String SECRET = "it-billing-jwt-secret-256bit-0123456789-abc";
   private static final String WEBHOOK_SECRET = "whsec_signing-material-for-billing-tests";
   private static final String WEBHOOK = "/api/v1/billing/payments/webhook";
   private static final HttpClient HTTP = HttpClient.newHttpClient();

@@ -92,7 +92,7 @@ krizaka:
 | `krizaka.billing-service.datasource.url` | `BILLING_DB_URL` | `jdbc:postgresql://localhost:5432/krizaka_billing_db` |
 | `krizaka.billing-service.datasource.username` / `.password` | `BILLING_DB_USERNAME` / `BILLING_DB_PASSWORD` | `krizaka_billing` / — |
 | `krizaka.billing-service.sweeper.interval` | `BILLING_SWEEPER_INTERVAL` | `60000` ms |
-| `krizaka.security.jwt.secret` | `IDENTITY_JWT_SECRET` | — (≥ 32 characters) |
+| `krizaka.security.jwt.secret` | `IDENTITY_JWT_SECRET` | — (≥ 32 characters, required outside the `local` profile; a public default is refused; the `local` profile has a local-only value) |
 | `server.port` | `BILLING_PORT` | `8095` |
 
 PostgreSQL and RabbitMQ are required; the database, its role (created without a password — set it at deployment) and

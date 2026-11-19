@@ -126,4 +126,5 @@ krizaka:
       # The shared HS256 secret the identity service signs session and service tokens with.
       # krizaka-security validates every request locally with it and refuses to start when it is
       # shorter than 32 characters (256 bits).
-      secret: ${IDENTITY_JWT_SECRET:sovkora-local-dev-identity-jwt-secret-256bit!}
+      # No default: a deployment that forgets IDENTITY_JWT_SECRET fails at startup (the `local` profile has its own).
+      secret: ${IDENTITY_JWT_SECRET:}

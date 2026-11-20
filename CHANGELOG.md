@@ -5,6 +5,13 @@ Versions follow [Semantic Versioning](https://semver.org/) per repository; the B
 [release-please](https://github.com/googleapis/release-please) from the Conventional Commits merged on `main`; the
 hand-written history is under *Before release-please*.
 
+## [0.19.4](https://github.com/krizaka/krizaka-java/compare/v0.19.3...v0.19.4) (2026-11-20)
+
+
+### Documentation
+
+* **agents:** AGENTS.md is a short agent manual — template v2, 197 → 65 lines, detail in docs/agents.md ([#320](https://github.com/krizaka/krizaka-java/issues/320)) ([3cef99f](https://github.com/krizaka/krizaka-java/commit/3cef99f3b59da0b728220043799b4e64cef7bd64))
+
 ## [0.19.3](https://github.com/krizaka/krizaka-java/compare/v0.19.2...v0.19.3) (2026-11-19)
 
 

@@ -5,6 +5,13 @@ Versions follow [Semantic Versioning](https://semver.org/) per repository; the B
 [release-please](https://github.com/googleapis/release-please) from the Conventional Commits merged on `main`; the
 hand-written history is under *Before release-please*.
 
+## [0.19.5](https://github.com/krizaka/krizaka-java/compare/v0.19.4...v0.19.5) (2026-11-21)
+
+
+### Documentation
+
+* **agents:** the krizaka-engineering skill link points to its real path (krizaka-internal[#4544](https://github.com/krizaka/krizaka-java/issues/4544)) ([#323](https://github.com/krizaka/krizaka-java/issues/323)) ([6781af0](https://github.com/krizaka/krizaka-java/commit/6781af0d782846101ebd389f73e0c987c8c36444))
+
 ## [0.19.4](https://github.com/krizaka/krizaka-java/compare/v0.19.3...v0.19.4) (2026-11-20)
 
 

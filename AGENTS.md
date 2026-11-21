@@ -24,7 +24,7 @@ cd site && npm run lint && npm test && npm run build   # docs site
 
 ## Architecture & conventions
 
-- Follow the [krizaka-engineering skill](https://github.com/krizaka/krizaka-skills/blob/main/skills/krizaka-engineering/SKILL.md); search its [packages reference](https://github.com/krizaka/krizaka-skills/blob/main/skills/krizaka-engineering/references/packages.md) before writing anything generic.
+- Follow the [krizaka-engineering skill](https://github.com/krizaka/krizaka-agents/blob/main/plugins/krizaka-engineering/skills/krizaka-engineering/SKILL.md); search its [packages reference](https://github.com/krizaka/krizaka-agents/blob/main/plugins/krizaka-engineering/skills/krizaka-engineering/references/packages.md) before writing anything generic.
 - Spring Boot 4 on Java 21; ports and adapters, package by feature, web → service → repository, none skipped, none calling up.
 - HTTP clients are declarative: a package-private `@HttpExchange` interface with package-private record DTOs, registered with `@ImportHttpServices`; no `RestClient`/`RestTemplate`/`WebClient` outside a `config` package.
 - Every module's `ArchitectureTest` calls `KrizakaArchitecture.assertStandard(classes, "com.krizaka.<module>")`; debt is frozen with an issue (`FrozenRules`, `archunit_store/`) and only shrinks.
@@ -62,4 +62,4 @@ cd site && npm run lint && npm test && npm run build   # docs site
 - [README.md](README.md): releasing to Maven Central.
 - [ADRs](docs/adr/README.md) and [central release plan](docs/central-release-plan.md).
 - [Org standards](https://github.com/krizaka/.github/tree/main/docs/standards) of krizaka/.github; the [engineering charter](https://github.com/krizaka/.github/blob/main/AGENTS.template.md).
-- [krizaka-engineering skill](https://github.com/krizaka/krizaka-skills/blob/main/skills/krizaka-engineering/SKILL.md).
+- [krizaka-engineering skill](https://github.com/krizaka/krizaka-agents/blob/main/plugins/krizaka-engineering/skills/krizaka-engineering/SKILL.md).

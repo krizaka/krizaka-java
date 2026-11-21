@@ -55,11 +55,10 @@ final class IpLiteral {
     }
     List<Integer> head = new ArrayList<>();
     List<Integer> tail = new ArrayList<>();
-    boolean ok =
-        gap < 0
-            ? groups(text, head, true)
-            : groups(text.substring(0, gap), head, false)
-                && groups(text.substring(gap + 2), tail, true);
+    boolean ok = groups(gap < 0 ? text : text.substring(0, gap), head, gap < 0);
+    if (gap >= 0) {
+      ok = ok && groups(text.substring(gap + 2), tail, true);
+    }
     if (!ok || !fits(gap >= 0, head.size() + tail.size())) {
       return NONE;
     }
@@ -71,7 +70,10 @@ final class IpLiteral {
 
   /** Eight groups, or fewer when a {@code ::} stands for at least one zero group. */
   private static boolean fits(boolean compressed, int size) {
-    return compressed ? size <= 7 : size == 8;
+    if (compressed) {
+      return size <= 7;
+    }
+    return size == 8;
   }
 
   private static void store(byte[] out, List<Integer> words, int offset) {

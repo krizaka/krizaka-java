@@ -1,8 +1,6 @@
 package com.krizaka.ratelimit;
 
 import jakarta.servlet.http.HttpServletRequest;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Locale;
 
@@ -79,7 +77,7 @@ public final class ClientIpKeyResolver implements RateLimitKeyResolver {
       return null;
     }
     String value = raw.strip().toLowerCase(Locale.ROOT);
-    if (value.isEmpty() || value.length() > 45 || !value.matches("[0-9a-f:.]+")) {
+    if (value.isEmpty() || value.length() > 45 || IpLiteral.parse(value).length == 0) {
       return null;
     }
     return value;
@@ -87,14 +85,8 @@ public final class ClientIpKeyResolver implements RateLimitKeyResolver {
 
   /** The bytes of a literal address, or an empty array: no name is ever resolved. */
   private static byte[] bytes(String address) {
-    if (literal(address) == null) {
-      return new byte[0];
-    }
-    try {
-      return InetAddress.getByName(address).getAddress();
-    } catch (UnknownHostException ignored) {
-      return new byte[0];
-    }
+    String value = literal(address);
+    return value == null ? new byte[0] : IpLiteral.parse(value);
   }
 
   private record Network(byte[] address, int prefixBits) {

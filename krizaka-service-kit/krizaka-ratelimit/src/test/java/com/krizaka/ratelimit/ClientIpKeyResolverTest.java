@@ -92,4 +92,20 @@ class ClientIpKeyResolverTest {
     assertThatThrownBy(() -> new ClientIpKeyResolver(List.of("10.0.0.0/40"), ""))
         .isInstanceOf(IllegalArgumentException.class);
   }
+
+  @Test
+  void aHostnameLookalikeInTheHeaderIsNeverAnIdentity() {
+    var resolver = new ClientIpKeyResolver(List.of("10.0.0.0/8"), "");
+
+    assertThat(who(resolver, request("10.0.0.5", "dead.beef"))).isEqualTo("10.0.0.5");
+    assertThat(who(resolver, request("10.0.0.5", "1.2.3.4, cafe.bad"))).isEqualTo("10.0.0.5");
+  }
+
+  @Test
+  void ipv6RangesAndMappedAddressesStillMatch() {
+    var resolver = new ClientIpKeyResolver(List.of("fc00::/7", "::1"), "");
+
+    assertThat(who(resolver, request("fd12::1", "2001:db8::5"))).isEqualTo("2001:db8::5");
+    assertThat(who(resolver, request("::1", "203.0.113.7"))).isEqualTo("203.0.113.7");
+  }
 }

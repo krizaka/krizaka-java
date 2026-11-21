@@ -1,6 +1,7 @@
 package com.krizaka.ratelimit;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -55,31 +56,30 @@ final class IpLiteral {
     }
     List<Integer> head = new ArrayList<>();
     List<Integer> tail = new ArrayList<>();
-    boolean ok;
-    if (gap < 0) {
-      ok = groups(text, head, true);
-    } else {
-      ok =
-          groups(text.substring(0, gap), head, false)
-              && groups(text.substring(gap + 2), tail, true);
-    }
-    int size = head.size() + tail.size();
-    if (!ok || (gap < 0 ? size != 8 : size > 7)) {
+    boolean ok =
+        gap < 0
+            ? groups(text, head, true)
+            : groups(text.substring(0, gap), head, false)
+                && groups(text.substring(gap + 2), tail, true);
+    if (!ok || !fits(gap >= 0, head.size() + tail.size())) {
       return NONE;
     }
-    int[] words = new int[8];
-    for (int i = 0; i < head.size(); i++) {
-      words[i] = head.get(i);
-    }
-    for (int i = 0; i < tail.size(); i++) {
-      words[8 - tail.size() + i] = tail.get(i);
-    }
     byte[] out = new byte[IPV6_LENGTH];
-    for (int i = 0; i < 8; i++) {
-      out[2 * i] = (byte) (words[i] >> 8);
-      out[2 * i + 1] = (byte) words[i];
+    store(out, head, 0);
+    store(out, tail, IPV6_LENGTH - 2 * tail.size());
+    return isIpv4Mapped(out) ? Arrays.copyOfRange(out, 12, 16) : out;
+  }
+
+  /** Eight groups, or fewer when a {@code ::} stands for at least one zero group. */
+  private static boolean fits(boolean compressed, int size) {
+    return compressed ? size <= 7 : size == 8;
+  }
+
+  private static void store(byte[] out, List<Integer> words, int offset) {
+    for (int i = 0; i < words.size(); i++) {
+      out[offset + 2 * i] = (byte) (words.get(i) >> 8);
+      out[offset + 2 * i + 1] = (byte) (int) words.get(i);
     }
-    return isIpv4Mapped(out) ? java.util.Arrays.copyOfRange(out, 12, 16) : out;
   }
 
   /** Splits colon-separated 16-bit groups into {@code into}; the last may be a dotted quad. */
@@ -89,20 +89,26 @@ final class IpLiteral {
     }
     String[] parts = text.split(":", -1);
     for (int i = 0; i < parts.length; i++) {
-      String part = parts[i];
-      if (part.indexOf('.') >= 0) {
-        byte[] v4 = i == parts.length - 1 && mayEndWithIpv4 ? ipv4(part) : null;
-        if (v4 == null) {
-          return false;
-        }
-        into.add(((v4[0] & 0xFF) << 8) | (v4[1] & 0xFF));
-        into.add(((v4[2] & 0xFF) << 8) | (v4[3] & 0xFF));
-      } else if (part.isEmpty() || part.length() > 4 || !isHex(part)) {
+      if (!addGroup(parts[i], mayEndWithIpv4 && i == parts.length - 1, into)) {
         return false;
-      } else {
-        into.add(Integer.parseInt(part, 16));
       }
     }
+    return true;
+  }
+
+  private static boolean addGroup(String part, boolean mayBeIpv4, List<Integer> into) {
+    if (part.indexOf('.') >= 0) {
+      byte[] v4 = mayBeIpv4 ? ipv4(part) : null;
+      if (v4 != null) {
+        into.add(((v4[0] & 0xFF) << 8) | (v4[1] & 0xFF));
+        into.add(((v4[2] & 0xFF) << 8) | (v4[3] & 0xFF));
+      }
+      return v4 != null;
+    }
+    if (part.isEmpty() || part.length() > 4 || !isHex(part)) {
+      return false;
+    }
+    into.add(Integer.parseInt(part, 16));
     return true;
   }
 

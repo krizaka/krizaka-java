@@ -24,25 +24,24 @@ final class IpLiteral {
     if (text.indexOf(':') >= 0) {
       return ipv6(text);
     }
-    byte[] v4 = ipv4(text);
-    return v4 == null ? NONE : v4;
+    return ipv4(text);
   }
 
-  /** A strict dotted quad (4 decimal parts, 0-255, digits only), or null. */
+  /** A strict dotted quad (4 decimal parts, 0-255, digits only), or empty. */
   private static byte[] ipv4(String text) {
     String[] parts = text.split("\\.", -1);
     if (parts.length != IPV4_LENGTH) {
-      return null;
+      return NONE;
     }
     byte[] out = new byte[IPV4_LENGTH];
     for (int i = 0; i < IPV4_LENGTH; i++) {
       String part = parts[i];
       if (part.isEmpty() || part.length() > 3 || !isDigits(part)) {
-        return null;
+        return NONE;
       }
       int value = Integer.parseInt(part);
       if (value > 255) {
-        return null;
+        return NONE;
       }
       out[i] = (byte) value;
     }
@@ -77,8 +76,8 @@ final class IpLiteral {
 
   private static void store(byte[] out, List<Integer> words, int offset) {
     for (int i = 0; i < words.size(); i++) {
-      out[offset + 2 * i] = (byte) (words.get(i) >> 8);
-      out[offset + 2 * i + 1] = (byte) (int) words.get(i);
+      out[offset + (2 * i)] = (byte) (words.get(i) >> 8);
+      out[offset + (2 * i) + 1] = (byte) (int) words.get(i);
     }
   }
 
@@ -98,12 +97,12 @@ final class IpLiteral {
 
   private static boolean addGroup(String part, boolean mayBeIpv4, List<Integer> into) {
     if (part.indexOf('.') >= 0) {
-      byte[] v4 = mayBeIpv4 ? ipv4(part) : null;
-      if (v4 != null) {
+      byte[] v4 = mayBeIpv4 ? ipv4(part) : NONE;
+      if (v4.length > 0) {
         into.add(((v4[0] & 0xFF) << 8) | (v4[1] & 0xFF));
         into.add(((v4[2] & 0xFF) << 8) | (v4[3] & 0xFF));
       }
-      return v4 != null;
+      return v4.length > 0;
     }
     if (part.isEmpty() || part.length() > 4 || !isHex(part)) {
       return false;

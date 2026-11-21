@@ -84,11 +84,10 @@ public final class WebhookSignature {
   }
 
   private static byte[] fromHex(String hex) {
-    try {
-      return HexFormat.of().parseHex(hex);
-    } catch (IllegalArgumentException ignored) {
+    if (hex.length() % 2 != 0 || !hex.chars().allMatch(HexFormat::isHexDigit)) {
       return new byte[0];
     }
+    return HexFormat.of().parseHex(hex);
   }
 
   private static byte[] hmac(String rawBody, String secret, long timestamp) {

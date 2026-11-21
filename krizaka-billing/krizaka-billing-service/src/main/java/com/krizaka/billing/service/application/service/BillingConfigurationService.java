@@ -111,7 +111,7 @@ public class BillingConfigurationService {
    * @return every known key with its type, domain and code default
    */
   public Map<String, ConfigKeySpec> whitelist() {
-    return WHITELIST;
+    return Map.copyOf(WHITELIST);
   }
 
   /**

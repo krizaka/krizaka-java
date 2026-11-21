@@ -9,6 +9,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 /**
  * Verifies a received webhook the Standard Webhooks way, before its body is trusted.
@@ -75,7 +76,7 @@ public final class WebhookVerifier {
   public String verify(Function<String, String> header, String body) {
     Observation observation = Observation.createNotStarted(OBSERVATION, observations).start();
     try {
-      String id = check(header, body);
+      String id = check(header::apply, body);
       observation.lowCardinalityKeyValue("outcome", "valid");
       return id;
     } catch (InvalidWebhookException invalid) {
@@ -86,7 +87,7 @@ public final class WebhookVerifier {
     }
   }
 
-  private String check(Function<String, String> header, String body) {
+  private String check(UnaryOperator<String> header, String body) {
     String id = header.apply(WebhookSignature.ID);
     String timestamp = header.apply(WebhookSignature.TIMESTAMP);
     String signatures = header.apply(WebhookSignature.SIGNATURE);

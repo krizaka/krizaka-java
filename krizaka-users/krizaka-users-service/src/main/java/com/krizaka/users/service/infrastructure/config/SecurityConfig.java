@@ -84,8 +84,8 @@ public class SecurityConfig {
     Jwt decoded;
     try {
       decoded = identityJwtDecoder.decode(token);
-    } catch (JwtException ignored) {
-      throw new BadCredentialsException("Invalid or inactive session token");
+    } catch (JwtException ex) {
+      throw new BadCredentialsException("Invalid or inactive session token", ex);
     }
 
     // A service token authenticates a *process*, so there is no user row to hydrate. Identity
@@ -99,8 +99,8 @@ public class SecurityConfig {
 
     try {
       return identityService.getUser(decoded.getSubject());
-    } catch (RuntimeException ignored) {
-      throw new BadCredentialsException("Invalid or inactive session token");
+    } catch (RuntimeException ex) {
+      throw new BadCredentialsException("Invalid or inactive session token", ex);
     }
   }
 

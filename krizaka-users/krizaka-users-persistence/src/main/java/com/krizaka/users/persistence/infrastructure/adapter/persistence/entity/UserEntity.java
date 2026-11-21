@@ -12,6 +12,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -116,11 +117,11 @@ public class UserEntity {
   }
 
   public Map<String, Object> getPreferences() {
-    return preferences;
+    return preferences == null ? null : new LinkedHashMap<>(preferences);
   }
 
   public void setPreferences(Map<String, Object> preferences) {
-    this.preferences = preferences;
+    this.preferences = preferences == null ? null : new LinkedHashMap<>(preferences);
   }
 
   public Set<AuthorityEntity> getAuthorities() {

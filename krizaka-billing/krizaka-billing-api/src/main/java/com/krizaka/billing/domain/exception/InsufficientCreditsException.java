@@ -103,6 +103,6 @@ public class InsufficientCreditsException extends RuntimeException {
    *     resolve them
    */
   public List<String> remedies() {
-    return remedies;
+    return List.copyOf(remedies);
   }
 }

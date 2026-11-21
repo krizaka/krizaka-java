@@ -19,6 +19,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -186,7 +187,11 @@ class IdempotencyTest {
       assertThat(inside.await(5, TimeUnit.SECONDS)).isTrue();
       Future<IdempotentOutcome<Order>> second =
           pool.submit(() -> idempotency.execute(request("k-8", null), Order.class, this::create));
-      Thread.sleep(200);
+      try {
+        second.get(200, TimeUnit.MILLISECONDS);
+      } catch (TimeoutException ignored) {
+        // Expected: the second request is still waiting for the first.
+      }
       assertThat(second.isDone()).as("the second request waits for the first").isFalse();
       release.countDown();
 

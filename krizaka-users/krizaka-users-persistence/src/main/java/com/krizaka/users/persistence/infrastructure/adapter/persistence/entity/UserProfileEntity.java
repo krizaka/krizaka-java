@@ -6,6 +6,7 @@ import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
@@ -49,10 +50,10 @@ public class UserProfileEntity {
   }
 
   public Map<String, Object> getRawPreferences() {
-    return rawPreferences;
+    return rawPreferences == null ? null : new LinkedHashMap<>(rawPreferences);
   }
 
   public void setRawPreferences(Map<String, Object> rawPreferences) {
-    this.rawPreferences = rawPreferences;
+    this.rawPreferences = rawPreferences == null ? null : new LinkedHashMap<>(rawPreferences);
   }
 }

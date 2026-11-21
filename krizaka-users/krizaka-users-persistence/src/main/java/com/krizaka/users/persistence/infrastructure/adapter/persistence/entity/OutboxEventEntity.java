@@ -5,6 +5,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.Instant;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.UUID;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -87,7 +89,8 @@ public class OutboxEventEntity {
     this.exchange = exchange;
     this.routingKey = routingKey;
     this.messageId = messageId != null ? messageId : UUID.randomUUID();
-    this.payload = payload;
+    this.payload =
+        payload != null ? Collections.unmodifiableMap(new LinkedHashMap<>(payload)) : null;
     this.headers = headers != null ? Map.copyOf(headers) : Map.of();
     this.createdAt = createdAt;
     this.attempts = 0;
@@ -119,7 +122,7 @@ public class OutboxEventEntity {
   }
 
   public Map<String, Object> getPayload() {
-    return payload;
+    return payload != null ? Collections.unmodifiableMap(new LinkedHashMap<>(payload)) : null;
   }
 
   public Map<String, String> getHeaders() {

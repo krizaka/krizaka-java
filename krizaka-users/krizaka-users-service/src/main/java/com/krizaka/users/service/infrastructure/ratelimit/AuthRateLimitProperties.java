@@ -28,9 +28,9 @@ public record AuthRateLimitProperties(
     @DefaultValue({
           "127.0.0.0/8",
           "::1",
-          "10.0.0.0/8",
-          "172.16.0.0/12",
-          "192.168.0.0/16",
+          "10.0.0.0/8", // NOSONAR java:S1313 RFC 1918 private range, trusted on purpose
+          "172.16.0.0/12", // NOSONAR java:S1313 RFC 1918 private range, trusted on purpose
+          "192.168.0.0/16", // NOSONAR java:S1313 RFC 1918 private range, trusted on purpose
           "fc00::/7"
         })
         List<String> trustedProxies,

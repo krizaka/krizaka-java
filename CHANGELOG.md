@@ -5,6 +5,13 @@ Versions follow [Semantic Versioning](https://semver.org/) per repository; the B
 [release-please](https://github.com/googleapis/release-please) from the Conventional Commits merged on `main`; the
 hand-written history is under *Before release-please*.
 
+## [0.19.6](https://github.com/krizaka/krizaka-java/compare/v0.19.5...v0.19.6) (2026-11-21)
+
+
+### Bug Fixes
+
+* **ratelimit:** the client IP parser never resolves a name ([#326](https://github.com/krizaka/krizaka-java/issues/326)) ([2002d67](https://github.com/krizaka/krizaka-java/commit/2002d67484cf347d579c853e201bd2fe300b5d8b))
+
 ## [0.19.5](https://github.com/krizaka/krizaka-java/compare/v0.19.4...v0.19.5) (2026-11-21)
 
 
